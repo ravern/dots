@@ -26,6 +26,8 @@ require('packer').startup(function(use)
 	}
 
   use 'nvim-treesitter/nvim-treesitter'
+
+  use 'Lokaltog/vim-monotone'
 end)
 
 require('plugins.telescope')
