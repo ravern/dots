@@ -4,9 +4,10 @@
 # Install most packages using Homebrew
 /opt/homebrew/bin/brew bundle
 
-# Install Rust
+# Install Cargo binaries
+$HOME/.cargo/bin/cargo install pazi
 
-# Install Node
+# Install Node and global packages
 /opt/homebrew/bin/volta install node@12
 /opt/homebrew/bin/volta install yarn
 /opt/homebrew/bin/volta install typescript-language-server

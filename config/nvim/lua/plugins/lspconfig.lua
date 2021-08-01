@@ -30,8 +30,8 @@ lsp['rust_analyzer'].setup { on_attach = on_attach }
 lsp['tsserver'].setup {
   on_attach = function(client)
     client.resolved_capabilities.document_formatting = false
-    vim.cmd("command -buffer Formatting lua vim.lsp.buf.formatting()")
-    vim.cmd("autocmd BufWritePost <buffer> lua vim.lsp.buf.formatting()")
+    vim.cmd("command -buffer Formatting lua vim.lsp.buf.formatting_sync()")
+    vim.cmd("autocmd BufWritePost <buffer> lua vim.lsp.buf.formatting_sync()")
 
     local ts_utils = require("nvim-lsp-ts-utils")
     ts_utils.setup {

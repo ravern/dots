@@ -30,6 +30,7 @@ require('packer').startup(function(use)
   use 'Lokaltog/vim-monotone'
 end)
 
+require('plugins.completion')
 require('plugins.telescope')
 require('plugins.nvim-treesitter')
 require('plugins.lspconfig')
