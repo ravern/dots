@@ -13,6 +13,11 @@ $HOME/.cargo/bin/cargo install pazi
 /opt/homebrew/bin/volta install typescript-language-server
 /opt/homebrew/bin/volta install typescript
 /opt/homebrew/bin/volta install eslint_d
+/opt/homebrew/bin/volta install beancount-langserver
+
+# Install Python packages
+sudo /usr/bin/pip3 install beancount
+sudo /usr/bin/pip3 install fava
 
 # Install Zsh plugins
 git clone https://github.com/zsh-users/zsh-autosuggestions     $HOME/.local/zsh/plugins/zsh-autosuggestions

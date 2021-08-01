@@ -27,6 +27,14 @@ require('null-ls').config {
 
 lsp['null-ls'].setup {}
 lsp['rust_analyzer'].setup { on_attach = on_attach }
+lsp['beancount'].setup{
+  cmd = { "beancount-langserver", "--stdio" },
+  init_options = {
+    journalFile = "/Users/ravern/Repos/ravern/finances/main.beancount",
+    pythonPath = "/usr/bin/python3",
+  },
+  on_attach = on_attach
+}
 lsp['tsserver'].setup {
   on_attach = function(client)
     client.resolved_capabilities.document_formatting = false
@@ -42,4 +50,5 @@ lsp['tsserver'].setup {
   end
 }
 
-vim.api.nvim_command('autocmd BufWritePre *.rs lua vim.lsp.buf.formatting_sync()')
+vim.api.nvim_command('autocmd BufWritePre *.rs        lua vim.lsp.buf.formatting_sync()')
+vim.api.nvim_command('autocmd BufWritePre *.beancount lua vim.lsp.buf.formatting_sync()')
