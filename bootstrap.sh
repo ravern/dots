@@ -28,6 +28,7 @@ git clone https://github.com/wbthomason/packer.nvim $HOME/.local/share/nvim/site
 
 # Link config files
 ln -s $HOME/Repos/ravern/dots/config/.zshrc        $HOME/.zshrc
+ln -s $HOME/Repos/ravern/dots/config/.gitconfig    $HOME/.gitconfig
 ln -s $HOME/Repos/ravern/dots/config/starship.toml $HOME/.config/starship.toml
 ln -s $HOME/Repos/ravern/dots/config/nvim          $HOME/.config/nvim
 ln -s $HOME/Repos/ravern/dots/config/kitty         $HOME/.config/kitty
