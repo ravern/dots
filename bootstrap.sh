@@ -6,6 +6,7 @@
 
 # Install Cargo binaries
 $HOME/.cargo/bin/cargo install pazi
+$HOME/.cargo/bin/cargo install cargo-edit
 
 # Install Node and global packages
 /opt/homebrew/bin/volta install node@12
