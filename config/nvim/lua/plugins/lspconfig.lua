@@ -38,7 +38,7 @@ lsp['beancount'].setup{
 lsp['tsserver'].setup {
   on_attach = function(client)
     client.resolved_capabilities.document_formatting = false
-    vim.cmd("command -buffer Formatting lua vim.lsp.buf.formatting_sync()")
+    vim.cmd("command! -buffer Formatting lua vim.lsp.buf.formatting_sync()")
     vim.cmd("autocmd BufWritePost <buffer> lua vim.lsp.buf.formatting_sync()")
 
     local ts_utils = require("nvim-lsp-ts-utils")
@@ -47,6 +47,7 @@ lsp['tsserver'].setup {
       eslint_enable_code_actions = true,
     }
     ts_utils.setup_client(client)
+    on_attach(client)
   end
 }
 

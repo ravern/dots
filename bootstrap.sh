@@ -15,6 +15,7 @@ $HOME/.cargo/bin/cargo install cargo-edit
 /opt/homebrew/bin/volta install typescript
 /opt/homebrew/bin/volta install eslint_d
 /opt/homebrew/bin/volta install beancount-langserver
+/opt/homebrew/bin/volta install ios-deploy
 
 # Install Python packages
 sudo /usr/bin/pip3 install beancount

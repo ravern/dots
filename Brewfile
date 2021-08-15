@@ -2,6 +2,7 @@ tap 'homebrew/cask'
 
 brew 'cocoapods'
 brew 'mas'
+brew 'llvm'
 brew 'luajit', args: ['HEAD']
 brew 'neovim', args: ['HEAD']
 brew 'postgresql'
@@ -13,6 +14,7 @@ brew 'tldr'
 brew 'tokei'
 brew 'tree'
 brew 'volta'
+brew 'wasmer'
 brew 'wget'
 
 cask 'fork'
@@ -29,3 +31,4 @@ cask 'homebrew/cask-fonts/font-iosevka'
 mas "1Password", id: 1333542190
 mas "Xcode", id: 497799835
 mas "Delete Apps", id: 1033808943
+mas "WhatsApp Desktop", id: 1147396723

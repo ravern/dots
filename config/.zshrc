@@ -11,6 +11,8 @@ export LANG=en_US.UTF-8
 export TERM=xterm-256color
 export DOTS_PATH=$HOME/Repos/ravern/dots
 export PATH=$HOME/.volta/bin:$PATH
+export VOLTA_HOME="$HOME/.volta"
+unset _VOLTA_TOOL_RECURSION # Temporary fix for Volta + React Native issue (https://github.com/volta-cli/volta/issues/1007)
 
 # Prompt and utilities
 eval "$(pazi init zsh)"
