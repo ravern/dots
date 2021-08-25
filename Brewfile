@@ -1,6 +1,7 @@
 tap 'homebrew/cask'
 
 brew 'cocoapods'
+brew 'efm-langserver'
 brew 'mas'
 brew 'llvm'
 brew 'luajit', args: ['HEAD']

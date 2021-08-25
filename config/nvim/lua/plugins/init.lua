@@ -14,9 +14,6 @@ require('packer').startup(function(use)
   use 'nvim-lua/lsp_extensions.nvim'
   use 'nvim-lua/completion-nvim'
 
-  use 'jose-elias-alvarez/nvim-lsp-ts-utils'
-  use 'jose-elias-alvarez/null-ls.nvim'
-
 	use {
 		'nvim-telescope/telescope.nvim',
 		requires = {
@@ -25,13 +22,13 @@ require('packer').startup(function(use)
     }
 	}
   use {
-  "folke/trouble.nvim",
-  config = function()
-    require("trouble").setup {
-      icons = false,
-    }
-  end
-}
+    'folke/trouble.nvim',
+    config = function()
+      require('trouble').setup {
+        icons = false,
+      }
+    end
+  }
 
   use 'nvim-treesitter/nvim-treesitter'
 

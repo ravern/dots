@@ -77,14 +77,6 @@ _G.packer_plugins = {
     loaded = true,
     path = "/Users/ravern/.local/share/nvim/site/pack/packer/start/lsp_extensions.nvim"
   },
-  ["null-ls.nvim"] = {
-    loaded = true,
-    path = "/Users/ravern/.local/share/nvim/site/pack/packer/start/null-ls.nvim"
-  },
-  ["nvim-lsp-ts-utils"] = {
-    loaded = true,
-    path = "/Users/ravern/.local/share/nvim/site/pack/packer/start/nvim-lsp-ts-utils"
-  },
   ["nvim-lspconfig"] = {
     loaded = true,
     path = "/Users/ravern/.local/share/nvim/site/pack/packer/start/nvim-lspconfig"

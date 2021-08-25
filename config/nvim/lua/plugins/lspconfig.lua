@@ -1,5 +1,7 @@
 local lsp = require('lspconfig')
 
+-- Generic key bindings.
+
 local on_attach = function(_, buffer) 
 	require('completion').on_attach()
 
@@ -21,13 +23,11 @@ local on_attach = function(_, buffer)
 	buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
 end
 
-require('null-ls').config {
-  sources = { require('null-ls').builtins.formatting.eslint_d }
-}
+-- Configure individual language servers.
 
-lsp['null-ls'].setup {}
-lsp['rust_analyzer'].setup { on_attach = on_attach }
-lsp['beancount'].setup{
+lsp.rust_analyzer.setup { on_attach = on_attach }
+
+lsp.beancount.setup {
   cmd = { "beancount-langserver", "--stdio" },
   init_options = {
     journalFile = "/Users/ravern/Repos/ravern/finances/main.beancount",
@@ -35,22 +35,54 @@ lsp['beancount'].setup{
   },
   on_attach = on_attach
 }
-lsp['tsserver'].setup {
-  on_attach = function(client)
-    client.resolved_capabilities.document_formatting = false
 
-    local ts_utils = require("nvim-lsp-ts-utils")
-    ts_utils.setup {
-      eslint_bin = 'eslint_d',
-      eslint_enable_code_actions = true,
-    }
-    ts_utils.setup_client(client)
+lsp.tsserver.setup {
+  on_attach = function(client)
+    if client.config.flags then
+      client.config.flags.allow_incremental_sync = true
+    end
+    client.resolved_capabilities.document_formatting = false
     on_attach(client)
   end
 }
 
+local eslint = {
+  lintCommand = "eslint_d -f unix --stdin --stdin-filename ${INPUT}",
+  lintStdin = true,
+  lintFormats = {"%f:%l:%c: %m"},
+  lintIgnoreExitCode = true,
+  formatCommand = "eslint_d --fix-to-stdout --stdin --stdin-filename ${INPUT}",
+  formatStdin = true
+}
+lsp.efm.setup {
+  init_options = { documentFormatting = true },
+  settings = {
+    rootMarkers = {".git/"},
+    languages = {
+      typescript = {eslint},
+      javascript = {eslint},
+      typescriptreact = {eslint},
+      javascriptreact = {eslint},
+    },
+  },
+  filetypes = {
+    "javascript",
+    "javascriptreact",
+    "javascript.jsx",
+    "typescript",
+    "typescript.tsx",
+    "typescriptreact"
+  },
+  on_attach = function(client)
+    client.resolved_capabilities.document_formatting = true
+    client.resolved_capabilities.goto_definition = false
+    on_attach(client)
+  end,
+}
+
 vim.api.nvim_command('autocmd BufWritePre *.rs        lua vim.lsp.buf.formatting_sync()')
 vim.api.nvim_command('autocmd BufWritePre *.js        lua vim.lsp.buf.formatting_sync()')
+vim.api.nvim_command('autocmd BufWritePre *.jsx       lua vim.lsp.buf.formatting_sync()')
 vim.api.nvim_command('autocmd BufWritePre *.ts        lua vim.lsp.buf.formatting_sync()')
 vim.api.nvim_command('autocmd BufWritePre *.tsx       lua vim.lsp.buf.formatting_sync()')
 vim.api.nvim_command('autocmd BufWritePre *.beancount lua vim.lsp.buf.formatting_sync()')
