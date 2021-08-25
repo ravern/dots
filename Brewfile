@@ -23,6 +23,7 @@ cask 'kitty'
 cask 'paw'
 cask 'raycast'
 cask 'slack'
+cask 'spotify'
 cask 'telegram'
 
 cask 'homebrew/cask-fonts/font-ia-writer-duospace'

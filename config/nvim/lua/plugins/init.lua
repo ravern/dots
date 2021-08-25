@@ -24,6 +24,14 @@ require('packer').startup(function(use)
       {'nvim-lua/plenary.nvim'}
     }
 	}
+  use {
+  "folke/trouble.nvim",
+  config = function()
+    require("trouble").setup {
+      icons = false,
+    }
+  end
+}
 
   use 'nvim-treesitter/nvim-treesitter'
 

@@ -69,6 +69,30 @@ end
 time([[try_loadstring definition]], false)
 time([[Defining packer_plugins]], true)
 _G.packer_plugins = {
+  ["completion-nvim"] = {
+    loaded = true,
+    path = "/Users/ravern/.local/share/nvim/site/pack/packer/start/completion-nvim"
+  },
+  ["lsp_extensions.nvim"] = {
+    loaded = true,
+    path = "/Users/ravern/.local/share/nvim/site/pack/packer/start/lsp_extensions.nvim"
+  },
+  ["null-ls.nvim"] = {
+    loaded = true,
+    path = "/Users/ravern/.local/share/nvim/site/pack/packer/start/null-ls.nvim"
+  },
+  ["nvim-lsp-ts-utils"] = {
+    loaded = true,
+    path = "/Users/ravern/.local/share/nvim/site/pack/packer/start/nvim-lsp-ts-utils"
+  },
+  ["nvim-lspconfig"] = {
+    loaded = true,
+    path = "/Users/ravern/.local/share/nvim/site/pack/packer/start/nvim-lspconfig"
+  },
+  ["nvim-treesitter"] = {
+    loaded = true,
+    path = "/Users/ravern/.local/share/nvim/site/pack/packer/start/nvim-treesitter"
+  },
   ["packer.nvim"] = {
     loaded = true,
     path = "/Users/ravern/.local/share/nvim/site/pack/packer/start/packer.nvim"
@@ -85,13 +109,22 @@ _G.packer_plugins = {
     loaded = true,
     path = "/Users/ravern/.local/share/nvim/site/pack/packer/start/telescope.nvim"
   },
-  vim = {
+  ["trouble.nvim"] = {
+    config = { "\27LJ\2\nC\0\0\3\0\4\0\a6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\3\0B\0\2\1K\0\1\0\1\0\1\nicons\1\nsetup\ftrouble\frequire\0" },
     loaded = true,
-    path = "/Users/ravern/.local/share/nvim/site/pack/packer/start/vim"
+    path = "/Users/ravern/.local/share/nvim/site/pack/packer/start/trouble.nvim"
+  },
+  ["vim-monotone"] = {
+    loaded = true,
+    path = "/Users/ravern/.local/share/nvim/site/pack/packer/start/vim-monotone"
   }
 }
 
 time([[Defining packer_plugins]], false)
+-- Config for: trouble.nvim
+time([[Config for trouble.nvim]], true)
+try_loadstring("\27LJ\2\nC\0\0\3\0\4\0\a6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\3\0B\0\2\1K\0\1\0\1\0\1\nicons\1\nsetup\ftrouble\frequire\0", "config", "trouble.nvim")
+time([[Config for trouble.nvim]], false)
 if should_profile then save_profiles() end
 
 end)
