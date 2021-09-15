@@ -1,10 +1,15 @@
-# Install Homebrew
+# Install Rosetta 2
+/usr/sbin/softwareupdate --install-rosetta --agree-to-license
+
+# Install Homebrew (on both architectures)
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 # Install most packages using Homebrew
 /opt/homebrew/bin/brew bundle
 
-# Install Cargo binaries
+# Install Rust and global binaries
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | /bin/bash
 $HOME/.cargo/bin/cargo install pazi
 $HOME/.cargo/bin/cargo install cargo-edit
 
@@ -16,6 +21,9 @@ $HOME/.cargo/bin/cargo install cargo-edit
 /opt/homebrew/bin/volta install eslint_d
 /opt/homebrew/bin/volta install beancount-langserver
 /opt/homebrew/bin/volta install ios-deploy
+/opt/homebrew/bin/volta install pkg
+/opt/homebrew/bin/volta install http-server
+/opt/homebrew/bin/volta install local-ssl-proxy
 
 # Install Python packages
 sudo /usr/bin/pip3 install beancount
@@ -34,3 +42,4 @@ ln -s $HOME/Repos/ravern/dots/config/.gitconfig    $HOME/.gitconfig
 ln -s $HOME/Repos/ravern/dots/config/starship.toml $HOME/.config/starship.toml
 ln -s $HOME/Repos/ravern/dots/config/nvim          $HOME/.config/nvim
 ln -s $HOME/Repos/ravern/dots/config/kitty         $HOME/.config/kitty
+ln -s $HOME/Repos/ravern/dots/config/.cargo/config $HOME/.cargo/config

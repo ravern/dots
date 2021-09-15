@@ -36,14 +36,38 @@ lsp.beancount.setup {
   on_attach = on_attach
 }
 
+lsp.denols.setup {
+  root_dir = lsp.util.root_pattern("main.ts", ".deno"),
+  on_attach = function(client)
+    on_attach(client)
+  end
+}
+
 lsp.tsserver.setup {
+  root_dir = lsp.util.root_pattern("package.json"),
   on_attach = function(client)
     if client.config.flags then
       client.config.flags.allow_incremental_sync = true
     end
     client.resolved_capabilities.document_formatting = false
     on_attach(client)
-  end
+  end,
+  -- Temporary fix for "File is a commonjs module..."
+  handlers = {
+    ["textDocument/publishDiagnostics"] = function(_, _, params, client_id, _, config)
+      if params.diagnostics ~= nil then
+        local idx = 1
+        while idx <= #params.diagnostics do
+          if params.diagnostics[idx].code == 80001 then
+            table.remove(params.diagnostics, idx)
+          else
+            idx = idx + 1
+          end
+        end
+      end
+      vim.lsp.diagnostic.on_publish_diagnostics(_, _, params, client_id, _, config)
+    end,
+  },
 }
 
 local eslint = {
@@ -56,8 +80,9 @@ local eslint = {
 }
 lsp.efm.setup {
   init_options = { documentFormatting = true },
+  root_dir = lsp.util.root_pattern("package.json"),
   settings = {
-    rootMarkers = {".git/"},
+    rootMarkers = {"package.json"},
     languages = {
       typescript = {eslint},
       javascript = {eslint},
