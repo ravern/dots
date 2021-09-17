@@ -1,5 +1,4 @@
 vim.api.nvim_set_keymap('n', '<space>', '<nop>',  { noremap = true })
-vim.g.mapleader = ' '
 
 vim.api.nvim_command('filetype plugin off')
 vim.api.nvim_command('colorscheme monotone')
