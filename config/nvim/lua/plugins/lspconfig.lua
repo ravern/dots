@@ -60,6 +60,8 @@ lsp.tsserver.setup {
         while idx <= #params.diagnostics do
           if params.diagnostics[idx].code == 80001 then
             table.remove(params.diagnostics, idx)
+          elseif params.diagnostics[idx].code == 7016 then
+            table.remove(params.diagnostics, idx)
           else
             idx = idx + 1
           end

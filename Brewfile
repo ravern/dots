@@ -1,6 +1,5 @@
 tap 'homebrew/cask'
 
-brew 'basictex'
 brew 'cabal-install'
 brew 'cocoapods'
 brew 'efm-langserver'
@@ -9,6 +8,7 @@ brew 'mas'
 brew 'llvm'
 brew 'luajit', args: ['HEAD']
 brew 'neovim', args: ['HEAD']
+brew 'ngrok'
 brew 'postgresql'
 brew 'ripgrep'
 brew 'rust-analyzer'
@@ -22,6 +22,7 @@ brew 'wget'
 
 cask 'adoptopenjdk/openjdk/adoptopenjdk8'
 cask 'android-studio'
+cask 'bartender'
 cask 'calibre'
 cask 'discord'
 cask 'fork'
@@ -42,3 +43,4 @@ mas "1Password", id: 1333542190
 mas "Xcode", id: 497799835
 mas "Delete Apps", id: 1033808943
 mas "WhatsApp Desktop", id: 1147396723
+mas "Craft", id: 1487937127

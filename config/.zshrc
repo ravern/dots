@@ -5,6 +5,7 @@ export fpath=($HOME/.local/zsh/plugins/zsh-completions/zsh-completions/src $fpat
 
 # Environments
 source $HOME/.cargo/env
+eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # Exports
 export LANG=en_US.UTF-8
@@ -15,11 +16,9 @@ export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/tools
 export PATH=$PATH:$ANDROID_HOME/tools/bin
 export PATH=$PATH:$ANDROID_HOME/platform-tools
-export PATH=$HOME/.cabal/bin:$PATH
+export VOLTA_HOME=$HOME/.volta
 export PATH=$HOME/.volta/bin:$PATH
-export PATH=$HOME/.local/share/solana/bin:$PATH
-export VOLTA_HOME="$HOME/.volta"
-unset _VOLTA_TOOL_RECURSION # Temporary fix for Volta + React Native issue (https://github.com/volta-cli/volta/issues/1007)
+export PATH=$HOME/.cabal/bin:$PATH
 
 # Prompt and utilities
 eval "$(pazi init zsh)"
