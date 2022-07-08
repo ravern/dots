@@ -30,7 +30,7 @@ lsp.rust_analyzer.setup { on_attach = on_attach }
 lsp.beancount.setup {
   cmd = { "beancount-langserver", "--stdio" },
   init_options = {
-    journalFile = "/Users/ravern/Repos/ravern/finances/main.beancount",
+    journalFile = "/Users/ravern/Repos/ravern/finances/2022.beancount",
     pythonPath = "/usr/bin/python3",
   },
   on_attach = on_attach

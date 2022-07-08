@@ -23,7 +23,9 @@ $HOME/.cargo/bin/cargo install cargo-edit
 /opt/homebrew/bin/volta install ios-deploy
 /opt/homebrew/bin/volta install pkg
 /opt/homebrew/bin/volta install http-server
+/opt/homebrew/bin/volta install live-server
 /opt/homebrew/bin/volta install local-ssl-proxy
+/opt/homebrew/bin/volta install expo-cli
 
 # Install Python packages
 sudo /usr/bin/pip3 install beancount
@@ -33,13 +35,8 @@ sudo /usr/bin/pip3 install fava
 git clone https://github.com/zsh-users/zsh-autosuggestions     $HOME/.local/zsh/plugins/zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-syntax-highlighting $HOME/.local/zsh/plugins/zsh-syntax-highlighting
 
-# Install Neovim plugin manager
-git clone https://github.com/wbthomason/packer.nvim $HOME/.local/share/nvim/site/pack/packer/start/packer.nvim
-
 # Link config files
 ln -s $HOME/Repos/ravern/dots/config/.zshrc        $HOME/.zshrc
 ln -s $HOME/Repos/ravern/dots/config/.gitconfig    $HOME/.gitconfig
 ln -s $HOME/Repos/ravern/dots/config/starship.toml $HOME/.config/starship.toml
-ln -s $HOME/Repos/ravern/dots/config/nvim          $HOME/.config/nvim
-ln -s $HOME/Repos/ravern/dots/config/kitty         $HOME/.config/kitty
 ln -s $HOME/Repos/ravern/dots/config/.cargo/config $HOME/.cargo/config

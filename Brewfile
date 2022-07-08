@@ -1,15 +1,13 @@
 tap 'homebrew/cask'
 
-brew 'cabal-install'
+brew 'awscli'
 brew 'cocoapods'
-brew 'efm-langserver'
 brew 'deno'
-brew 'mas'
+brew 'flyctl'
 brew 'llvm'
-brew 'luajit', args: ['HEAD']
-brew 'neovim', args: ['HEAD']
-brew 'ngrok'
+brew 'mas'
 brew 'postgresql'
+brew 'redis'
 brew 'ripgrep'
 brew 'rust-analyzer'
 brew 'starship'
@@ -20,27 +18,30 @@ brew 'volta'
 brew 'wasmer'
 brew 'wget'
 
-cask 'adoptopenjdk/openjdk/adoptopenjdk8'
 cask 'android-studio'
 cask 'bartender'
 cask 'calibre'
+cask 'cyberduck'
 cask 'discord'
+cask 'docker'
 cask 'fork'
 cask 'google-chrome'
-cask 'kitty'
-cask 'mactex'
+cask 'netnewswire'
+cask 'ngrok'
+cask 'nordvpn'
 cask 'paw'
 cask 'raycast'
 cask 'slack'
 cask 'spotify'
 cask 'telegram'
-cask 'utm'
+cask 'visual-studio-code'
+cask 'zulu11'
 
-cask 'homebrew/cask-fonts/font-ia-writer-duospace'
 cask 'homebrew/cask-fonts/font-iosevka'
 
-mas "1Password", id: 1333542190
+mas "1Password 7", id: 1333542190
 mas "Xcode", id: 497799835
 mas "Delete Apps", id: 1033808943
 mas "WhatsApp Desktop", id: 1147396723
 mas "Craft", id: 1487937127
+mas "HEIC Converter", id: 1294126402
