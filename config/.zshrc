@@ -19,6 +19,7 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools
 export VOLTA_HOME=$HOME/.volta
 export PATH=$HOME/.volta/bin:$PATH
 export PATH=$HOME/.cabal/bin:$PATH
+export PATH=$HOME/.zig/bin:$PATH
 
 # Prompt and utilities
 eval "$(pazi init zsh)"

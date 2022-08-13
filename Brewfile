@@ -7,6 +7,7 @@ brew 'flyctl'
 brew 'llvm'
 brew 'mas'
 brew 'postgresql'
+brew 'python@3.9'
 brew 'redis'
 brew 'ripgrep'
 brew 'rust-analyzer'
@@ -17,6 +18,7 @@ brew 'tree'
 brew 'volta'
 brew 'wasmer'
 brew 'wget'
+brew 'zig'
 
 cask 'android-studio'
 cask 'bartender'
@@ -26,6 +28,9 @@ cask 'discord'
 cask 'docker'
 cask 'fork'
 cask 'google-chrome'
+cask 'microsoft-excel'
+cask 'microsoft-powerpoint'
+cask 'microsoft-word'
 cask 'netnewswire'
 cask 'ngrok'
 cask 'nordvpn'
@@ -35,7 +40,6 @@ cask 'slack'
 cask 'spotify'
 cask 'telegram'
 cask 'visual-studio-code'
-cask 'zulu11'
 
 cask 'homebrew/cask-fonts/font-iosevka'
 
@@ -45,3 +49,4 @@ mas "Delete Apps", id: 1033808943
 mas "WhatsApp Desktop", id: 1147396723
 mas "Craft", id: 1487937127
 mas "HEIC Converter", id: 1294126402
+mas "GoodNotes 5", id: 1444383602
