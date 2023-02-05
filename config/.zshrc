@@ -21,6 +21,8 @@ export VOLTA_HOME=$HOME/.volta
 export PATH=$HOME/.volta/bin:$PATH
 export PATH=$HOME/.cabal/bin:$PATH
 export PATH=$HOME/.zig/bin:$PATH
+export PATH=$HOME/.go/bin:$PATH
+export GOPATH=$HOME/.go
 
 # Prompt and utilities
 eval "$(pazi init zsh)"
