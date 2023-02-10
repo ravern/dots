@@ -25,10 +25,8 @@ $HOME/.cargo/bin/cargo install cargo-edit
 /opt/homebrew/bin/volta install live-server
 /opt/homebrew/bin/volta install local-ssl-proxy
 /opt/homebrew/bin/volta install expo-cli
-
-# Install Python packages
-sudo /usr/bin/pip3 install beancount
-sudo /usr/bin/pip3 install fava
+/opt/homebrew/bin/volta install @apollo/rover
+/opt/homebrew/bin/volta install serverless
 
 # Install Zsh plugins
 git clone https://github.com/zsh-users/zsh-autosuggestions     $HOME/.local/zsh/plugins/zsh-autosuggestions
