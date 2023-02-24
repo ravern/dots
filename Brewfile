@@ -55,7 +55,7 @@ cask 'homebrew/cask-fonts/font-iosevka'
 mas "1Password 7", id: 1333542190
 mas "Xcode", id: 497799835
 mas "Delete Apps", id: 1033808943
-mas "Flow", id: 1423210932
+mas "Balance", id: 1637311725
 mas "WhatsApp Desktop", id: 1147396723
 mas "HEIC Converter", id: 1294126402
 mas "GoodNotes 5", id: 1444383602
