@@ -16,17 +16,9 @@ $HOME/.cargo/bin/cargo install cargo-edit
 # Install Node and global packages
 /opt/homebrew/bin/volta install node@12
 /opt/homebrew/bin/volta install yarn
-/opt/homebrew/bin/volta install typescript-language-server
-/opt/homebrew/bin/volta install typescript
-/opt/homebrew/bin/volta install eslint_d
-/opt/homebrew/bin/volta install ios-deploy
-/opt/homebrew/bin/volta install pkg
 /opt/homebrew/bin/volta install http-server
 /opt/homebrew/bin/volta install live-server
 /opt/homebrew/bin/volta install local-ssl-proxy
-/opt/homebrew/bin/volta install expo-cli
-/opt/homebrew/bin/volta install @apollo/rover
-/opt/homebrew/bin/volta install serverless
 
 # Install Zsh plugins
 git clone https://github.com/zsh-users/zsh-autosuggestions     $HOME/.local/zsh/plugins/zsh-autosuggestions
@@ -36,4 +28,5 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting $HOME/.local/zsh/
 ln -s $HOME/Repos/ravern/dots/config/.zshrc        $HOME/.zshrc
 ln -s $HOME/Repos/ravern/dots/config/.gitconfig    $HOME/.gitconfig
 ln -s $HOME/Repos/ravern/dots/config/starship.toml $HOME/.config/starship.toml
+ln -s $HOME/Repos/ravern/dots/config/alacritty     $HOME/.config/alacritty
 ln -s $HOME/Repos/ravern/dots/config/.cargo/config $HOME/.cargo/config
