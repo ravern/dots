@@ -1,0 +1,18 @@
+window:
+    padding:
+        x: 4
+        y: 4
+font:
+    size: 14.0
+    normal:
+      family: Iosevka
+      style: Regular
+    bold:
+      family: Iosevka
+      style: Bold
+    italic:
+      family: Iosevka
+      style: Italic
+    bold_italic:
+      family: Iosevka
+      style: Bold Italic
