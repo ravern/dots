@@ -1,15 +1,16 @@
-tap "adoptopenjdk/openjdk"
+tap 'adoptopenjdk/openjdk'
 tap 'clojure/tools'
-tap "homebrew/bundle"
-tap "homebrew/cask"
-tap "homebrew/cask-fonts"
-tap "homebrew/cask-versions"
-tap "homebrew/core"
-tap "homebrew/services"
+tap 'homebrew/bundle'
+tap 'homebrew/cask'
+tap 'homebrew/cask-fonts'
+tap 'homebrew/cask-versions'
+tap 'homebrew/core'
+tap 'homebrew/services'
 
 brew 'awscli'
 brew 'clojure/tools/clojure'
 brew 'cocoapods'
+brew 'coq'
 brew 'deno'
 brew 'flyctl'
 brew 'go'
