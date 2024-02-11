@@ -7,6 +7,7 @@ export fpath=($HOME/.local/zsh/plugins/zsh-completions/zsh-completions/src $fpat
 source $HOME/.cargo/env
 eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(rbenv init - zsh)"
+eval "$(opam env)"
 
 # Exports
 export LANG=en_US.UTF-8
@@ -27,6 +28,8 @@ export PATH=$HOME/.volta/bin:$PATH
 export PATH=$HOME/.cabal/bin:$PATH
 export PATH=$HOME/.zig/bin:$PATH
 export PATH=$HOME/.go/bin:$PATH
+export LIBRARY_PATH=$LIBRARY_PATH:/opt/homebrew/lib
+export INCLUDE_PATH=$INCLUDE_PATH:/opt/homebrew/include
 
 # Prompt and utilities
 eval "$(pazi init zsh)"

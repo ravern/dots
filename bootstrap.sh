@@ -20,6 +20,10 @@ $HOME/.cargo/bin/cargo install cargo-edit
 /opt/homebrew/bin/volta install live-server
 /opt/homebrew/bin/volta install local-ssl-proxy
 
+# Install Coq and global packages
+opam pin add coq 8.18.0
+opam install vscoq-language-server
+
 # Install Zsh plugins
 git clone https://github.com/zsh-users/zsh-autosuggestions     $HOME/.local/zsh/plugins/zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-syntax-highlighting $HOME/.local/zsh/plugins/zsh-syntax-highlighting
