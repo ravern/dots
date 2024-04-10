@@ -6,14 +6,14 @@ window:
 font:
     size: 14.0
     normal:
-      family: Iosevka
+      family: Iosevka Term
       style: Regular
     bold:
-      family: Iosevka
+      family: Iosevka Term
       style: Bold
     italic:
-      family: Iosevka
+      family: Iosevka Term
       style: Italic
     bold_italic:
-      family: Iosevka
+      family: Iosevka Term
       style: Bold Italic
