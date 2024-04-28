@@ -29,8 +29,10 @@ git clone https://github.com/zsh-users/zsh-autosuggestions     $HOME/.local/zsh/
 git clone https://github.com/zsh-users/zsh-syntax-highlighting $HOME/.local/zsh/plugins/zsh-syntax-highlighting
 
 # Link config files
+mkdir -p $HOME/.config
 ln -s $HOME/Repos/ravern/dots/config/.zshrc        $HOME/.zshrc
 ln -s $HOME/Repos/ravern/dots/config/.gitconfig    $HOME/.gitconfig
 ln -s $HOME/Repos/ravern/dots/config/starship.toml $HOME/.config/starship.toml
 ln -s $HOME/Repos/ravern/dots/config/alacritty     $HOME/.config/alacritty
 ln -s $HOME/Repos/ravern/dots/config/.cargo/config $HOME/.cargo/config
+ln -s $HOME/Repos/ravern/dots/config/nvim          $HOME/.config/nvim
