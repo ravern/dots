@@ -18,18 +18,6 @@ vim.g.mapleader = " "
 ---------------------------
 
 local plugins = {
-	{
-    "nvim-lua/telescope.nvim",
-    tag = "0.1.6",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    config = function()
-      local builtin = require("telescope.builtin")
-      vim.keymap.set("n", "<leader>ff", builtin.find_files, {})
-      vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})
-      vim.keymap.set("n", "<leader>fb", builtin.buffers, {})
-      vim.keymap.set("n", "<leader>fh", builtin.help_tags, {})
-    end,
-  },
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate"
@@ -67,6 +55,29 @@ local plugins = {
       })
     end,
   },
+	{
+    "nvim-lua/telescope.nvim",
+    tag = "0.1.6",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      local builtin = require("telescope.builtin")
+      vim.keymap.set("n", "<leader>ff", builtin.find_files, {})
+      vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})
+      vim.keymap.set("n", "<leader>fb", builtin.buffers, {})
+      vim.keymap.set("n", "<leader>fh", builtin.help_tags, {})
+    end,
+  },
+  {
+    "nvim-lualine/lualine.nvim",
+    config = function()
+      require("lualine").setup({
+        options = {
+          section_separators = "",
+          component_separators = "",
+        },
+      })
+    end
+  },
   {
     "lukas-reineke/virt-column.nvim",
     config = function()
@@ -78,8 +89,8 @@ local plugins = {
     lazy = false,
     priority = 1000,
     config = function()
-      require('github-theme').setup({})
-      vim.cmd('colorscheme github_dark_high_contrast')
+      require("github-theme").setup({})
+      vim.cmd("colorscheme github_dark_high_contrast")
     end,
   },
 }
