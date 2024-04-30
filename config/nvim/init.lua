@@ -75,6 +75,42 @@ local plugins = {
           section_separators = "",
           component_separators = "",
         },
+        sections = {
+          lualine_b = {
+            "branch",
+            {
+              "diff",
+              symbols = {
+                added = "+",
+                modified = "~",
+                removed = "-",
+              },
+            },
+          },
+          lualine_c = {
+            {
+              "diagnostics",
+              symbols = {
+                error = "E",
+                warn = "W",
+                info = "I",
+                hint = "H",
+              },
+            },
+          },
+          lualine_x = {
+            "encoding",
+            {
+              "fileformat",
+              symbols = {
+                unix = "unix",
+                dos = "dos",
+                mac = "mac",
+              },
+            },
+            "filetype",
+          },
+        },
       })
     end
   },
