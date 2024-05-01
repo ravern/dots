@@ -11,7 +11,31 @@ vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
 vim.opt.colorcolumn = "80"
 vim.opt.termguicolors = true
+vim.opt.updatetime = 250
 vim.g.mapleader = " "
+
+---------------------------
+----- Helper functions ----
+---------------------------
+
+function open_diagnostics_if_not_float()
+  for _, winid in pairs(vim.api.nvim_tabpage_list_wins(0)) do
+    if vim.api.nvim_win_get_config(winid).zindex then
+      return
+    end
+  end
+  vim.diagnostic.open_float(0, {
+    scope = "cursor",
+    focusable = false,
+    close_events = {
+      "CursorMoved",
+      "CursorMovedI",
+      "BufHidden",
+      "InsertCharPre",
+      "WinLeave",
+    },
+  })
+end
 
 ---------------------------
 --------- Plugins ---------
@@ -68,6 +92,23 @@ local plugins = {
           ["tsserver"] = { "javascript", "typescript" },
         },
       })
+      lsp_zero.set_sign_icons({
+        error = '✘',
+        warn = '▲',
+        hint = '⚑',
+        info = 'i'
+      })
+      -------- 
+      vim.diagnostic.config({
+        virtual_text = false
+      })
+      vim.api.nvim_create_augroup("lsp_diagnostics_hold", { clear = true })
+      vim.api.nvim_create_autocmd({ "CursorHold" }, {
+        pattern = "*",
+        command = "lua open_diagnostics_if_not_float()",
+        group = "lsp_diagnostics_hold",
+      })
+      -------- 
       require("mason").setup({})
       require("mason-lspconfig").setup({
         ensure_installed = {
@@ -161,10 +202,10 @@ local plugins = {
             {
               "diagnostics",
               symbols = {
-                error = "E",
-                warn = "W",
-                info = "I",
-                hint = "H",
+                error = '✘',
+                warn = '▲',
+                hint = '⚑',
+                info = 'i'
               },
             },
           },
