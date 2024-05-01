@@ -27,8 +27,26 @@ local plugins = {
     branch = "v3.x",
     dependencies = {
       { "neovim/nvim-lspconfig" },
-      { "hrsh7th/cmp-nvim-lsp" },
-      { "hrsh7th/nvim-cmp" },
+      {
+        "hrsh7th/cmp-nvim-lsp",
+        dependencies = {
+          {
+            "hrsh7th/nvim-cmp",
+            config = function()
+              local cmp = require("cmp")
+              cmp.setup({
+                mapping = cmp.mapping.preset.insert({
+                  ["<cr>"] = cmp.mapping.confirm({ select = true }),
+                  ["<C-space>"] = cmp.mapping.complete(),
+                  ["<C-u>"] = cmp.mapping.scroll_docs(-4),
+                  ["<C-d>"] = cmp.mapping.scroll_docs(4),
+                  ["<C-c>"] = cmp.mapping.abort(),
+                }),
+              })
+            end,
+          },
+        },
+      },
       { "L3MON4D3/LuaSnip" },
       {
         "williamboman/mason.nvim",
@@ -40,12 +58,21 @@ local plugins = {
       lsp_zero.on_attach(function(client, bufnr)
         lsp_zero.default_keymaps({ buffer = bufnr })
       end)
+      lsp_zero.format_on_save({
+        format_opts = {
+          async = false,
+          timeout_ms = 5000,
+        },
+        servers = {
+          ["rust_analyzer"] = { "rust" },
+          ["tsserver"] = { "javascript", "typescript" },
+        },
+      })
       require("mason").setup({})
       require("mason-lspconfig").setup({
         ensure_installed = {
-          "tsserver",
           "rust_analyzer",
-          "zls",
+          "tsserver",
         },
         handlers = {
           function(server_name)
@@ -55,7 +82,7 @@ local plugins = {
       })
     end,
   },
-	{
+  {
     "nvim-lua/telescope.nvim",
     tag = "0.1.6",
     dependencies = { "nvim-lua/plenary.nvim" },
@@ -68,14 +95,57 @@ local plugins = {
     end,
   },
   {
+    "smoka7/multicursors.nvim",
+    event = "VeryLazy",
+    dependencies = {
+      "smoka7/hydra.nvim",
+    },
+    opts = {},
+    cmd = {
+      "MCstart",
+      "MCvisual",
+      "MCclear",
+      "MCpattern",
+      "MCvisualPattern",
+      "MCunderCursor",
+    },
+    keys = {
+      {
+        mode = { "v", "n" },
+        "<Leader>m",
+        "<cmd>MCunderCursor<cr>",
+      },
+    },
+    config = function()
+      require('multicursors').setup({
+        hint_config = false,
+      })
+    end,
+  },
+  {
     "nvim-lualine/lualine.nvim",
     config = function()
+      local function is_active()
+        local ok, hydra = pcall(require, 'hydra.statusline')
+        return ok and hydra.is_active()
+      end
+      local function get_name()
+        local ok, hydra = pcall(require, 'hydra.statusline')
+        if ok then
+          return hydra.get_name()
+        end
+        return ''
+      end
       require("lualine").setup({
         options = {
           section_separators = "",
           component_separators = "",
         },
         sections = {
+          lualine_a = {
+            "mode",
+            { get_name, cond = is_active },
+          },
           lualine_b = {
             "branch",
             {
