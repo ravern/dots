@@ -14,6 +14,12 @@ vim.opt.termguicolors = true
 vim.opt.updatetime = 250
 vim.g.mapleader = " "
 
+if vim.g.neovide then
+  vim.opt.guifont = "Iosevka:h14"
+  vim.g.neovide_scroll_animation_length = 0
+  vim.g.neovide_cursor_animation_length = 0
+end
+
 ---------------------------
 ----- Helper functions ----
 ---------------------------
@@ -88,6 +94,7 @@ local plugins = {
           timeout_ms = 5000,
         },
         servers = {
+          ["clangd"] = { "c" },
           ["rust_analyzer"] = { "rust" },
           ["tsserver"] = { "javascript", "typescript" },
         },
@@ -112,6 +119,7 @@ local plugins = {
       require("mason").setup({})
       require("mason-lspconfig").setup({
         ensure_installed = {
+          "clangd",
           "rust_analyzer",
           "tsserver",
         },
