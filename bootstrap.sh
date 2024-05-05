@@ -28,9 +28,6 @@ opam install vscoq-language-server
 git clone https://github.com/zsh-users/zsh-autosuggestions     $HOME/.local/zsh/plugins/zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-syntax-highlighting $HOME/.local/zsh/plugins/zsh-syntax-highlighting
 
-# Link Emacs application
-cp -r /opt/homebrew/opt/emacs-plus@29/Emacs.app /Applications/Emacs.app
-
 # Link config files
 mkdir -p $HOME/.config
 mkdir -p $HOME/.config/emacs
@@ -39,7 +36,3 @@ ln -s $HOME/Repos/ravern/dots/config/.gitconfig           $HOME/.gitconfig
 ln -s $HOME/Repos/ravern/dots/config/starship.toml        $HOME/.config/starship.toml
 ln -s $HOME/Repos/ravern/dots/config/alacritty            $HOME/.config/alacritty
 ln -s $HOME/Repos/ravern/dots/config/.cargo/config        $HOME/.cargo/config
-ln -s $HOME/Repos/ravern/dots/config/nvim                 $HOME/.config/nvim
-ln -s $HOME/Repos/ravern/dots/config/emacs/early-init.el  $HOME/.config/emacs/early-init.el
-ln -s $HOME/Repos/ravern/dots/config/emacs/init.el        $HOME/.config/emacs/init.el
-ln -s $HOME/Repos/ravern/dots/config/emacs/customs.el     $HOME/.config/emacs/customs.el
