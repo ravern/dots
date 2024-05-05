@@ -1,0 +1,10 @@
+[font]
+size = 16.0
+normal = { family = "Iosevka Term", style = "Regular" }
+bold = { family = "Iosevka Term", style = "Regular" }
+bold_italic = { family = "Iosevka Term", style = "Regular" }
+italic = { family = "Iosevka Term", style = "Regular" }
+
+[window]
+option_as_alt = "Both"
+padding = { x = 4, y = 4 }
