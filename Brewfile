@@ -3,7 +3,6 @@ tap 'homebrew/bundle'
 tap 'homebrew/cask-fonts'
 tap 'homebrew/cask-versions'
 tap 'homebrew/services'
-tap 'd12frosted/emacs-plus'
 
 brew 'awscli'
 brew 'clojure/tools/clojure'
