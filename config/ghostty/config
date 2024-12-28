@@ -1,0 +1,7 @@
+window-padding-x = 4
+window-padding-y = 4
+theme = Adventure
+font-family = Iosevka
+cursor-style = block
+shell-integration-features = no-cursor
+macos-option-as-alt = true

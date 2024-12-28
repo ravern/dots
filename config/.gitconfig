@@ -1,3 +1,5 @@
 [user]
 	email = ravernkoh@gmail.com
 	name = Ravern Koh
+[push]
+	autoSetupRemote = true
