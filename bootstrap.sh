@@ -13,6 +13,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | /bin/bash
 $HOME/.cargo/bin/cargo install pazi
 $HOME/.cargo/bin/cargo install cargo-edit
 $HOME/.cargo/bin/cargo install cargo-bundle
+$HOME/.cargo/bin/cargo install --features vendored-openssl --locked --bin jj jj-cli
 
 # Install Node and global packages
 /opt/homebrew/bin/volta install node@12
