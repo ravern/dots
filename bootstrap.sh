@@ -38,3 +38,4 @@ ln -s $HOME/Repos/ravern/dots/config/.gitconfig           $HOME/.gitconfig
 ln -s $HOME/Repos/ravern/dots/config/starship.toml        $HOME/.config/starship.toml
 ln -s $HOME/Repos/ravern/dots/config/ghostty              $HOME/.config/ghostty
 ln -s $HOME/Repos/ravern/dots/config/.cargo/config        $HOME/.cargo/config
+ln -s $HOME/Repos/ravern/dots/config/jj                   $HOME/Library/Application\ Support/jj
