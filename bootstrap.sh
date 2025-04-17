@@ -12,6 +12,7 @@ arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebr
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | /bin/bash
 $HOME/.cargo/bin/cargo install pazi
 $HOME/.cargo/bin/cargo install cargo-edit
+$HOME/.cargo/bin/cargo install cargo-bundle
 
 # Install Node and global packages
 /opt/homebrew/bin/volta install node@12
