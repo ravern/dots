@@ -86,6 +86,7 @@ cask 'visual-studio-code'
 cask 'vlc'
 cask 'zoom'
 
+mas "AdBlock for Safari", id: 1402042596
 mas "HEIC Converter", id: 1294126402
 mas "Keynote", id: 409183694
 mas "Numbers", id: 409203825
