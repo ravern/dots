@@ -77,7 +77,6 @@ cask 'ngrok'
 cask 'nordvpn'
 cask 'obs'
 cask 'obsidian'
-cask 'pearcleaner'
 cask 'pgadmin4'
 cask 'raycast'
 cask 'sf-symbols'
@@ -96,3 +95,5 @@ mas "Numbers", id: 409203825
 mas "Pages", id: 409201541
 mas "WhatsApp", id: 1147396723
 mas "Xcode", id: 497799835
+
+# https://github.com/davunt/app-eraser
