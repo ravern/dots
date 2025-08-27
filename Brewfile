@@ -72,6 +72,7 @@ cask 'microsoft-powerpoint'
 cask 'microsoft-teams'
 cask 'microsoft-word'
 cask 'microsoft-auto-update'
+cask 'mongodb-compass'
 cask 'netnewswire'
 cask 'notion'
 cask 'ngrok'
@@ -83,18 +84,15 @@ cask 'raycast'
 cask 'sf-symbols'
 cask 'slack'
 cask 'spotify'
-cask 'there'
 cask 'telegram'
 cask 'visual-studio-code'
 cask 'vlc'
 cask 'zoom'
 
-mas "AdBlock for Safari", id: 1402042596
+mas "AdGuard for Safari", id: 1440147259
 mas "HEIC Converter", id: 1294126402
 mas "Keynote", id: 409183694
 mas "Numbers", id: 409203825
 mas "Pages", id: 409201541
 mas "WhatsApp", id: 1147396723
 mas "Xcode", id: 497799835
-
-# https://github.com/davunt/app-eraser
