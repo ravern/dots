@@ -6,6 +6,12 @@ source $HOME/.local/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.
 autoload -Uz compinit
 compinit -u
 
+# Environments
+source $HOME/.cargo/env
+eval "$(/opt/homebrew/bin/brew shellenv)"
+eval "$(rbenv init - zsh)"
+eval "$(opam env)"
+
 # Exports
 export LANG=en_US.UTF-8
 export TERM=xterm-256color
@@ -34,12 +40,6 @@ export PATH=$HOME/.go/bin:$PATH
 export LIBRARY_PATH=$LIBRARY_PATH:/opt/homebrew/lib
 export INCLUDE_PATH=$INCLUDE_PATH:/opt/homebrew/include
 
-# Environments
-source $HOME/.cargo/env
-eval "$(/opt/homebrew/bin/brew shellenv)"
-eval "$(rbenv init - zsh)"
-eval "$(opam env)"
-
 # Prompt and utilities
 eval "$(pazi init zsh)"
 eval "$(starship init zsh)"
@@ -67,6 +67,7 @@ alias gco="git checkout"
 alias gcob="git checkout -b"
 alias grb="git rebase"
 alias grbi="git rebase -i"
+alias grbc="git rebase --continue"
 alias grs="git reset"
 alias grsh="git reset --hard"
 alias gr="git remote"
@@ -74,6 +75,9 @@ alias grv="git remote -v"
 alias gb="git branch"
 alias gbv="git branch -v"
 alias gbd="git branch -d"
+alias gsh="git stash"
+alias gshp="git stash pop"
+alias gshl="git stash list"
 alias lsl="ls -lh"
 alias lsa="ls -ah"
 alias lsal="ls -alh"
