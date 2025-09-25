@@ -51,13 +51,9 @@ brew 'zls'
 
 cask '1password'
 cask 'adoptopenjdk8'
-cask 'android-studio'
-cask 'bartender'
 cask 'calibre'
-cask 'chatgpt'
-cask 'claude'
-cask 'craft'
 cask 'cursor'
+cask 'dbeaver'
 cask 'discord'
 cask 'docker'
 cask 'firefox'
@@ -66,7 +62,6 @@ cask 'fork'
 cask 'ghostty'
 cask 'google-chrome'
 cask 'jordanbaird-ice'
-cask 'loom'
 cask 'microsoft-excel'
 cask 'microsoft-powerpoint'
 cask 'microsoft-teams'
@@ -74,7 +69,6 @@ cask 'microsoft-word'
 cask 'microsoft-auto-update'
 cask 'mongodb-compass'
 cask 'netnewswire'
-cask 'notion'
 cask 'ngrok'
 cask 'nordvpn'
 cask 'obs'
@@ -90,9 +84,10 @@ cask 'vlc'
 cask 'zoom'
 
 mas "AdGuard for Safari", id: 1440147259
-mas "HEIC Converter", id: 1294126402
 mas "Keynote", id: 409183694
 mas "Numbers", id: 409203825
 mas "Pages", id: 409201541
 mas "WhatsApp", id: 1147396723
 mas "Xcode", id: 497799835
+
+# Play https://createwithplay.com
