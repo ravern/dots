@@ -82,3 +82,20 @@ alias lsl="ls -lh"
 alias lsa="ls -ah"
 alias lsal="ls -alh"
 mkcd() { mkdir -p "$1" && cd "$1" }
+pyact() {
+  local candidates=(".venv" "venv" "env" "virtualenv")
+  for d in $candidates; do
+    if [ -f "$d/bin/activate" ]; then
+      source "$d/bin/activate"
+      echo "activated virtual environment from $d/bin/activate"
+      return 0
+    elif [ -f "$d/Scripts/activate" ]; then
+      source "$d/Scripts/activate"
+      echo "activated virtual environment from $d/Scripts/activate"
+      return 0
+    fi
+  done
+  local joined=$(printf ", %s" "${candidates[@]}")
+  echo "no virtual environment found in ${joined#, }"
+  return 1
+}
