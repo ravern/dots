@@ -1,10 +1,7 @@
 tap 'clojure/tools'
 tap 'homebrew/bundle'
-tap 'homebrew/cask-fonts'
-tap 'homebrew/cask-versions'
 tap 'homebrew/services'
 tap 'pulumi/tap'
-tap 'supabase/tap/supabase'
 
 brew 'awscli'
 brew 'clang-format'
@@ -58,9 +55,9 @@ cask 'chatgpt'
 cask 'calibre'
 cask 'conductor'
 cask 'cursor'
-cask 'dbeaver'
+cask 'dbeaver-community'
 cask 'discord'
-cask 'docker'
+cask 'docker-desktop'
 cask 'firefox'
 cask 'font-iosevka'
 cask 'fork'
@@ -93,7 +90,7 @@ mas "AdGuard for Safari", id: 1440147259
 mas "Keynote", id: 409183694
 mas "Numbers", id: 409203825
 mas "Pages", id: 409201541
-mas "WhatsApp", id: 1147396723
+mas "WhatsApp", id: 310633997
 mas "Xcode", id: 497799835
 
 # Play https://createwithplay.com
