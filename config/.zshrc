@@ -99,3 +99,4 @@ pyact() {
   echo "no virtual environment found in ${joined#, }"
   return 1
 }
+gi() { curl -sLw "\n" https://www.toptal.com/developers/gitignore/api/$@ }
