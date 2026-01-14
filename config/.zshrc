@@ -5,6 +5,7 @@ source $HOME/.local/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.
 # Completions
 autoload -Uz compinit
 compinit -u
+[ -s "/Users/ravern/.bun/_bun" ] && source "/Users/ravern/.bun/_bun"
 
 # Environments
 source $HOME/.cargo/env
@@ -23,6 +24,7 @@ export DOTS_PATH=$HOME/Repos/ravern/dots
 export PNPM_HOME=$HOME/Library/pnpm
 export ANDROID_HOME=$HOME/Library/Android/sdk
 export VOLTA_HOME=$HOME/.volta
+export BUN_INSTALL=$HOME/.bun
 export PATH=/opt/homebrew/bin:$PATH
 export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/tools
@@ -37,6 +39,7 @@ export PATH=$HOME/.volta/bin:$PATH
 export PATH=$HOME/.cabal/bin:$PATH
 export PATH=$HOME/.zig/bin:$PATH
 export PATH=$HOME/.go/bin:$PATH
+export PATH=$BUN_INSTALL/bin:$PATH
 export LIBRARY_PATH=$LIBRARY_PATH:/opt/homebrew/lib
 export INCLUDE_PATH=$INCLUDE_PATH:/opt/homebrew/include
 
