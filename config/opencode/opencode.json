@@ -1,0 +1,17 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "build": {
+      "prompt": "You are Claude Code, Anthropic's official CLI for Claude.",
+      "permission": {
+        "bash": {
+          "rm *": "ask"
+        }
+      }
+    },
+    "plan": {
+      "prompt": "You are Claude Code, Anthropic's official CLI for Claude."
+    }
+  },
+  "mcp": {}
+}
