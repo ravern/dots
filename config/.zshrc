@@ -103,3 +103,17 @@ pyact() {
   return 1
 }
 gi() { curl -sLw "\n" https://www.toptal.com/developers/gitignore/api/$@ }
+
+# Added by Antigravity
+export PATH="/Users/ravern/.antigravity/antigravity/bin:$PATH"
+# zerobrew
+export ZEROBREW_DIR=/Users/ravern/.zerobrew
+export ZEROBREW_BIN=/Users/ravern/.local/bin
+_zb_path_append() {
+    local argpath="$1"
+    case ":${PATH}:" in
+        *:"$argpath":*) ;;
+        *) export PATH="$argpath:$PATH" ;;
+    esac;
+}
+_zb_path_append /opt/zerobrew/prefix/bin
