@@ -1,3 +1,10 @@
+# OPENSPEC:START
+# OpenSpec shell completions configuration
+fpath=("/Users/ravern/.zsh/completions" $fpath)
+autoload -Uz compinit
+compinit
+# OPENSPEC:END
+
 # Plugins
 source $HOME/.local/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $HOME/.local/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
@@ -14,6 +21,7 @@ eval "$(rbenv init - zsh)"
 eval "$(opam env)"
 
 # Exports
+[ -f "$HOME/Repos/ravern/dots/config/opencode/.env" ] && source "$HOME/Repos/ravern/dots/config/opencode/.env"
 export LANG=en_US.UTF-8
 export TERM=xterm-256color
 export HOMEBREW_NO_AUTO_UPDATE=1

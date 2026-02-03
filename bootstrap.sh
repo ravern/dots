@@ -24,6 +24,7 @@ $HOME/.cargo/bin/cargo install --features vendored-openssl --locked --bin jj jj-
 /opt/homebrew/bin/volta install http-server
 /opt/homebrew/bin/volta install live-server
 /opt/homebrew/bin/volta install local-ssl-proxy
+/opt/homebrew/bin/volta install @fission-ai/openspec
 
 # Install Coq and global packages
 opam pin add coq 8.18.0
