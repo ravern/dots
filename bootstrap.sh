@@ -44,3 +44,6 @@ ln -s $HOME/Repos/ravern/dots/config/starship.toml        $HOME/.config/starship
 ln -s $HOME/Repos/ravern/dots/config/ghostty              $HOME/.config/ghostty
 ln -s $HOME/Repos/ravern/dots/config/.cargo/config        $HOME/.cargo/config
 ln -s $HOME/Repos/ravern/dots/config/jj                   $HOME/Library/Application\ Support/jj
+mkdir -p $HOME/.claude
+ln -s $HOME/Repos/ravern/dots/config/claude/settings.json $HOME/.claude/settings.json
+ln -s $HOME/Repos/ravern/dots/config/claude/CLAUDE.md     $HOME/.claude/CLAUDE.md
