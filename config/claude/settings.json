@@ -1,3 +1,28 @@
 {
-  "hooks": {}
+  "hooks": {},
+  "permissions": {
+    "deny": [
+      "Bash(rm *)",
+      "Bash(rmdir *)",
+      "Bash(sudo rm *)",
+      "Bash(sudo rmdir *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -f*)",
+      "Bash(git checkout .)",
+      "Bash(git restore .)",
+      "Bash(git branch -D *)",
+      "Bash(kill *)",
+      "Bash(killall *)",
+      "Bash(pkill *)",
+      "Bash(dd *)",
+      "Bash(diskutil *)",
+      "Bash(shutdown *)",
+      "Bash(reboot *)"
+    ],
+    "allow": [
+      "Bash"
+    ]
+  }
 }
