@@ -1,7 +1,7 @@
 {
   "hooks": {},
   "permissions": {
-    "deny": [
+    "ask": [
       "Bash(rm *)",
       "Bash(rmdir *)",
       "Bash(sudo rm *)",
