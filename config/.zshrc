@@ -21,7 +21,6 @@ eval "$(rbenv init - zsh)"
 eval "$(opam env)"
 
 # Exports
-[ -f "$HOME/Repos/ravern/dots/config/opencode/.env" ] && source "$HOME/Repos/ravern/dots/config/opencode/.env"
 export LANG=en_US.UTF-8
 export TERM=xterm-256color
 export HOMEBREW_NO_AUTO_UPDATE=1
