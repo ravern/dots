@@ -1,4 +1,5 @@
 {
+  "defaultMode": "acceptEdits",
   "hooks": {},
   "permissions": {
     "ask": [
