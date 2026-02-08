@@ -38,12 +38,12 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting $HOME/.local/zsh/
 # Link config files
 mkdir -p $HOME/.config
 mkdir -p $HOME/.config/emacs
+mkdir -p $HOME/.claude
 ln -s $HOME/Repos/ravern/dots/config/.zshrc               $HOME/.zshrc
 ln -s $HOME/Repos/ravern/dots/config/.gitconfig           $HOME/.gitconfig
 ln -s $HOME/Repos/ravern/dots/config/starship.toml        $HOME/.config/starship.toml
 ln -s $HOME/Repos/ravern/dots/config/ghostty              $HOME/.config/ghostty
 ln -s $HOME/Repos/ravern/dots/config/.cargo/config        $HOME/.cargo/config
 ln -s $HOME/Repos/ravern/dots/config/jj                   $HOME/Library/Application\ Support/jj
-mkdir -p $HOME/.claude
 ln -s $HOME/Repos/ravern/dots/config/claude/settings.json $HOME/.claude/settings.json
 ln -s $HOME/Repos/ravern/dots/config/claude/CLAUDE.md     $HOME/.claude/CLAUDE.md
