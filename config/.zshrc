@@ -113,6 +113,7 @@ gi() { curl -sLw "\n" https://www.toptal.com/developers/gitignore/api/$@ }
 
 # Added by Antigravity
 export PATH="/Users/ravern/.antigravity/antigravity/bin:$PATH"
+
 # zerobrew
 export ZEROBREW_DIR=/Users/ravern/.zerobrew
 export ZEROBREW_BIN=/Users/ravern/.local/bin
