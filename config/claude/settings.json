@@ -1,7 +1,23 @@
 {
-  "hooks": {},
   "permissions": {
-    "defaultMode": "acceptEdits",
+    "allow": [
+      "Bash(git status*)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(npm install *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(brew *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(which *)",
+      "Bash(man *)",
+      "WebSearch"
+    ],
     "deny": [
       "Bash(sudo *)",
       "Bash(curl *)",
@@ -30,23 +46,7 @@
       "Bash(shutdown *)",
       "Bash(reboot *)"
     ],
-    "allow": [
-      "Bash(git status*)",
-      "Bash(git diff *)",
-      "Bash(git log *)",
-      "Bash(git add *)",
-      "Bash(git commit *)",
-      "Bash(npm run *)",
-      "Bash(npm test *)",
-      "Bash(npm install *)",
-      "Bash(npx *)",
-      "Bash(node *)",
-      "Bash(brew *)",
-      "Bash(ls *)",
-      "Bash(cat *)",
-      "Bash(which *)",
-      "Bash(man *)",
-      "WebSearch"
-    ]
-  }
+    "defaultMode": "acceptEdits"
+  },
+  "hooks": {}
 }
