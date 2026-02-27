@@ -40,6 +40,7 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting $HOME/.local/zsh/
 mkdir -p $HOME/.config
 mkdir -p $HOME/.config/emacs
 mkdir -p $HOME/.claude
+ln -s $HOME/Repos/ravern/dots/config/.zprofile             $HOME/.zprofile
 ln -s $HOME/Repos/ravern/dots/config/.zshrc               $HOME/.zshrc
 ln -s $HOME/Repos/ravern/dots/config/.gitconfig           $HOME/.gitconfig
 ln -s $HOME/Repos/ravern/dots/config/starship.toml        $HOME/.config/starship.toml
