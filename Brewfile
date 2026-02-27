@@ -87,7 +87,7 @@ cask 'calibre'
 cask 'chatgpt'
 cask 'claude'
 cask 'claude-code'
-# paseo: download from https://github.com/getpaseo/paseo/releases/download/v0.1.15/Paseo_0.1.15_aarch64.dmg
+# paseo: download from https://github.com/getpaseo/paseo/releases/download/v0.1.16/Paseo_0.1.16_aarch64.dmg
 cask 'codex'
 cask 'codex-app'
 cask 'conductor'

@@ -1,0 +1,23 @@
+#!/bin/sh
+set -e
+
+usage() {
+  echo "Usage: sish <subdomain> <local_port>"
+  echo ""
+  echo "Expose a local port via sish tunnel."
+  echo ""
+  echo "Examples:"
+  echo "  sish myapp 3000    # https://myapp.sish.ravern.dev -> localhost:3000"
+  echo "  sish demo 8080     # https://demo.sish.ravern.dev -> localhost:8080"
+  exit 1
+}
+
+if [ $# -ne 2 ]; then
+  usage
+fi
+
+subdomain="$1"
+port="$2"
+
+echo "Tunneling localhost:${port} -> https://${subdomain}.sish.ravern.dev"
+exec ssh -R "${subdomain}:80:localhost:${port}" sish.ravern.dev -p 2222
