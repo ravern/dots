@@ -29,6 +29,7 @@ export PATH=$HOME/.cabal/bin:$PATH
 export PATH=$HOME/.zig/bin:$PATH
 export PATH=$HOME/.go/bin:$PATH
 export PATH=$BUN_INSTALL/bin:$PATH
+export PATH=$HOME/.mint/bin:$PATH
 export LIBRARY_PATH=$LIBRARY_PATH:/opt/homebrew/lib
 export INCLUDE_PATH=$INCLUDE_PATH:/opt/homebrew/include
 

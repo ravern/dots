@@ -11,6 +11,9 @@ arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebr
 # Install ZeroBrew (faster Homebrew alternative)
 curl -sSL https://raw.githubusercontent.com/lucasgelfond/zerobrew/main/install.sh | bash
 
+# Install Mint packages
+/opt/homebrew/bin/mint bootstrap
+
 # Install Rust and global binaries
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | /bin/bash
 $HOME/.cargo/bin/cargo install pazi
