@@ -28,7 +28,7 @@ $HOME/.cargo/bin/cargo install --features vendored-openssl --locked --bin jj jj-
 /opt/homebrew/bin/volta install live-server
 /opt/homebrew/bin/volta install local-ssl-proxy
 /opt/homebrew/bin/volta install @fission-ai/openspec
-/opt/homebrew/bin/volta install @getpaseo/cli@0.1.16
+/opt/homebrew/bin/volta install happy-coder
 npm install -g @anthropic-ai/claude-code
 
 # Install Coq and global packages

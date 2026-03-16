@@ -15,6 +15,7 @@ export ANDROID_HOME=$HOME/Library/Android/sdk
 export VOLTA_HOME=$HOME/.volta
 export BUN_INSTALL=$HOME/.bun
 export PATH=/opt/homebrew/bin:$PATH
+export PATH=/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH
 export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/tools
 export PATH=$PATH:$ANDROID_HOME/tools/bin
@@ -32,9 +33,11 @@ export PATH=$BUN_INSTALL/bin:$PATH
 export PATH=$HOME/.mint/bin:$PATH
 export LIBRARY_PATH=$LIBRARY_PATH:/opt/homebrew/lib
 export INCLUDE_PATH=$INCLUDE_PATH:/opt/homebrew/include
-
-# Added by Antigravity
+export PATH="/Users/ravern/.local/share/solana/install/active_release/bin:$PATH"
 export PATH="/Users/ravern/.antigravity/antigravity/bin:$PATH"
+
+# Happy Coder
+export HAPPY_SERVER_URL=https://happy-server.ravern.dev
 
 # zerobrew
 export ZEROBREW_DIR=/Users/ravern/.zerobrew

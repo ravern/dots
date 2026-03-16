@@ -1,10 +1,3 @@
-# OPENSPEC:START
-# OpenSpec shell completions configuration
-fpath=("/Users/ravern/.zsh/completions" $fpath)
-autoload -Uz compinit
-compinit
-# OPENSPEC:END
-
 # Plugins
 source $HOME/.local/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $HOME/.local/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
@@ -76,3 +69,4 @@ pyact() {
   return 1
 }
 gi() { curl -sLw "\n" https://www.toptal.com/developers/gitignore/api/$@ }
+export HAPPY_SERVER_URL=https://happy-server.ravern.dev
