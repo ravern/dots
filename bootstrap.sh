@@ -22,14 +22,11 @@ $HOME/.cargo/bin/cargo install cargo-bundle
 $HOME/.cargo/bin/cargo install --features vendored-openssl --locked --bin jj jj-cli
 
 # Install Node and global packages
-/opt/homebrew/bin/volta install node@12
+/opt/homebrew/bin/volta install node@22
 /opt/homebrew/bin/volta install yarn
 /opt/homebrew/bin/volta install http-server
 /opt/homebrew/bin/volta install live-server
 /opt/homebrew/bin/volta install local-ssl-proxy
-/opt/homebrew/bin/volta install @fission-ai/openspec
-/opt/homebrew/bin/volta install happy-coder
-npm install -g @anthropic-ai/claude-code
 
 # Install Coq and global packages
 opam pin add coq 8.18.0

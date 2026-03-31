@@ -3,3 +3,11 @@
 	name = Ravern Koh
 [push]
 	autoSetupRemote = true
+[http]
+	postBuffer = 1048576000
+[credential "https://github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
