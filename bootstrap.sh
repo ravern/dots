@@ -45,7 +45,7 @@ ln -s $HOME/Repos/ravern/dots/config/.zshrc               $HOME/.zshrc
 ln -s $HOME/Repos/ravern/dots/config/.gitconfig           $HOME/.gitconfig
 ln -s $HOME/Repos/ravern/dots/config/starship.toml        $HOME/.config/starship.toml
 ln -s $HOME/Repos/ravern/dots/config/ghostty              $HOME/.config/ghostty
-ln -s $HOME/Repos/ravern/dots/config/.cargo/config        $HOME/.cargo/config
+ln -s $HOME/Repos/ravern/dots/config/.cargo/config.toml   $HOME/.cargo/config.toml
 ln -s $HOME/Repos/ravern/dots/config/jj                   $HOME/Library/Application\ Support/jj
 ln -s $HOME/Repos/ravern/dots/config/claude/settings.json $HOME/.claude/settings.json
 ln -s $HOME/Repos/ravern/dots/config/claude/CLAUDE.md     $HOME/.claude/CLAUDE.md
