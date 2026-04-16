@@ -48,21 +48,40 @@
     ],
     "defaultMode": "acceptEdits"
   },
-  "enabledPlugins": {
-    "frontend-design@claude-plugins-official": true
-  },
-  "skipDangerousModePermissionPrompt": true,
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Edit|Write|Bash|NotebookEdit",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "sessions mark-active"
+            "command": "sessions post-bash"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sessions register"
           }
         ]
       }
     ]
-  }
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "vercel-plugin@vercel-vercel-plugin": true
+  },
+  "extraKnownMarketplaces": {
+    "vercel-vercel-plugin": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/ravern/.cache/plugins/.install-staging/215096f657a466384206b8d499345e4df7903bfb/cursor/repo"
+      }
+    }
+  },
+  "skipDangerousModePermissionPrompt": true
 }
