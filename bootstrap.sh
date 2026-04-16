@@ -40,6 +40,7 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting $HOME/.local/zsh/
 mkdir -p $HOME/.config
 mkdir -p $HOME/.config/emacs
 mkdir -p $HOME/.claude
+mkdir -p $HOME/.codex
 ln -s $HOME/Repos/ravern/dots/config/.zprofile             $HOME/.zprofile
 ln -s $HOME/Repos/ravern/dots/config/.zshrc               $HOME/.zshrc
 ln -s $HOME/Repos/ravern/dots/config/.gitconfig           $HOME/.gitconfig
@@ -49,3 +50,5 @@ ln -s $HOME/Repos/ravern/dots/config/.cargo/config.toml   $HOME/.cargo/config.to
 ln -s $HOME/Repos/ravern/dots/config/jj                   $HOME/Library/Application\ Support/jj
 ln -s $HOME/Repos/ravern/dots/config/claude/settings.json $HOME/.claude/settings.json
 ln -s $HOME/Repos/ravern/dots/config/claude/CLAUDE.md     $HOME/.claude/CLAUDE.md
+ln -s $HOME/Repos/ravern/dots/config/codex/config.toml    $HOME/.codex/config.toml
+ln -s $HOME/Repos/ravern/dots/config/codex/hooks.json     $HOME/.codex/hooks.json

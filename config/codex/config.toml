@@ -1,0 +1,43 @@
+model = "gpt-5.4"
+model_reasoning_effort = "xhigh"
+
+[features]
+  codex_hooks = true
+  rmcp_client = true
+
+[mcp_servers]
+  [mcp_servers.test-server]
+    args = ["hello"]
+    command = "echo"
+enabled = false
+    [mcp_servers.test-server.env]
+      FOO = "bar"
+
+  [mcp_servers.braintrust]
+    url = "https://api.braintrust.dev/mcp"
+    bearer_token_env_var = "BRAINTRUST_API_KEY"
+
+[notice]
+  [notice.model_migrations]
+    "gpt-5.3-codex" = "gpt-5.4"
+
+[projects]
+  [projects."/Users/ravern/Repos/greptileai/greptilia"]
+    trust_level = "trusted"
+  [projects."/Users/ravern/Repos/ravern/avalonia"]
+    trust_level = "trusted"
+
+[projects."/Users/ravern/Repos/greptileai/greptile"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Repos/ravern/sessions"]
+trust_level = "trusted"
+
+[plugins."vercel@openai-curated"]
+enabled = true
+
+[plugins."github@openai-curated"]
+enabled = true
+
+[plugins."slack@openai-curated"]
+enabled = true
