@@ -1,5 +1,5 @@
-model = "gpt-5.4"
-model_reasoning_effort = "xhigh"
+model = "gpt-5.5"
+model_reasoning_effort = "high"
 
 [features]
   codex_hooks = true
@@ -36,8 +36,20 @@ trust_level = "trusted"
 [plugins."vercel@openai-curated"]
 enabled = true
 
-[plugins."github@openai-curated"]
+[plugins."slack@openai-curated"]
 enabled = true
 
-[plugins."slack@openai-curated"]
+[plugins."computer-use@openai-bundled"]
+enabled = true
+
+[plugins."documents@openai-primary-runtime"]
+enabled = true
+
+[plugins."spreadsheets@openai-primary-runtime"]
+enabled = true
+
+[plugins."presentations@openai-primary-runtime"]
+enabled = true
+
+[plugins."browser@openai-bundled"]
 enabled = true

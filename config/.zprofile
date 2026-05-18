@@ -50,3 +50,5 @@ _zb_path_append() {
     esac;
 }
 _zb_path_append /opt/zerobrew/prefix/bin
+
+export PATH="$HOME/.elan/bin:$PATH"
