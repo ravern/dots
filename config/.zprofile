@@ -36,19 +36,17 @@ export INCLUDE_PATH=$INCLUDE_PATH:/opt/homebrew/include
 export PATH="/Users/ravern/.local/share/solana/install/active_release/bin:$PATH"
 export PATH="/Users/ravern/.antigravity/antigravity/bin:$PATH"
 
-# Happy Coder
-export HAPPY_SERVER_URL=https://happy-server.ravern.dev
-
-# zerobrew
-export ZEROBREW_DIR=/Users/ravern/.zerobrew
-export ZEROBREW_BIN=/Users/ravern/.local/bin
-_zb_path_append() {
-    local argpath="$1"
-    case ":${PATH}:" in
-        *:"$argpath":*) ;;
-        *) export PATH="$argpath:$PATH" ;;
-    esac;
-}
-_zb_path_append /opt/zerobrew/prefix/bin
-
 export PATH="$HOME/.elan/bin:$PATH"
+
+# Load private environment variables and expose them to macOS GUI apps.
+ENV_ZSH="$HOME/.config/env.zsh"
+if [ -f "$ENV_ZSH" ]; then
+  source "$ENV_ZSH"
+
+  if command -v launchctl >/dev/null 2>&1; then
+    while IFS= read -r env_name; do
+      [ -n "${(P)env_name:-}" ] && launchctl setenv "$env_name" "${(P)env_name}"
+    done < <(sed -nE 's/^[[:space:]]*export[[:space:]]+([A-Za-z_][A-Za-z0-9_]*)(=.*)?$/\1/p' "$ENV_ZSH")
+  fi
+fi
+unset ENV_ZSH

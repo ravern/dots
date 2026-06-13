@@ -8,9 +8,6 @@ arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebr
 # Install most packages using Homebrew
 /opt/homebrew/bin/brew bundle
 
-# Install ZeroBrew (faster Homebrew alternative)
-curl -sSL https://raw.githubusercontent.com/lucasgelfond/zerobrew/main/install.sh | bash
-
 # Install Mint packages
 /opt/homebrew/bin/mint bootstrap
 
@@ -41,9 +38,16 @@ mkdir -p $HOME/.config
 mkdir -p $HOME/.config/emacs
 mkdir -p $HOME/.claude
 mkdir -p $HOME/.codex
+if [ ! -f $HOME/Repos/ravern/dots/config/env.zsh ]; then
+  cp $HOME/Repos/ravern/dots/config/env.zsh.example $HOME/Repos/ravern/dots/config/env.zsh
+  chmod 600 $HOME/Repos/ravern/dots/config/env.zsh
+fi
 ln -s $HOME/Repos/ravern/dots/config/.zprofile             $HOME/.zprofile
 ln -s $HOME/Repos/ravern/dots/config/.zshrc               $HOME/.zshrc
 ln -s $HOME/Repos/ravern/dots/config/.gitconfig           $HOME/.gitconfig
+if [ ! -e $HOME/.config/env.zsh ]; then
+  ln -s $HOME/Repos/ravern/dots/config/env.zsh             $HOME/.config/env.zsh
+fi
 ln -s $HOME/Repos/ravern/dots/config/starship.toml        $HOME/.config/starship.toml
 ln -s $HOME/Repos/ravern/dots/config/ghostty              $HOME/.config/ghostty
 ln -s $HOME/Repos/ravern/dots/config/.cargo/config.toml   $HOME/.cargo/config.toml

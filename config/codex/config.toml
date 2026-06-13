@@ -17,6 +17,10 @@ enabled = false
     url = "https://api.braintrust.dev/mcp"
     bearer_token_env_var = "BRAINTRUST_API_KEY"
 
+  [mcp_servers.greptile]
+    url = "https://api.greptile.com/mcp"
+    bearer_token_env_var = "GREPTILE_API_KEY"
+
 [notice]
   [notice.model_migrations]
     "gpt-5.3-codex" = "gpt-5.4"

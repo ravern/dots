@@ -4,3 +4,6 @@
 # OpenSpec working directories
 openspec/changes/
 openspec/specs/
+
+# Local secrets
+config/env.zsh
