@@ -8,6 +8,12 @@ arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebr
 # Install most packages using Homebrew
 /opt/homebrew/bin/brew bundle
 
+# Link mise config before installing managed tools
+mkdir -p $HOME/.config
+if [ ! -e $HOME/.config/mise ]; then
+  ln -s $HOME/Repos/ravern/dots/config/mise $HOME/.config/mise
+fi
+
 # Install Mint packages
 /opt/homebrew/bin/mint bootstrap
 
@@ -18,13 +24,10 @@ $HOME/.cargo/bin/cargo install cargo-edit
 $HOME/.cargo/bin/cargo install cargo-bundle
 $HOME/.cargo/bin/cargo install --features vendored-openssl --locked --bin jj jj-cli
 
-# Install Node and global packages
-/opt/homebrew/bin/volta install node@22
-/opt/homebrew/bin/volta install yarn
-/opt/homebrew/bin/volta install http-server
-/opt/homebrew/bin/volta install live-server
-/opt/homebrew/bin/volta install local-ssl-proxy
-/opt/homebrew/bin/volta install wrangler
+# Install Node and global JS tools
+/opt/homebrew/bin/mise trust $HOME/.config/mise/config.toml
+/opt/homebrew/bin/mise install
+/opt/homebrew/bin/mise reshim
 
 # Install Coq and global packages
 opam pin add coq 8.18.0

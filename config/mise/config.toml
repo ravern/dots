@@ -1,0 +1,10 @@
+[settings]
+idiomatic_version_file_enable_tools = ["node"]
+node.corepack = true
+
+[tools]
+node = "22"
+"npm:http-server" = "latest"
+"npm:live-server" = "latest"
+"npm:local-ssl-proxy" = "latest"
+"npm:wrangler" = "latest"

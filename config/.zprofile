@@ -1,6 +1,7 @@
 # Environments
 source $HOME/.cargo/env
 eval "$(/opt/homebrew/bin/brew shellenv)"
+eval "$(/opt/homebrew/bin/mise activate zsh --shims)"
 eval "$(rbenv init - zsh)"
 eval "$(opam env)"
 
@@ -12,7 +13,6 @@ export GOPATH=$HOME/.go
 export DOTS_PATH=$HOME/Repos/ravern/dots
 export PNPM_HOME=$HOME/Library/pnpm
 export ANDROID_HOME=$HOME/Library/Android/sdk
-export VOLTA_HOME=$HOME/.volta
 export BUN_INSTALL=$HOME/.bun
 export PATH=/opt/homebrew/bin:$PATH
 export PATH=/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH
@@ -25,7 +25,6 @@ export PATH=$PATH:/opt/homebrew/opt/openjdk@17/bin
 export PATH=$PATH:/Library/TeX/texbin
 export PATH=$PATH:$HOME/.dotnet/tools
 export PATH=$HOME/.local/bin:$PATH
-export PATH=$HOME/.volta/bin:$PATH
 export PATH=$HOME/.cabal/bin:$PATH
 export PATH=$HOME/.zig/bin:$PATH
 export PATH=$HOME/.go/bin:$PATH

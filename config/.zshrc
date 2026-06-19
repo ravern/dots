@@ -10,6 +10,7 @@ export FPATH=$HOME/.local/zsh/plugins/zsh-completions/src:$FPATH
 export FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
 
 # Prompt and utilities
+eval "$(/opt/homebrew/bin/mise activate zsh)"
 eval "$(pazi init zsh)"
 eval "$(starship init zsh)"
 
