@@ -18,7 +18,7 @@ export PATH=$HOME/.go/bin:$PATH
 export PATH=$HOME/.mint/bin:$PATH
 export LIBRARY_PATH=$LIBRARY_PATH:/opt/homebrew/lib
 export INCLUDE_PATH=$INCLUDE_PATH:/opt/homebrew/include
-
+export PATH="/Users/ravern/.antigravity/antigravity/bin:$PATH"
 eval "$(/opt/homebrew/bin/mise activate zsh --shims)"
 
 # Load private environment variables and expose them to macOS GUI apps.
