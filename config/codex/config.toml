@@ -58,6 +58,9 @@ trust_level = "trusted"
 [projects."/Users/ravern/Repos/ravern/dots"]
 trust_level = "trusted"
 
+[projects."/Users/ravern/Repos/ravern/sessions"]
+trust_level = "trusted"
+
 [plugins."vercel@openai-curated"]
 enabled = true
 
