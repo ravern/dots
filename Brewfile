@@ -78,7 +78,6 @@ brew 'svix/svix/svix-cli'
 brew 'tw93/tap/mole'
 
 cask '1password'
-cask 'temurin@8'
 cask 'alcove'
 cask 'android-studio'
 cask 'bruno'
