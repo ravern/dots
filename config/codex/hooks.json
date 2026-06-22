@@ -1,24 +1,3 @@
 {
-  "hooks": {
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sessions post-bash"
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sessions register"
-          }
-        ]
-      }
-    ]
-  }
+  "hooks": {}
 }

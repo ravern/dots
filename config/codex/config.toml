@@ -6,13 +6,6 @@ model_reasoning_effort = "high"
   rmcp_client = true
 
 [mcp_servers]
-  [mcp_servers.test-server]
-    args = ["hello"]
-    command = "echo"
-enabled = false
-    [mcp_servers.test-server.env]
-      FOO = "bar"
-
   [mcp_servers.braintrust]
     url = "https://api.braintrust.dev/mcp"
     bearer_token_env_var = "BRAINTRUST_API_KEY"
@@ -28,22 +21,14 @@ enabled = false
 [projects]
   [projects."/Users/ravern/Repos/greptileai/greptilia"]
     trust_level = "trusted"
-  [projects."/Users/ravern/Repos/ravern/avalonia"]
-    trust_level = "trusted"
 
 [projects."/Users/ravern/Repos/greptileai/greptile"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/sessions"]
 trust_level = "trusted"
 
 [plugins."vercel@openai-curated"]
 enabled = true
 
 [plugins."slack@openai-curated"]
-enabled = true
-
-[plugins."computer-use@openai-bundled"]
 enabled = true
 
 [plugins."documents@openai-primary-runtime"]
