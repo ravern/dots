@@ -32,6 +32,7 @@ export PATH=$BUN_INSTALL/bin:$PATH
 export PATH=$HOME/.mint/bin:$PATH
 export LIBRARY_PATH=$LIBRARY_PATH:/opt/homebrew/lib
 export INCLUDE_PATH=$INCLUDE_PATH:/opt/homebrew/include
+export PATH="/Users/ravern/.antigravity/antigravity/bin:$PATH"
 export PATH="$HOME/.elan/bin:$PATH"
 
 # Load private environment variables and expose them to macOS GUI apps.
