@@ -1,4 +1,3 @@
-tap 'adoptopenjdk/openjdk'
 tap 'clojure/tools'
 tap 'pulumi/tap'
 tap 'svix/svix'
@@ -81,7 +80,6 @@ brew 'svix/svix/svix-cli'
 brew 'tw93/tap/mole'
 
 cask '1password'
-cask 'adoptopenjdk/openjdk/adoptopenjdk8'
 cask 'alcove'
 cask 'android-studio'
 cask 'bruno'
