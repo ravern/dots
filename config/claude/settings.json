@@ -48,48 +48,9 @@
     ],
     "defaultMode": "acceptEdits"
   },
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sessions post-bash"
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sessions register"
-          }
-        ]
-      }
-    ]
-  },
   "enabledPlugins": {
     "frontend-design@claude-plugins-official": true,
-    "ponytail@ponytail": true,
-    "github@claude-plugins-official": true
+    "vercel-plugin@vercel-vercel-plugin": true
   },
-  "extraKnownMarketplaces": {
-    "ponytail": {
-      "source": {
-        "source": "github",
-        "repo": "DietrichGebert/ponytail"
-      }
-    }
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "bash \"/Users/ravern/.claude/plugins/cache/ponytail/ponytail/4.8.4/hooks/ponytail-statusline.sh\""
-  },
-  "tui": "fullscreen",
-  "autoMemoryEnabled": false,
-  "skipDangerousModePermissionPrompt": true,
-  "agentPushNotifEnabled": true
+  "skipDangerousModePermissionPrompt": true
 }
