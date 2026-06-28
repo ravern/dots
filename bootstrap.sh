@@ -1,9 +1,5 @@
-# Install Rosetta 2
-/usr/sbin/softwareupdate --install-rosetta --agree-to-license
-
-# Install Homebrew (on both architectures)
+# Install Homebrew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 # Install most packages using Homebrew
 /opt/homebrew/bin/brew bundle
@@ -23,25 +19,37 @@ $HOME/.cargo/bin/cargo install pazi
 $HOME/.cargo/bin/cargo install cargo-edit
 $HOME/.cargo/bin/cargo install cargo-bundle
 $HOME/.cargo/bin/cargo install --features vendored-openssl --locked --bin jj jj-cli
+$HOME/.cargo/bin/rustup toolchain install nightly
 
 # Install Node and global JS tools
 /opt/homebrew/bin/mise trust $HOME/.config/mise/config.toml
 /opt/homebrew/bin/mise install
 /opt/homebrew/bin/mise reshim
 
+# Install Python apps
+/opt/homebrew/bin/pipx install fava || /opt/homebrew/bin/pipx upgrade fava
+/opt/homebrew/bin/pipx install rendercv || /opt/homebrew/bin/pipx upgrade rendercv
+
+# Select Ruby
+/opt/homebrew/bin/rbenv install -s 2.7.8
+/opt/homebrew/bin/rbenv global 2.7.8
+
 # Install Coq and global packages
 opam pin add coq 8.18.0
 opam install vscoq-language-server
 
 # Install Zsh plugins
+mkdir -p $HOME/.local/zsh/plugins
 git clone https://github.com/zsh-users/zsh-autosuggestions     $HOME/.local/zsh/plugins/zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-syntax-highlighting $HOME/.local/zsh/plugins/zsh-syntax-highlighting
 
 # Link config files
 mkdir -p $HOME/.config
 mkdir -p $HOME/.config/emacs
+mkdir -p $HOME/.cargo
 mkdir -p $HOME/.claude
 mkdir -p $HOME/.codex
+mkdir -p $HOME/.local/bin
 if [ ! -f $HOME/Repos/ravern/dots/config/env.zsh ]; then
   cp $HOME/Repos/ravern/dots/config/env.zsh.example $HOME/Repos/ravern/dots/config/env.zsh
   chmod 600 $HOME/Repos/ravern/dots/config/env.zsh
@@ -60,3 +68,4 @@ ln -s $HOME/Repos/ravern/dots/config/claude/settings.json $HOME/.claude/settings
 ln -s $HOME/Repos/ravern/dots/config/claude/CLAUDE.md     $HOME/.claude/CLAUDE.md
 ln -s $HOME/Repos/ravern/dots/config/codex/config.toml    $HOME/.codex/config.toml
 ln -s $HOME/Repos/ravern/dots/config/codex/hooks.json     $HOME/.codex/hooks.json
+ln -s $HOME/Repos/ravern/dots/config/bin/sish             $HOME/.local/bin/sish

@@ -5,8 +5,6 @@ source $HOME/.local/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.
 # Completions
 autoload -Uz compinit
 compinit -u
-[ -s "/Users/ravern/.bun/_bun" ] && source "/Users/ravern/.bun/_bun"
-export FPATH=$HOME/.local/zsh/plugins/zsh-completions/src:$FPATH
 export FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
 
 # Prompt and utilities

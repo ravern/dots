@@ -6,11 +6,13 @@ tap 'tw93/tap'
 brew 'aom'
 brew 'awscli'
 brew 'buf'
+brew 'bun'
 brew 'clang-format'
 brew 'cmake'
 brew 'coreutils'
 brew 'cocoapods'
 brew 'deno'
+brew 'dotnet'
 brew 'fd'
 brew 'ffmpeg'
 brew 'flyctl'
@@ -71,12 +73,13 @@ brew 'wget'
 brew 'xcodegen'
 brew 'yt-dlp'
 brew 'zig'
+brew 'zsh-completions'
 brew 'zls'
 brew 'zstd'
-brew 'clojure/tools/clojure'
-brew 'pulumi/tap/pulumi'
-brew 'svix/svix/svix-cli'
-brew 'tw93/tap/mole'
+brew 'clojure/tools/clojure', trusted: true
+brew 'pulumi/tap/pulumi', trusted: true
+brew 'svix/svix/svix-cli', trusted: true
+brew 'tw93/tap/mole', trusted: true
 
 cask '1password'
 cask 'alcove'
@@ -116,8 +119,6 @@ cask 'nordvpn'
 cask 'obs'
 cask 'obsidian'
 cask 'paseo'
-cask 'pearcleaner'
-cask 'pgadmin4'
 cask 'raycast'
 cask 'sf-symbols'
 cask 'signal'
@@ -130,12 +131,10 @@ cask 'visual-studio-code'
 cask 'vlc'
 cask 'windows-app'
 cask 'xquartz'
-cask 'zed'
 cask 'zen'
 cask 'zoom'
 
 mas "1Password for Safari", id: 1569813296
-mas "Balatro", id: 6502451661
 mas "GarageBand", id: 682658836
 mas "iMovie", id: 408981434
 mas "Keynote", id: 409183694
