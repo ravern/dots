@@ -72,8 +72,24 @@
     ]
   },
   "enabledPlugins": {
-    "frontend-design@claude-plugins-official": true,
-    "vercel-plugin@vercel-vercel-plugin": true
+    "vercel-plugin@vercel-vercel-plugin": true,
+    "slack@claude-plugins-official": true,
+    "braintrust@braintrust-claude-plugin": true,
+    "ponytail@ponytail": true
+  },
+  "extraKnownMarketplaces": {
+    "braintrust-claude-plugin": {
+      "source": {
+        "source": "github",
+        "repo": "braintrustdata/braintrust-claude-plugin"
+      }
+    },
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    }
   },
   "skipDangerousModePermissionPrompt": true
 }
