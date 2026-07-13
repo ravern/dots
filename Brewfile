@@ -101,7 +101,6 @@ cask 'fork'
 cask 'gcloud-cli'
 cask 'ghostty'
 cask 'google-chrome'
-cask 'jordanbaird-ice'
 cask 'ledger-wallet'
 cask 'loom'
 # Looq is installed manually from https://parcse.com/download; no Homebrew cask found.

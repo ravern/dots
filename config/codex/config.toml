@@ -1,7 +1,7 @@
-model = "gpt-5.5"
-model_reasoning_effort = "xhigh"
+model = "gpt-5.6-terra"
+model_reasoning_effort = "medium"
 personality = "friendly"
-service_tier = "fast"
+service_tier = "default"
 
 
 
@@ -16,22 +16,24 @@ url = "https://mcp.exa.ai/mcp"
 
 [mcp_servers.node_repl]
 args = []
-command = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node_repl"
+command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
 startup_timeout_sec = 120
 
 [mcp_servers.node_repl.env]
 NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
-NODE_REPL_NODE_MODULE_DIRS = "/Applications/Codex.app/Contents/Resources/cua_node/lib/node_modules"
-NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node"
+NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
 NODE_REPL_TRUSTED_CODE_PATHS = "/Users/ravern/.codex"
 CODEX_HOME = "/Users/ravern/.codex"
-NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "59e7bb81812ddd5f102e1d580335166e552c91686b5726218a985b59b4f89ca1"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f,f8b28403a0497b2e0bed024969fa474bb1f564509a59993449924c4ecab9db0d"
 BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
 NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
+NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.623.42026"
-CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
+BROWSER_USE_CODEX_APP_VERSION = "26.707.61608"
+SKY_CUA_SERVICE_PATH = "/Users/ravern/.codex/plugins/cache/openai-bundled/computer-use/1.0.1000387/Codex Computer Use.app"
+CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
 
 [mcp_servers.porkbun]
 command = "zsh"
@@ -42,6 +44,12 @@ url = "https://api.braintrust.dev/mcp"
 
 [mcp_servers.cloudflare-api]
 url = "https://mcp.cloudflare.com/mcp"
+
+[mcp_servers.computer-use]
+command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
+args = ["mcp"]
+cwd = "."
+enabled = false
 
 [projects."/Users/ravern/Repos/ravern/dots"]
 trust_level = "trusted"
@@ -385,6 +393,12 @@ trust_level = "trusted"
 [projects."/Users/ravern/Documents/Codex/2026-06-28/do-u"]
 trust_level = "trusted"
 
+[projects."/Users/ravern/Documents/Codex/2026-06-30/can-u-reach-ssh-giedi-prime"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-07-13/cur"]
+trust_level = "trusted"
+
 [plugins."gmail@openai-curated"]
 enabled = true
 
@@ -412,9 +426,6 @@ enabled = true
 [plugins."pdf@openai-primary-runtime"]
 enabled = true
 
-[plugins."browser@openai-bundled"]
-enabled = true
-
 [plugins."chrome@openai-bundled"]
 enabled = true
 
@@ -427,25 +438,34 @@ enabled = true
 [plugins."template-creator@openai-primary-runtime"]
 enabled = true
 
+[plugins."sites@openai-bundled"]
+enabled = true
+
+[plugins."visualize@openai-bundled"]
+enabled = true
+
+[plugins."browser@openai-bundled"]
+enabled = true
+
 [marketplaces.openai-bundled]
-last_updated = "2026-06-28T03:59:52Z"
+last_updated = "2026-07-13T02:18:40Z"
 source_type = "local"
 source = "/Users/ravern/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.openai-primary-runtime]
-last_updated = "2026-06-24T06:53:07Z"
+last_updated = "2026-07-10T23:53:25Z"
 source_type = "local"
 source = "/Users/ravern/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
 [marketplaces.ponytail]
-last_updated = "2026-06-26T02:46:14Z"
-last_revision = "c4d1925ae9b76a1b641877328209ad25cfeb5ef2"
+last_updated = "2026-07-10T23:43:08Z"
+last_revision = "14a0d79548d4de8fc2de95c1b94bb0de63a739d3"
 source_type = "git"
 source = "https://github.com/DietrichGebert/ponytail.git"
 
 [marketplaces.braintrust-codex-plugins]
-last_updated = "2026-06-19T14:03:57Z"
-last_revision = "87549b75f789ad58fed6b8ef2aa6cc62b989e0fe"
+last_updated = "2026-07-08T02:59:01Z"
+last_revision = "21ea3c5f2709e8ac8d493a52f594ac7d10eae9a2"
 source_type = "git"
 source = "https://github.com/braintrustdata/braintrust-codex-plugin.git"
 
@@ -462,6 +482,7 @@ default-service-tier = "fast"
 conversationDetailMode = "STEPS_COMMANDS"
 keepRemoteControlAwakeWhilePluggedIn = true
 followUpQueueMode = "queue"
+dock-icon-preference = "app-default"
 
 [desktop.appearanceLightChromeTheme]
 accent = "#0169cc"
@@ -479,7 +500,7 @@ diffRemoved = "#e02e2a"
 skill = "#751ed9"
 
 [desktop.open-in-target-preferences]
-global = "vscode"
+global = "ghostty"
 
 [desktop.open-in-target-preferences.perPath]
 "/Users/ravern/Repos/adamsmd/teaching-2026-01-00-cs4215-pli" = "zed"
@@ -489,7 +510,7 @@ global = "vscode"
 "/Users/ravern/Repos/ravern/wiki" = "zed"
 "/Users/ravern/Repos/jadedingeneral/fluxbeta" = "vscode"
 "/Users/ravern/Repos/ravern/foggy" = "ghostty"
-"/Users/ravern/Repos/ravern/kaki" = "vscode"
+"/Users/ravern/Repos/ravern/kaki" = "ghostty"
 
 [features]
 js_repl = false
@@ -497,13 +518,19 @@ js_repl = false
 [hooks.state]
 
 [hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:session_start:0:0"]
-trusted_hash = "sha256:35ad4fd900da217d98e6eb60198465bd10d55e21eacd72758621dc385145cc05"
+trusted_hash = "sha256:10e0ac0497512b279dc2b073d0d559fb9fb252bc18b9c943d2f0a6d58152b1f4"
 
 [hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:user_prompt_submit:0:0"]
-trusted_hash = "sha256:22db2f951755c593f9deba5e69cd1be1c87e0c9b2f5538a13b5dd9911141793f"
+trusted_hash = "sha256:2a3c9015a1fe10f0809ffec8da3d67c326e27c38ebf720725099283b1e2085a8"
 
 [hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:subagent_start:0:0"]
-trusted_hash = "sha256:28c43eada804ad00a4e651d6af6320c01e763b1df060af0ab74865a55bc1c9a9"
+trusted_hash = "sha256:4765354e31cc783c9cc7379f8beac7ac7ff68743c3cd7dad333d1f6a64e7a6f3"
+
+[hooks.state."/Users/ravern/.codex/hooks.json:post_tool_use:0:0"]
+trusted_hash = "sha256:78b53c21bd9706f3229c6dae1c8c7c5d39e79a681632acb8dd3f025b48b64d55"
+
+[hooks.state."/Users/ravern/.codex/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:4637992e2d786767037613af649042af837b8a591e4e101ca18476decbf45d2a"
 
 # [plugins."computer-use@openai-bundled"]
 # enabled = true
