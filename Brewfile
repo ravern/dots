@@ -114,7 +114,6 @@ cask 'microsoft-word'
 cask 'mongodb-compass'
 cask 'netnewswire'
 cask 'ngrok'
-cask 'nordvpn'
 cask 'obs'
 cask 'obsidian'
 cask 'paseo'
@@ -138,6 +137,7 @@ mas "GarageBand", id: 682658836
 mas "iMovie", id: 408981434
 mas "Keynote", id: 409183694
 mas "Numbers", id: 409203825
+mas "NordVPN: VPN Fast & Secure", id: 905953485
 mas "Pages", id: 409201541
 mas "TestFlight", id: 899247664
 mas "WhatsApp", id: 310633997
