@@ -1,9 +1,5 @@
-model = "gpt-5.6-terra"
+model = "gpt-5.6-sol"
 model_reasoning_effort = "medium"
-personality = "friendly"
-service_tier = "default"
-
-
 
 
 notify = ["/Users/ravern/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
@@ -11,449 +7,23 @@ approval_policy = "never"
 approvals_reviewer = "user"
 sandbox_mode = "danger-full-access"
 
-[mcp_servers.exa]
-url = "https://mcp.exa.ai/mcp"
-
-[mcp_servers.node_repl]
-args = []
-command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
-startup_timeout_sec = 120
-
-[mcp_servers.node_repl.env]
-NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
-NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
-NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
-NODE_REPL_TRUSTED_CODE_PATHS = "/Users/ravern/.codex"
-CODEX_HOME = "/Users/ravern/.codex"
-NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f,f8b28403a0497b2e0bed024969fa474bb1f564509a59993449924c4ecab9db0d"
-BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
-NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
-NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
-NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
-BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.707.61608"
-SKY_CUA_SERVICE_PATH = "/Users/ravern/.codex/plugins/cache/openai-bundled/computer-use/1.0.1000387/Codex Computer Use.app"
-CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
-
-[mcp_servers.porkbun]
-command = "zsh"
-args = ["-lc", "source ~/.config/env.zsh; export PORKBUN_API_KEY PORKBUN_SECRET_KEY; exec uvx porkbun-mcp"]
-
-[mcp_servers.braintrust]
-url = "https://api.braintrust.dev/mcp"
-
-[mcp_servers.cloudflare-api]
-url = "https://mcp.cloudflare.com/mcp"
-
-[mcp_servers.computer-use]
-command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
-args = ["mcp"]
-cwd = "."
-enabled = false
-
-[projects."/Users/ravern/Repos/ravern/dots"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/fomodoro"]
-trust_level = "trusted"
-
-[projects."/Users/ravern"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Desktop/tmp"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/avalonia"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Library/Mobile Documents/com~apple~CloudDocs/Documents/NUS/Work/Y4S2/CS2109S/Lectures"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/adamsmd/teaching-2026-01-00-cs4215-pli"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/bowline"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/doji"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/labs"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/midify"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/typical"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Desktop/hsi2013-music"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Desktop/hsi2013-finals"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Downloads"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/consume"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/nusmodifications/nusmods"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/written"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/finances"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Workspaces/personal/finances"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/wiki"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-04-20-2026-04-20t15-45-22-08"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-04-24/computer-use-plugin-computer-use-openai"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-04-24/can-u-use-google-chrome-plugin"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Desktop/kipo"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Desktop/rustygrad_learning_package"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-04-26/help-me-take-a-look-at"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/rai"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-04-27/what-printers-am-i-connected-to"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/ravern"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-04-28/the-codex-window-in-my-zed"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-04-28/help-me-fix"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/congrads"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Library/Mobile Documents/com~apple~CloudDocs/Documents/NUS/Work/Y4S2/CS2109S"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-05-02/for-https-github-com-withastro-flue"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Desktop/interaction-nets-visualisation"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-05-02/can-u-clone-https-github-com"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/jadedingeneral/fluxbeta"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-05-03/do-u-have-gcloud-cli"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Desktop/interaction-nets-visualisation-2"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Desktop/learn-interaction-nets"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-05-03/search-gamehub-for-mdpreview-app-mac"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-05-04/i-want-to-contribute-to-the"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-05-08/own-compiler-passes-design-and-implement"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-05-08/luminal-yc-s25-founding-compiler-engineer"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/milligrad"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/cv"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-05-11/i-want-u-to-go-through"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/sandbox"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-05-12/files-mentioned-by-the-user-twitter"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/site"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-14/can-u-explain-to-me-how"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-14/help-me-find-a-bento-cake"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-14/can-u-see-all-the-threads"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-14/can-u-clone-the-cpython-repo"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-14/when-s-the-next-ifsc"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-14/can-u-search-online-for-the"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-14/what-s-the-glm-5-2"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-14/can-u-look-into-nanoclaw-and"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-14/files-mentioned-by-the-user-technical"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-14/files-mentioned-by-the-user-technical-2"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-15/are-u-able-to-check-if"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-15/do-u-see-repos-ravern-compare"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-15/can-u-clone-ravern-amigo-repository"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-15/can-u-install-porkbun-mcp-to"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-15/i-m-building-a-telegram-bot"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/foggy"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-15/do-u-see-the-link-clusters"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-15/i-have-a-domain-name-search"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-15/do-u-see-porkbun-mcp"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-16/can-u-see-telegram-plugin-computer"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-16/inspect-telegram-chats-users-ravern-codex"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-16/inspect-telegram-chats-users-ravern-codex-2"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-16/https-www-businessinsider-com-cursor-ceo"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/triomic/bills"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-16/pls-clone-triomic-bills-to-repos"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-16/what-are-the-costs-for-openai"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-17/foggy-apps-telegram-bot-main-brew"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-17/anything-in-inspect-telegram-chats-users"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-17/can-u-get-rid-of-the"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-19/can"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-19/create-new-private-gh-repo-ravern"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Repos/ravern/kaki"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-19/what-are-some-sota-draft-implement"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-19/wait"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-19/che"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-19/what-s-openhands"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-19/can-2"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-19/can-u"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-19/can-3"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-19/can-4"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-19/b"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-19/br"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-19/can-5"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-20/why"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-20/what-can-u-find-about-rayner"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-20/what-can-u-find-out-about"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-21/ther"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-21/https-flueframework-com"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-21/see"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-21/i-thi"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-21/i-think-codex-config-has-explicit"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-22/when"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-25/i-m-looking-for-a-solution"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-26/owl"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-26/dock"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-27/are-u-able-to-use-mole"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-28/brain"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-28/plea"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-28/is-it-possible-to-ssh-in"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-28/can-u"]
-trust_level = "trusted"
-
-[projects."/home/ravern"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-28/the-github-mcp-isn-t-in"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-28/do-u"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-06-30/can-u-reach-ssh-giedi-prime"]
-trust_level = "trusted"
-
-[projects."/Users/ravern/Documents/Codex/2026-07-13/cur"]
-trust_level = "trusted"
-
-[plugins."gmail@openai-curated"]
-enabled = true
-
-[plugins."github@openai-curated"]
-enabled = true
-
-[plugins."build-macos-apps@openai-curated"]
-enabled = true
-
-[plugins."build-ios-apps@openai-curated"]
-enabled = true
-
-[plugins."computer-use@openai-bundled"]
-enabled = true
-
-[plugins."documents@openai-primary-runtime"]
-enabled = true
-
-[plugins."spreadsheets@openai-primary-runtime"]
-enabled = true
-
-[plugins."presentations@openai-primary-runtime"]
-enabled = true
-
-[plugins."pdf@openai-primary-runtime"]
-enabled = true
-
-[plugins."chrome@openai-bundled"]
-enabled = true
-
-[plugins."ponytail@ponytail"]
-enabled = true
-
-[plugins."braintrust@braintrust-codex-plugins"]
-enabled = true
-
-[plugins."template-creator@openai-primary-runtime"]
-enabled = true
-
-[plugins."sites@openai-bundled"]
-enabled = true
-
-[plugins."visualize@openai-bundled"]
-enabled = true
-
-[plugins."browser@openai-bundled"]
-enabled = true
+[desktop]
+followUpQueueMode = "queue"
+enabled-reasoning-efforts = ["low", "medium", "high", "xhigh", "ultra", "max"]
+
+[desktop.open-in-target-preferences]
+global = "ghostty"
+
+[desktop.open-in-target-preferences.perPath]
+"/Users/ravern/Repos/ravern/near" = "ghostty"
 
 [marketplaces.openai-bundled]
-last_updated = "2026-07-13T02:18:40Z"
+last_updated = "2026-07-26T08:44:18Z"
 source_type = "local"
 source = "/Users/ravern/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.openai-primary-runtime]
-last_updated = "2026-07-10T23:53:25Z"
+last_updated = "2026-07-24T06:53:52Z"
 source_type = "local"
 source = "/Users/ravern/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
@@ -469,68 +39,88 @@ last_revision = "21ea3c5f2709e8ac8d493a52f594ac7d10eae9a2"
 source_type = "git"
 source = "https://github.com/braintrustdata/braintrust-codex-plugin.git"
 
-[tui.model_availability_nux]
-"gpt-5.5" = 4
+[plugins."sites@openai-bundled"]
+enabled = true
 
-[desktop]
-ambient-suggestions-enabled = false
-appearanceLightCodeThemeId = "codex"
-sansFontSize = 14
-codeFontSize = 12
-mac-menu-bar-enabled = false
-default-service-tier = "fast"
-conversationDetailMode = "STEPS_COMMANDS"
-keepRemoteControlAwakeWhilePluggedIn = true
-followUpQueueMode = "queue"
-dock-icon-preference = "app-default"
+[plugins."chrome@openai-bundled"]
+enabled = true
 
-[desktop.appearanceLightChromeTheme]
-accent = "#0169cc"
-contrast = 45
-ink = "#0d0d0d"
-opaqueWindows = true
-surface = "#ffffff"
+[plugins."computer-use@openai-bundled"]
+enabled = true
 
-[desktop.appearanceLightChromeTheme.fonts]
-ui = "Inter"
+[plugins."visualize@openai-bundled"]
+enabled = true
 
-[desktop.appearanceLightChromeTheme.semanticColors]
-diffAdded = "#00a240"
-diffRemoved = "#e02e2a"
-skill = "#751ed9"
+[plugins."documents@openai-primary-runtime"]
+enabled = true
 
-[desktop.open-in-target-preferences]
-global = "ghostty"
+[plugins."pdf@openai-primary-runtime"]
+enabled = true
 
-[desktop.open-in-target-preferences.perPath]
-"/Users/ravern/Repos/adamsmd/teaching-2026-01-00-cs4215-pli" = "zed"
-"/Users/ravern/Repos/ravern/scamper" = "vscode"
-"/Users/ravern/Repos/ravern/midify" = "fileManager"
-"/Users/ravern/Repos/ravern/written" = "vscode"
-"/Users/ravern/Repos/ravern/wiki" = "zed"
-"/Users/ravern/Repos/jadedingeneral/fluxbeta" = "vscode"
-"/Users/ravern/Repos/ravern/foggy" = "ghostty"
-"/Users/ravern/Repos/ravern/kaki" = "ghostty"
+[plugins."spreadsheets@openai-primary-runtime"]
+enabled = true
+
+[plugins."presentations@openai-primary-runtime"]
+enabled = true
+
+[plugins."template-creator@openai-primary-runtime"]
+enabled = true
+
+[plugins."browser@openai-bundled"]
+enabled = true
+
+[plugins."ponytail@ponytail"]
+enabled = true
+
+[plugins."braintrust@braintrust-codex-plugins"]
+enabled = true
 
 [features]
 js_repl = false
 
-[hooks.state]
+[mcp_servers.braintrust]
+url = "https://api.braintrust.dev/mcp"
 
-[hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:session_start:0:0"]
-trusted_hash = "sha256:10e0ac0497512b279dc2b073d0d559fb9fb252bc18b9c943d2f0a6d58152b1f4"
+[mcp_servers.node_repl]
+args = []
+command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
+startup_timeout_sec = 120
 
-[hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:user_prompt_submit:0:0"]
-trusted_hash = "sha256:2a3c9015a1fe10f0809ffec8da3d67c326e27c38ebf720725099283b1e2085a8"
+[mcp_servers.node_repl.env]
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/ravern/.codex"
+CODEX_HOME = "/Users/ravern/.codex"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f,e13fd947e846d3d306e9249dd3c73d14931b6494803dbafb16cef85e6add9506"
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
+NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
+NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
+BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+BROWSER_USE_CODEX_APP_VERSION = "26.721.41059"
+SKY_CUA_SERVICE_PATH = "/Users/ravern/.codex/computer-use/Codex Computer Use.app"
+CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
 
-[hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:subagent_start:0:0"]
-trusted_hash = "sha256:4765354e31cc783c9cc7379f8beac7ac7ff68743c3cd7dad333d1f6a64e7a6f3"
+[mcp_servers.computer-use]
+command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
+args = ["mcp"]
+cwd = "."
+enabled = false
 
-[hooks.state."/Users/ravern/.codex/hooks.json:post_tool_use:0:0"]
-trusted_hash = "sha256:78b53c21bd9706f3229c6dae1c8c7c5d39e79a681632acb8dd3f025b48b64d55"
+[projects."/Users/ravern/Repos/ravern/near"]
+trust_level = "trusted"
 
-[hooks.state."/Users/ravern/.codex/hooks.json:session_start:0:0"]
-trusted_hash = "sha256:4637992e2d786767037613af649042af837b8a591e4e101ca18476decbf45d2a"
+[projects."/Users/ravern/Repos/ravern/dots"]
+trust_level = "trusted"
 
-# [plugins."computer-use@openai-bundled"]
-# enabled = true
+[projects."/Users/ravern/Repos/adamsmd/teaching-2026-01-00-cs4215-pli"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-07-26/lo"]
+trust_level = "trusted"
+
+[shell_environment_policy.set]
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f,e13fd947e846d3d306e9249dd3c73d14931b6494803dbafb16cef85e6add9506"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/ravern/.codex"
