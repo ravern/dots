@@ -1,13 +1,19 @@
 model = "gpt-5.6-sol"
-model_reasoning_effort = "xhigh"
+model_reasoning_effort = "medium"
 personality = "friendly"
-service_tier = "default"
+service_tier = "priority"
 notify = ["/Users/ravern/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
 
 [features]
   hooks = true
   rmcp_client = true
   js_repl = false
+
+[mcp_servers.computer-use]
+  command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
+  args = ["mcp"]
+  cwd = "."
+  enabled = false
 
 [mcp_servers.node_repl]
   args = []
@@ -20,21 +26,15 @@ notify = ["/Users/ravern/.codex/computer-use/Codex Computer Use.app/Contents/Sha
   NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
   NODE_REPL_TRUSTED_CODE_PATHS = "/Users/ravern/.codex"
   CODEX_HOME = "/Users/ravern/.codex"
-  NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "583bf903a6cfb9b00a01e1583381ce921c71d7585085c6fa6b805baa0f60230b,6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f"
+  NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f,e13fd947e846d3d306e9249dd3c73d14931b6494803dbafb16cef85e6add9506"
   BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
   NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
   NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
   NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
   BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-  BROWSER_USE_CODEX_APP_VERSION = "26.715.52143"
-  SKY_CUA_SERVICE_PATH = "/Users/ravern/.codex/plugins/cache/openai-bundled/computer-use/1.0.1000451/Codex Computer Use.app"
+  BROWSER_USE_CODEX_APP_VERSION = "26.721.41059"
+  SKY_CUA_SERVICE_PATH = "/Users/ravern/.codex/computer-use/Codex Computer Use.app"
   CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
-
-[mcp_servers.computer-use]
-  command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
-  args = ["mcp"]
-  cwd = "."
-  enabled = false
 
 [mcp_servers]
   [mcp_servers.braintrust]
@@ -63,6 +63,48 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/ravern/Repos/ravern/sessions"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-07-20/help"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-07-20/lis"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-07-20/does"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-07-21/can"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-07-21/what"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-07-21/can-2"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Repos/greptileai/test-trex-rust"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-07-22/i-wan"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-07-22/o"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-07-23/why"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-07-23/why-2"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-07-23/grep"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-07-24/where-s-the-page-where-we"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Repos/greptileai/docs"]
 trust_level = "trusted"
 
 [plugins."vercel@openai-curated"]
@@ -107,6 +149,9 @@ enabled = true
 [plugins."sites@openai-bundled"]
 enabled = true
 
+[plugins."greptile@greptile-codex-plugins"]
+enabled = true
+
 [hooks.state]
 
 [hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:session_start:0:0"]
@@ -126,5 +171,26 @@ trusted_hash = "sha256:4637992e2d786767037613af649042af837b8a591e4e101ca18476dec
 
 [shell_environment_policy.set]
   BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
-  NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "583bf903a6cfb9b00a01e1583381ce921c71d7585085c6fa6b805baa0f60230b,6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f"
+  NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f,e13fd947e846d3d306e9249dd3c73d14931b6494803dbafb16cef85e6add9506"
   NODE_REPL_TRUSTED_CODE_PATHS = "/Users/ravern/.codex"
+
+[desktop]
+followUpQueueMode = "queue"
+enabled-reasoning-efforts = ["low", "medium", "high", "xhigh", "ultra", "max"]
+
+[marketplaces.openai-bundled]
+last_updated = "2026-07-26T23:43:47Z"
+source_type = "local"
+source = "/Users/ravern/.codex/.tmp/bundled-marketplaces/openai-bundled"
+
+[marketplaces.openai-primary-runtime]
+last_updated = "2026-07-24T08:36:42Z"
+source_type = "local"
+source = "/Users/ravern/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
+
+[marketplaces.greptile-codex-plugins]
+last_updated = "2026-07-26T23:43:44Z"
+last_revision = "b83f93cbd5682ffe73c13b64d34cc39db6e42e1e"
+source_type = "git"
+source = "https://github.com/greptileai/greptile-codex-plugin.git"
+ref = "main"
