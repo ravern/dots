@@ -194,3 +194,11 @@ last_revision = "b83f93cbd5682ffe73c13b64d34cc39db6e42e1e"
 source_type = "git"
 source = "https://github.com/greptileai/greptile-codex-plugin.git"
 ref = "main"
+
+[marketplaces.braintrust-codex-plugins]
+source_type = "git"
+source = "https://github.com/braintrustdata/braintrust-codex-plugin.git"
+
+[marketplaces.ponytail]
+source_type = "git"
+source = "https://github.com/DietrichGebert/ponytail.git"
