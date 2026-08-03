@@ -1,0 +1,39 @@
+{
+  "marketplaces": [
+    {
+      "name": "braintrust-claude-plugin",
+      "source": "https://github.com/braintrustdata/braintrust-claude-plugin.git"
+    },
+    {
+      "name": "ponytail",
+      "source": "https://github.com/DietrichGebert/ponytail.git"
+    }
+  ],
+  "plugins": [
+    {
+      "id": "404",
+      "name": "notion-workspace",
+      "marketplace": "cursor-public"
+    },
+    {
+      "id": "674",
+      "name": "slack",
+      "marketplace": "cursor-public"
+    },
+    {
+      "id": "1411",
+      "name": "datadog",
+      "marketplace": "cursor-public"
+    },
+    {
+      "id": "43478603",
+      "name": "braintrust",
+      "marketplace": "braintrust-claude-plugin"
+    },
+    {
+      "id": "43478604",
+      "name": "ponytail",
+      "marketplace": "ponytail"
+    }
+  ]
+}

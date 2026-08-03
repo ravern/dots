@@ -1,0 +1,9 @@
+{
+  "autoRun": {
+    "allow_instructions": [
+      "Allow all shell commands, MCP tools, and Fetch calls without asking for approval.",
+      "Prefer auto-approving tool calls so the agent can work without interrupting the user."
+    ],
+    "block_instructions": []
+  }
+}

@@ -60,6 +60,7 @@ mkdir -p $HOME/.config/emacs
 mkdir -p $HOME/.cargo
 mkdir -p $HOME/.claude
 mkdir -p $HOME/.codex
+mkdir -p $HOME/.cursor
 mkdir -p $HOME/.local/bin
 if [ ! -f $HOME/Repos/ravern/dots/config/env.zsh ]; then
   cp $HOME/Repos/ravern/dots/config/env.zsh.example $HOME/Repos/ravern/dots/config/env.zsh
@@ -79,4 +80,5 @@ ln -s $HOME/Repos/ravern/dots/config/claude/settings.json $HOME/.claude/settings
 ln -s $HOME/Repos/ravern/dots/config/claude/CLAUDE.md     $HOME/.claude/CLAUDE.md
 ln -s $HOME/Repos/ravern/dots/config/codex/config.toml    $HOME/.codex/config.toml
 ln -s $HOME/Repos/ravern/dots/config/codex/hooks.json     $HOME/.codex/hooks.json
+ln -s $HOME/Repos/ravern/dots/config/cursor/permissions.json $HOME/.cursor/permissions.json
 ln -s $HOME/Repos/ravern/dots/config/bin/sish             $HOME/.local/bin/sish
