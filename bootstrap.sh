@@ -4,6 +4,17 @@
 # Install most packages using Homebrew
 /opt/homebrew/bin/brew bundle
 
+# Install apps that are not available through Homebrew
+if [ ! -d /Applications/Looq.app ]; then
+  looq_stage_dir=$(mktemp -d /tmp/looq-install.XXXXXX)
+  curl -fL https://releases.parcse.com/looq/Looq-latest.dmg -o "$looq_stage_dir/Looq.dmg"
+  hdiutil attach "$looq_stage_dir/Looq.dmg" -nobrowse -readonly -mountpoint "$looq_stage_dir/mount"
+  ditto "$looq_stage_dir/mount/Looq.app" /Applications/Looq.app
+  hdiutil detach "$looq_stage_dir/mount"
+  rm -f "$looq_stage_dir/Looq.dmg"
+  rmdir "$looq_stage_dir"
+fi
+
 # Link mise config before installing managed tools
 mkdir -p $HOME/.config
 if [ ! -e $HOME/.config/mise ]; then

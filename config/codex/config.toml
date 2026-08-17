@@ -6,10 +6,12 @@ notify = ["/Users/ravern/.codex/computer-use/Codex Computer Use.app/Contents/Sha
 approval_policy = "never"
 approvals_reviewer = "user"
 sandbox_mode = "danger-full-access"
+service_tier = "priority"
 
 [desktop]
 followUpQueueMode = "queue"
 enabled-reasoning-efforts = ["low", "medium", "high", "xhigh", "ultra", "max"]
+conversationDetailMode = "STEPS_COMMANDS"
 
 [desktop.open-in-target-preferences]
 global = "ghostty"
@@ -18,26 +20,32 @@ global = "ghostty"
 "/Users/ravern/Repos/ravern/near" = "ghostty"
 
 [marketplaces.openai-bundled]
-last_updated = "2026-07-26T08:44:18Z"
+last_updated = "2026-08-17T01:18:29Z"
 source_type = "local"
 source = "/Users/ravern/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.openai-primary-runtime]
-last_updated = "2026-07-24T06:53:52Z"
+last_updated = "2026-08-14T15:40:29Z"
 source_type = "local"
 source = "/Users/ravern/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
 [marketplaces.ponytail]
-last_updated = "2026-07-10T23:43:08Z"
-last_revision = "14a0d79548d4de8fc2de95c1b94bb0de63a739d3"
+last_updated = "2026-08-08T07:14:24Z"
+last_revision = "2ed6c52c9d7e5e56942508591085fd45dea277d3"
 source_type = "git"
 source = "https://github.com/DietrichGebert/ponytail.git"
 
 [marketplaces.braintrust-codex-plugins]
-last_updated = "2026-07-08T02:59:01Z"
-last_revision = "21ea3c5f2709e8ac8d493a52f594ac7d10eae9a2"
+last_updated = "2026-08-15T07:54:46Z"
+last_revision = "44d34bce5d3f9774558d019614e6e94cbce5e348"
 source_type = "git"
 source = "https://github.com/braintrustdata/braintrust-codex-plugin.git"
+
+[marketplaces.paper]
+last_updated = "2026-08-17T01:18:28Z"
+last_revision = "cd89a2fd012cac8d6c0fa8f5420c9e49577f0c49"
+source_type = "git"
+source = "https://github.com/paper-design/agent-plugins.git"
 
 [plugins."sites@openai-bundled"]
 enabled = true
@@ -66,13 +74,16 @@ enabled = true
 [plugins."template-creator@openai-primary-runtime"]
 enabled = true
 
-[plugins."browser@openai-bundled"]
-enabled = true
-
 [plugins."ponytail@ponytail"]
 enabled = true
 
 [plugins."braintrust@braintrust-codex-plugins"]
+enabled = true
+
+[plugins."browser@openai-bundled"]
+enabled = true
+
+[plugins."paper-desktop@paper"]
 enabled = true
 
 [features]
@@ -90,15 +101,15 @@ startup_timeout_sec = 120
 NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
 NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
 NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
-NODE_REPL_TRUSTED_CODE_PATHS = "/Users/ravern/.codex"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/ravern/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
 CODEX_HOME = "/Users/ravern/.codex"
-NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f,e13fd947e846d3d306e9249dd3c73d14931b6494803dbafb16cef85e6add9506"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "9230e2bd8b24b7ac7a0ba6774c64bf0d78ecdabbdd91d0ed627b02a587bae2df"
 BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
 NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
 NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.721.41059"
+BROWSER_USE_CODEX_APP_VERSION = "26.810.52044"
 SKY_CUA_SERVICE_PATH = "/Users/ravern/.codex/computer-use/Codex Computer Use.app"
 CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
 
@@ -120,7 +131,40 @@ trust_level = "trusted"
 [projects."/Users/ravern/Documents/Codex/2026-07-26/lo"]
 trust_level = "trusted"
 
+[projects."/Users/ravern/Documents/Codex/2026-08-08/see-greptile"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-08/see-greptile-2"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-08/see-greptile-3"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-10/shou"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-13/how"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-15/i-ha"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-15/u-can"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-15/what"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-16/are"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-16/can"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-16/is-th"]
+trust_level = "trusted"
+
 [shell_environment_policy.set]
 BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
-NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f,e13fd947e846d3d306e9249dd3c73d14931b6494803dbafb16cef85e6add9506"
-NODE_REPL_TRUSTED_CODE_PATHS = "/Users/ravern/.codex"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "9230e2bd8b24b7ac7a0ba6774c64bf0d78ecdabbdd91d0ed627b02a587bae2df"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/ravern/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
