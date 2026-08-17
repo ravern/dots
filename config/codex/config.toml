@@ -185,6 +185,9 @@ enabled = true
 [plugins."chrome@openai-bundled"]
 enabled = true
 
+[plugins."paper-desktop@paper"]
+enabled = true
+
 [hooks.state]
 
 [hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:session_start:0:0"]
@@ -239,3 +242,8 @@ last_updated = "2026-07-28T02:55:29Z"
 last_revision = "16f29800fd2681bdf24f3eb4ccffe38be3baec6b"
 source_type = "git"
 source = "https://github.com/DietrichGebert/ponytail.git"
+
+[marketplaces.paper]
+last_updated = "2026-08-17T18:58:30Z"
+source_type = "git"
+source = "https://github.com/paper-design/agent-plugins.git"
