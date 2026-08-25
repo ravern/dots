@@ -24,15 +24,16 @@ notify = ["/Users/ravern/.codex/computer-use/Codex Computer Use.app/Contents/Sha
   NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
   NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
   NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
-  NODE_REPL_TRUSTED_CODE_PATHS = "/Users/ravern/.codex"
+  NODE_REPL_TRUSTED_CODE_PATHS = "/Users/ravern/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
   CODEX_HOME = "/Users/ravern/.codex"
-  NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "028a14b6eaa6d98dac2aae00764345ab9f244801ed8493d42b9af3be5575006e,f204d340535055781952b10ed396de20b842f00a19e430852f7e121ad1ce91f6"
   BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+BROWSER_USE_TINYSKY_ENABLED = "0"
   NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
   NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
   NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
   BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-  BROWSER_USE_CODEX_APP_VERSION = "26.727.51351"
+  BROWSER_USE_CODEX_APP_VERSION = "26.818.61809"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/ravern/.codex/plugins/cache/openai-bundled/browser/26.818.61809/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
   SKY_CUA_SERVICE_PATH = "/Users/ravern/.codex/computer-use/Codex Computer Use.app"
   CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
 
@@ -140,6 +141,147 @@ trust_level = "trusted"
 [projects."/Users/ravern/Documents/Codex/2026-07-31/hello-we-ve-enabled-our-private"]
 trust_level = "trusted"
 
+[projects."/Users/ravern/Documents/Codex/2026-08-03/does"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-03/does-2"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-04/my"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-04/can"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-04/which"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Repos/greptileai/dataset"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/.bb/personal-workspaces/env_zd5anv66af"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/.bb/personal-workspaces/env_pr8ijsp5mr"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-06/how"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/.bb/personal-workspaces/env_efaktqdr2d"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/.bb/personal-workspaces/env_3dzsjz23et"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/.bb/personal-workspaces/env_vfmbja7ums"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/.bb/personal-workspaces/env_s7a4jgjkk5"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/.bb/personal-workspaces/env_gs3b9hr9qz"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-10/can"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-10/can-u-access-posthog"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-10/t"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-10/po"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Repos/greptileai/ravern-experiments-demo"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-12/can"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-15/how"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-15/how-2"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-15/let-s-set-up-a-scheduled"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-15/let-s-set-up-a-scheduled-2"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-15/give"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-15/realtime-voice-chat"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-15/realtime-voice-chat-2"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-17/can"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-17/can-u"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Repos/nusmodifications/nusmods"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-17/pls"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-17/do-u"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-18/https-greptile-slack-com-archives-c05l0450lc8"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-19/can-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-20/for-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-20/can-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-20/fix-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-20/what"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-21/what-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-23/is-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-24/how-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-24/files-mentioned-by-the-user-codex"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Repos/ravern/grepinator"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-24/can-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-24/what"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-25/can-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-25/can-x20-2"]
+trust_level = "trusted"
+
 [plugins."vercel@openai-curated"]
 enabled = true
 
@@ -173,16 +315,22 @@ enabled = true
 [plugins."greptile@greptile-local"]
 enabled = true
 
-[plugins."ponytail@ponytail"]
+[plugins."visualize@openai-bundled"]
 enabled = true
 
-[plugins."visualize@openai-bundled"]
+[plugins."chrome@openai-bundled"]
 enabled = true
 
 [plugins."sites@openai-bundled"]
 enabled = true
 
-[plugins."chrome@openai-bundled"]
+[plugins."ponytail@ponytail"]
+enabled = true
+
+[plugins."horsetail@personal"]
+enabled = true
+
+[plugins."codex-app-tools@openai-bundled"]
 enabled = true
 
 [plugins."paper-desktop@paper"]
@@ -205,22 +353,25 @@ trusted_hash = "sha256:78b53c21bd9706f3229c6dae1c8c7c5d39e79a681632acb8dd3f025b4
 [hooks.state."/Users/ravern/.codex/hooks.json:session_start:0:0"]
 trusted_hash = "sha256:4637992e2d786767037613af649042af837b8a591e4e101ca18476decbf45d2a"
 
+[hooks.state."horsetail@personal:hooks/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:09d811db530769e87201d4674fa7d3dbae9bfc99005fd4b02014c1c5e0a676b1"
+
+[hooks.state."horsetail@personal:hooks/hooks.json:subagent_start:0:0"]
+trusted_hash = "sha256:d7d9625ca4ce39249e43e5f133b34d06e2ffa0bc5b4b107192eb1fb53bd22890"
+
 [shell_environment_policy.set]
-  BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
-  NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "028a14b6eaa6d98dac2aae00764345ab9f244801ed8493d42b9af3be5575006e,f204d340535055781952b10ed396de20b842f00a19e430852f7e121ad1ce91f6"
-  NODE_REPL_TRUSTED_CODE_PATHS = "/Users/ravern/.codex"
+  NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "9230e2bd8b24b7ac7a0ba6774c64bf0d78ecdabbdd91d0ed627b02a587bae2df"
 
 [desktop]
 followUpQueueMode = "queue"
 enabled-reasoning-efforts = ["low", "medium", "high", "xhigh", "ultra", "max"]
 
 [marketplaces.openai-bundled]
-last_updated = "2026-08-01T00:34:16Z"
 source_type = "local"
 source = "/Users/ravern/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.openai-primary-runtime]
-last_updated = "2026-08-03T16:34:31Z"
+last_updated = "2026-08-19T23:34:11Z"
 source_type = "local"
 source = "/Users/ravern/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
@@ -232,18 +383,18 @@ source = "https://github.com/greptileai/greptile-codex-plugin.git"
 ref = "main"
 
 [marketplaces.braintrust-codex-plugins]
-last_updated = "2026-07-29T15:51:54Z"
-last_revision = "d0bae8470537a80c004f0f5c2edebd1e74207ca9"
+last_updated = "2026-08-13T16:38:17Z"
+last_revision = "44d34bce5d3f9774558d019614e6e94cbce5e348"
 source_type = "git"
 source = "https://github.com/braintrustdata/braintrust-codex-plugin.git"
 
 [marketplaces.ponytail]
-last_updated = "2026-07-28T02:55:29Z"
-last_revision = "16f29800fd2681bdf24f3eb4ccffe38be3baec6b"
+last_updated = "2026-08-07T22:26:58Z"
+last_revision = "2ed6c52c9d7e5e56942508591085fd45dea277d3"
 source_type = "git"
 source = "https://github.com/DietrichGebert/ponytail.git"
 
 [marketplaces.paper]
-last_updated = "2026-08-17T18:58:30Z"
-source_type = "git"
-source = "https://github.com/paper-design/agent-plugins.git"
+last_updated = "2026-08-25T16:21:07Z"
+source_type = "local"
+source = "/Users/ravern/Documents/Codex/2026-08-25/can-x20/outputs/paper-codex-marketplace"
