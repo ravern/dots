@@ -1,17 +1,19 @@
-model = "gpt-5.6-sol"
-model_reasoning_effort = "medium"
+model = "gpt-6-astra"
+model_reasoning_effort = "low"
 
 
 notify = ["/Users/ravern/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
 approval_policy = "never"
 approvals_reviewer = "user"
 sandbox_mode = "danger-full-access"
-service_tier = "priority"
+service_tier = "default"
 
 [desktop]
 followUpQueueMode = "queue"
 enabled-reasoning-efforts = ["low", "medium", "high", "xhigh", "ultra", "max"]
 conversationDetailMode = "STEPS_COMMANDS"
+ambient-suggestions-enabled = false
+sansFontSize = 13
 
 [desktop.open-in-target-preferences]
 global = "ghostty"
@@ -28,20 +30,20 @@ source_type = "local"
 source = "/Users/ravern/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
 [marketplaces.ponytail]
-last_updated = "2026-08-08T07:14:24Z"
-last_revision = "2ed6c52c9d7e5e56942508591085fd45dea277d3"
+last_updated = "2026-09-07T17:54:38Z"
+last_revision = "356918eba965ee1eac64bd3a7f0dd02108350de5"
 source_type = "git"
 source = "https://github.com/DietrichGebert/ponytail.git"
 
 [marketplaces.braintrust-codex-plugins]
-last_updated = "2026-08-15T07:54:46Z"
-last_revision = "44d34bce5d3f9774558d019614e6e94cbce5e348"
+last_updated = "2026-09-07T17:54:35Z"
+last_revision = "bbe39d2970726f6744371b6473e11f074499fdc5"
 source_type = "git"
 source = "https://github.com/braintrustdata/braintrust-codex-plugin.git"
 
 [marketplaces.paper]
-last_updated = "2026-08-17T01:18:28Z"
-last_revision = "cd89a2fd012cac8d6c0fa8f5420c9e49577f0c49"
+last_updated = "2026-09-07T17:54:36Z"
+last_revision = "f6d4f13343dd924fabaadd0898725f1b8718459d"
 source_type = "git"
 source = "https://github.com/paper-design/agent-plugins.git"
 
@@ -81,10 +83,13 @@ enabled = true
 [plugins."browser@openai-bundled"]
 enabled = true
 
+[plugins."codex-app-tools@openai-bundled"]
+enabled = true
+
 [plugins."paper-desktop@paper"]
 enabled = true
 
-[plugins."codex-app-tools@openai-bundled"]
+[plugins."unified-computer-use@openai-bundled"]
 enabled = true
 
 [features]
@@ -105,13 +110,13 @@ NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin
 NODE_REPL_TRUSTED_CODE_PATHS = "/Users/ravern/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
 CODEX_HOME = "/Users/ravern/.codex"
 BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
-BROWSER_USE_TINYSKY_ENABLED = "0"
-NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
-NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
-NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
+BROWSER_USE_TINYSKY_ENABLED = "1"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
+NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
+NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = ""
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.818.61809"
-NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/ravern/.codex/plugins/cache/openai-bundled/browser/26.818.61809/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
+BROWSER_USE_CODEX_APP_VERSION = "26.901.51231"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/ravern/.codex/plugins/cache/openai-bundled/browser/26.901.51231/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
 SKY_CUA_SERVICE_PATH = "/Users/ravern/.codex/computer-use/Codex Computer Use.app"
 CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
 
@@ -179,6 +184,81 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/ravern/Documents/Codex/2026-08-25/u"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-25/any"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-25/p"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-25/i-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-25/what"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-25/how-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-28/mac-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-29/is-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-29/c"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-30/tell-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-30/https-h1b1-work-https-h1b1-work"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-30/sum"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-08-30/new-chat"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-09-01/ok-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-09-03/has-anyone-figured-out-a-different"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-09-05/on-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-09-06/build-minecraft-in-a-directory-on"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-09-06/goa"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-09-06/do-u"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-09-06/how-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-09-06/pull-latest-main-x20"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-09-06/star"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-09-06/can-u-clone-ravern-dustline-into"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-09-07/do-u"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/Documents/Codex/2026-09-07/see"]
+trust_level = "trusted"
+
+[projects."/Users/ravern/.bb/personal-workspaces/env_psh6jzstdq"]
 trust_level = "trusted"
 
 [shell_environment_policy.set]
