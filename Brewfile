@@ -121,6 +121,7 @@ cask 'vlc'
 cask 'willow-voice'
 cask 'windows-app'
 cask 'xquartz'
+cask 'xcodes-app'
 cask 'zen'
 cask 'zoom'
 
@@ -130,5 +131,4 @@ mas "Numbers", id: 409203825
 mas "NordVPN: VPN Fast & Secure", id: 905953485
 mas "Pages", id: 409201541
 mas "TestFlight", id: 899247664
-mas "Xcode", id: 497799835
 mas "WhatsApp", id: 310633997
