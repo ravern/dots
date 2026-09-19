@@ -69,4 +69,3 @@ pyact() {
   return 1
 }
 gi() { curl -sLw "\n" https://www.toptal.com/developers/gitignore/api/$@ }
-export AWS_PROFILE=greptile-staging-readonly

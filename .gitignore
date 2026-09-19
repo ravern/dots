@@ -7,3 +7,6 @@ openspec/specs/
 
 # Local secrets
 config/env.zsh
+
+# Local Codex state and credentials
+config/codex/config.toml

@@ -1,8 +1,6 @@
 # Environments
 source $HOME/.cargo/env
 eval "$(/opt/homebrew/bin/brew shellenv)"
-eval "$(rbenv init - zsh)"
-eval "$(opam env)"
 
 # Exports
 export LANG=en_US.UTF-8

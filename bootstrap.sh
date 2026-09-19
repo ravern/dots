@@ -41,14 +41,6 @@ $HOME/.cargo/bin/rustup toolchain install nightly
 /opt/homebrew/bin/pipx install fava || /opt/homebrew/bin/pipx upgrade fava
 /opt/homebrew/bin/pipx install rendercv || /opt/homebrew/bin/pipx upgrade rendercv
 
-# Select Ruby
-/opt/homebrew/bin/rbenv install -s 2.7.8
-/opt/homebrew/bin/rbenv global 2.7.8
-
-# Install Coq and global packages
-opam pin add coq 8.18.0
-opam install vscoq-language-server
-
 # Install Zsh plugins
 mkdir -p $HOME/.local/zsh/plugins
 git clone https://github.com/zsh-users/zsh-autosuggestions     $HOME/.local/zsh/plugins/zsh-autosuggestions
@@ -77,6 +69,6 @@ ln -s $HOME/Repos/ravern/dots/config/.cargo/config.toml   $HOME/.cargo/config.to
 ln -s $HOME/Repos/ravern/dots/config/jj                   $HOME/Library/Application\ Support/jj
 ln -s $HOME/Repos/ravern/dots/config/claude/settings.json $HOME/.claude/settings.json
 ln -s $HOME/Repos/ravern/dots/config/claude/CLAUDE.md     $HOME/.claude/CLAUDE.md
-ln -s $HOME/Repos/ravern/dots/config/codex/config.toml    $HOME/.codex/config.toml
+# Codex configuration stays local: it contains machine state and credentials.
 ln -s $HOME/Repos/ravern/dots/config/codex/hooks.json     $HOME/.codex/hooks.json
 ln -s $HOME/Repos/ravern/dots/config/bin/sish             $HOME/.local/bin/sish
