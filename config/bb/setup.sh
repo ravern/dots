@@ -20,7 +20,7 @@ done
 bb plugin install git:https://github.com/ChrBoebel/bb-plugin-provider-brand-marks.git@^0.1.0 --yes
 
 # Disabled plugins
-for p in coordinator-threads account-pool agent-annotations monaco-editor plugin-api-docs plugin-api-tester provider-acp provider-pi workflows; do
+for p in coordinator-threads account-pool agent-annotations monaco-editor plugin-api-docs plugin-api-tester provider-pi workflows; do
   bb plugin disable $p
 done
 
