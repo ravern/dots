@@ -71,3 +71,6 @@ ln -s $HOME/Repos/ravern/dots/config/claude/settings.json $HOME/.claude/settings
 ln -s $HOME/Repos/ravern/dots/config/claude/CLAUDE.md     $HOME/.claude/CLAUDE.md
 ln -s $HOME/Repos/ravern/dots/config/cursor/permissions.json $HOME/.cursor/permissions.json
 ln -s $HOME/Repos/ravern/dots/config/bin/sish             $HOME/.local/bin/sish
+
+# Install bb plugins and settings (needs bb running)
+sh $HOME/Repos/ravern/dots/config/bb/setup.sh

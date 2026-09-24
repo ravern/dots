@@ -1,0 +1,27 @@
+{
+  "name": "bb-plugin-reasoning-slider",
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "bb": ">=0.43",
+    "bbPluginSdk": ">=0.5.9"
+  },
+  "bb": {
+    "name": "Reasoning Slider",
+    "description": "Swap the model picker's reasoning buttons for a Codex-style slider. Drag, click a stop, or use the arrow keys.",
+    "branding": {
+      "icon": "SlidersHorizontal"
+    },
+    "server": "./server.ts",
+    "app": "./app.ts",
+    "skills": []
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@get-bb/plugin-sdk": "0.5.9",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  },
+  "private": true,
+  "description": "Swap bb's reasoning buttons for a Codex-style slider."
+}

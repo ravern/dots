@@ -1,0 +1,151 @@
+/* Reasoning Slider — modelled on the Codex desktop app's reasoning slider:
+ * a 24px pill track, blue fill up to a white 28px-ish thumb, 4px stop dots,
+ * a blue→purple fill at the top level, 0.3s ease-out motion.
+ * Override any --rs-* variable from your own theme. */
+
+[data-reasoning-slider-hidden] {
+  display: none !important;
+}
+
+.rs-root {
+  --rs-fill: #339cff;
+  --rs-fill-max: linear-gradient(90deg, color-mix(in srgb, #339cff 60%, #a371f7), #a371f7);
+  --rs-track: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --rs-thumb: #ffffff;
+  --rs-motion: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  --rs-height: 24px;
+  display: grid;
+  gap: 6px;
+  padding: 2px 4px 4px;
+  outline: none;
+  touch-action: none;
+  user-select: none;
+}
+
+.rs-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -1.55rem; /* sit on the same line as bb's "Reasoning" heading */
+  min-height: 1rem;
+  pointer-events: none;
+}
+
+.rs-value {
+  font-size: 0.75rem;
+  color: var(--foreground);
+}
+
+.rs-track {
+  position: relative;
+  height: var(--rs-height);
+  border-radius: calc(var(--rs-height) / 2);
+  background: var(--rs-track);
+  box-shadow: inset 0 0 0 0.5px var(--border);
+  cursor: pointer;
+}
+
+.rs-root[data-dragging] .rs-track {
+  cursor: grabbing;
+}
+
+/* Stops, fill and thumb live on an inner rail inset by half the track height,
+ * so the first and last stops sit under a fully visible thumb. */
+.rs-range,
+.rs-ticks,
+.rs-thumb {
+  --rs-inset: calc(var(--rs-height) / 2);
+  --rs-x: calc(var(--rs-inset) + (100% - var(--rs-inset) * 2) * var(--rs-pct) / 100);
+}
+
+.rs-range {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: calc(var(--rs-inset) + (100% - var(--rs-inset) * 2) * var(--rs-pct) / 100 + var(--rs-inset));
+  border-radius: calc(var(--rs-height) / 2);
+  background: var(--rs-fill);
+  transition: width var(--rs-motion);
+}
+
+.rs-root[data-max] .rs-range {
+  background: var(--rs-fill-max);
+}
+
+.rs-ticks {
+  position: absolute;
+  inset-block: 0;
+  inset-inline: var(--rs-inset);
+}
+
+.rs-tick {
+  position: absolute;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--muted-foreground) 50%, transparent);
+  transform: translate(-50%, -50%);
+  transition: background-color var(--rs-motion), transform 0.12s ease;
+}
+
+/* Bigger hit area than the 4px dot. */
+.rs-tick::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+}
+
+.rs-tick:hover {
+  transform: translate(-50%, -50%) scale(2);
+}
+
+.rs-tick[data-filled] {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.rs-thumb {
+  position: absolute;
+  top: 50%;
+  left: var(--rs-x);
+  width: calc(var(--rs-height) - 4px);
+  height: calc(var(--rs-height) - 4px);
+  border-radius: 50%;
+  background: var(--rs-thumb);
+  border: 0.5px solid color-mix(in srgb, #000 18%, transparent);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.12);
+  transform: translate(-50%, -50%);
+  transition: left var(--rs-motion), transform 0.12s ease;
+  pointer-events: none;
+}
+
+.rs-root[data-dragging] .rs-thumb {
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.rs-root:focus-visible .rs-thumb {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.rs-root[data-disabled] {
+  opacity: 0.6;
+}
+
+.rs-root[data-disabled] .rs-track,
+.rs-root[data-disabled] .rs-tick {
+  cursor: default;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rs-root {
+    --rs-motion: 0s linear;
+  }
+}
+
+/* Phones: bb makes picker rows taller there; give the thumb room too. */
+@media (max-width: 767px) and (pointer: coarse) {
+  .rs-root {
+    --rs-height: 32px;
+  }
+}
