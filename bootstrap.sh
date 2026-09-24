@@ -81,6 +81,7 @@ done
 # bb theme
 mkdir -p $HOME/.bb/theme
 ln -s $HOME/Repos/ravern/dots/config/bb/theme/Ravern $HOME/.bb/theme/Ravern
+ln -s $HOME/Repos/ravern/dots/config/bb/theme/Greptile $HOME/.bb/theme/Greptile
 
 # Install bb plugins and settings (needs bb running)
 sh $HOME/Repos/ravern/dots/config/bb/setup.sh
