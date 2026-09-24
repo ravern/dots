@@ -1,5 +1,0 @@
-{
-  "customModels": [
-    { "providerId": "acp-cursor", "model": "grok-4.7-high", "displayName": "Grok 4.7" }
-  ]
-}
