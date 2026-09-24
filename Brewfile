@@ -78,6 +78,7 @@ brew 'tw93/tap/mole', trusted: true
 cask '1password'
 cask 'alcove'
 cask 'android-studio'
+cask 'bb'
 cask 'bruno'
 cask 'chatgpt'
 cask 'claude'
