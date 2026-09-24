@@ -6,7 +6,7 @@ tap 'tw93/tap'
 brew 'aom'
 brew 'awscli'
 brew 'buf'
-brew 'bun'
+brew 'oven-sh/bun/bun@1.4.2', trusted: true
 brew 'clang-format'
 brew 'cmake'
 brew 'coreutils'
