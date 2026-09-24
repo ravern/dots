@@ -1541,3 +1541,9 @@ button[aria-label^="Provider, model and reasoning"] > span > :first-child:not(:o
 .bb-app-shell [data-message-column] .rounded-xl.bg-surface-recessed blockquote {
   border-color: #eeeeee;
 }
+
+/* Quote bar in the composer: Greptile green instead of the blue
+ * selected-border. */
+.bb-app-shell .ProseMirror blockquote {
+  border-color: #007a51;
+}
