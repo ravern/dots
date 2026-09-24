@@ -72,9 +72,24 @@
     ]
   },
   "enabledPlugins": {
-    "frontend-design@claude-plugins-official": true
+    "frontend-design@claude-plugins-official": true,
+    "ponytail@ponytail": true,
+    "github@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    }
   },
-  "skipDangerousModePermissionPrompt": true
+  "statusLine": {
+    "type": "command",
+    "command": "bash \"/Users/ravern/.claude/plugins/cache/ponytail/ponytail/4.8.4/hooks/ponytail-statusline.sh\""
+  },
+  "tui": "fullscreen",
+  "autoMemoryEnabled": false,
+  "skipDangerousModePermissionPrompt": true,
+  "agentPushNotifEnabled": true
 }
