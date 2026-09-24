@@ -71,6 +71,13 @@ ln -s $HOME/Repos/ravern/dots/config/claude/settings.json $HOME/.claude/settings
 ln -s $HOME/Repos/ravern/dots/config/claude/CLAUDE.md     $HOME/.claude/CLAUDE.md
 ln -s $HOME/Repos/ravern/dots/config/cursor/permissions.json $HOME/.cursor/permissions.json
 
+# Link Claude skills
+mkdir -p $HOME/.claude/skills
+for skill in $HOME/Repos/ravern/dots/config/skills/*; do
+  name=$(basename $skill)
+  [ -e $HOME/.claude/skills/$name ] || ln -s $skill $HOME/.claude/skills/$name
+done
+
 # bb config: lists Grok 4.7 (a Cursor "More models" entry) in the main picker
 mkdir -p $HOME/.bb
 ln -s $HOME/Repos/ravern/dots/config/bb/config.json $HOME/.bb/config.json
