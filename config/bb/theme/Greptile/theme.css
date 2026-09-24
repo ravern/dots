@@ -1535,3 +1535,9 @@ button[aria-label^="Provider, model and reasoning"] > span > :first-child:not(:o
   border-color: #007a51;
   color: #eeeeee;
 }
+
+/* Quote bar inside the green bubble: the default selected-border teal
+ * disappears on green, so match the bubble text instead. */
+.bb-app-shell [data-message-column] .rounded-xl.bg-surface-recessed blockquote {
+  border-color: #eeeeee;
+}
