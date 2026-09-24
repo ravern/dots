@@ -1,4 +1,7 @@
 {
+  "sandbox": {
+    "enabled": false
+  },
   "permissions": {
     "allow": [
       "Bash(git status*)",
