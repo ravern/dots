@@ -32,7 +32,7 @@ $HOME/.cargo/bin/cargo install cargo-bundle
 $HOME/.cargo/bin/cargo install --features vendored-openssl --locked --bin jj jj-cli
 $HOME/.cargo/bin/rustup toolchain install nightly
 
-# Install Node and global JS tools
+# Install Node and global JS tools, including PostHog CLI, from the mise config
 /opt/homebrew/bin/mise trust $HOME/.config/mise/config.toml
 /opt/homebrew/bin/mise install
 /opt/homebrew/bin/mise reshim
