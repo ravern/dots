@@ -1547,3 +1547,22 @@ button[aria-label^="Provider, model and reasoning"] > span > :first-child:not(:o
 .bb-app-shell .ProseMirror blockquote {
   border-color: #007a51;
 }
+
+/* Send button, stop button, and the split send/options pill: Greptile green
+ * with white icons. The split pill is BB's `group/send bg-foreground`
+ * wrapper; its inner buttons are transparent. Disabled (empty composer)
+ * keeps the grey rule above. */
+.bb-app-shell [data-promptbox-submit-action]:not(:disabled),
+.bb-app-shell .group\/send.bg-foreground {
+  background-color: #007a51 !important;
+  color: #ffffff !important;
+}
+
+.bb-app-shell .group\/send.bg-foreground [data-promptbox-submit-action]:not(:disabled) {
+  background-color: transparent !important;
+}
+
+.bb-app-shell [data-promptbox-submit-action]:not(:disabled):hover,
+.bb-app-shell .group\/send.bg-foreground:hover {
+  background-color: #00845a !important;
+}
