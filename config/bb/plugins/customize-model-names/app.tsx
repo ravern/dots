@@ -9,6 +9,7 @@ import {
 } from "@get-bb/plugin-sdk/app";
 import {
   isVisible,
+  providerFromTitle,
   renameLabel,
   rowNames,
   type Config,
@@ -95,6 +96,61 @@ function startHiding(visible: VisibleModels, models: Record<string, ModelRef[]>)
     observer.disconnect();
     document.removeEventListener("input", apply, true);
     for (const el of document.querySelectorAll<HTMLElement>(`[${HIDDEN_ATTR}]`)) setHidden(el, false);
+  };
+}
+
+const FAST_LOGO_ATTR = "data-customize-model-names-fast-logo";
+
+interface ProviderLogo {
+  displayName: string;
+  logoUrl: string | null;
+}
+
+/**
+ * Fast mode makes bb swap the picker trigger's provider logo for a Zap icon.
+ * Put the logo back in front of the Zap, drawn the way bb draws it (a
+ * currentColor span masked by the provider's logo URL).
+ */
+function startFastModeLogo(providers: readonly ProviderLogo[]): () => void {
+  const apply = () => {
+    for (const label of document.querySelectorAll<HTMLElement>(`${PICKER_TRIGGER} span[title]`)) {
+      const zap = label.querySelector(":scope > [data-icon=Zap]");
+      const existing = label.querySelector<HTMLElement>(`:scope > [${FAST_LOGO_ATTR}]`);
+      const logoUrl = zap === null ? null : providerFromTitle(label.title, providers)?.logoUrl ?? null;
+      if (logoUrl === null) {
+        existing?.remove();
+        continue;
+      }
+      if (existing?.dataset.providerLogo === logoUrl) continue;
+      existing?.remove();
+      const mask = `url("${logoUrl.replace(/["\\]/g, "\\$&")}")`;
+      const logo = document.createElement("span");
+      logo.setAttribute(FAST_LOGO_ATTR, "");
+      logo.dataset.providerLogo = logoUrl;
+      logo.setAttribute("aria-hidden", "true");
+      Object.assign(logo.style, {
+        display: "inline-block",
+        flexShrink: "0",
+        width: "1rem",
+        height: "1rem",
+        backgroundColor: "currentColor",
+        maskImage: mask,
+        webkitMaskImage: mask,
+        maskRepeat: "no-repeat",
+        maskPosition: "center",
+        maskSize: "contain",
+      });
+      label.insertBefore(logo, zap);
+    }
+  };
+
+  const observer = new MutationObserver(apply);
+  apply();
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  return () => {
+    observer.disconnect();
+    for (const el of document.querySelectorAll(`[${FAST_LOGO_ATTR}]`)) el.remove();
   };
 }
 
@@ -195,6 +251,8 @@ function useModels(visible: VisibleModels | undefined) {
 function Rewriter() {
   const { config } = useConfig();
   const models = useModels(config?.visibleModels);
+  const { providers } = experimental_useProviders();
+  useEffect(() => startFastModeLogo(providers), [providers]);
   useEffect(() => (config === null ? undefined : startRewriting(config)), [config]);
   useEffect(
     () => (config === null || models === null ? undefined : startHiding(config.visibleModels, models)),
