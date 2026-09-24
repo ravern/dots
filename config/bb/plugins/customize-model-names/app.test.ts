@@ -5,6 +5,7 @@ import {
   matchesPattern,
   parseRenames,
   parseVisibleModels,
+  providerFromTitle,
   renameLabel,
   rowNames,
   type RenameConfig,
@@ -63,3 +64,10 @@ assert.deepEqual(
   { codex: ["GPT-6*"], "claude-code": ["Opus 5.5"] },
 );
 console.log("ok");
+
+{
+  const providers = [{ displayName: "Claude" }, { displayName: "Claude Code" }, { displayName: "Cursor" }];
+  assert.equal(providerFromTitle("Cursor: Grok 4.7 · High reasoning (Fast mode)", providers)?.displayName, "Cursor");
+  assert.equal(providerFromTitle("Claude Code: Opus 5.5 (Fast mode)", providers)?.displayName, "Claude Code");
+  assert.equal(providerFromTitle("Codex: GPT-6", providers), null);
+}

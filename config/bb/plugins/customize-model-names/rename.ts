@@ -114,3 +114,16 @@ export function isVisible(names: readonly string[], patterns: readonly string[] 
 export interface Config extends RenameConfig {
   visibleModels: VisibleModels;
 }
+
+/**
+ * The provider a model-picker trigger shows, from its title
+ * ("Cursor: Grok 4.7 · High reasoning (Fast mode)"). Longest name first so
+ * "Claude Code" wins over a provider named "Claude".
+ */
+export function providerFromTitle<P extends { displayName: string }>(
+  title: string,
+  providers: readonly P[],
+): P | null {
+  const sorted = [...providers].sort((a, b) => b.displayName.length - a.displayName.length);
+  return sorted.find((p) => title.startsWith(`${p.displayName}: `)) ?? null;
+}
