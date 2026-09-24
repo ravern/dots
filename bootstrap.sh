@@ -72,6 +72,10 @@ ln -s $HOME/Repos/ravern/dots/config/claude/CLAUDE.md     $HOME/.claude/CLAUDE.m
 ln -s $HOME/Repos/ravern/dots/config/cursor/permissions.json $HOME/.cursor/permissions.json
 ln -s $HOME/Repos/ravern/dots/config/bin/sish             $HOME/.local/bin/sish
 
+# bb config (custom models)
+mkdir -p $HOME/.bb
+ln -s $HOME/Repos/ravern/dots/config/bb/config.json $HOME/.bb/config.json
+
 # bb theme
 mkdir -p $HOME/.bb/theme
 ln -s $HOME/Repos/ravern/dots/config/bb/theme/Ravern $HOME/.bb/theme/Ravern
