@@ -95,10 +95,10 @@ done
 mkdir -p $HOME/.bb
 ln -s $HOME/Repos/ravern/dots/config/bb/theme $HOME/.bb/theme
 
-# Link bb's bundled CLI
-if [ ! -e "$HOME/.local/bin/bb" ]; then
-  ln -s /Applications/bb.app/Contents/Resources/app.asar.unpacked/node_modules/bb-app/dist/bb.js "$HOME/.local/bin/bb"
-fi
+# bb theme
+mkdir -p $HOME/.bb/theme
+ln -s $HOME/Repos/ravern/dots/config/bb/theme/Ravern $HOME/.bb/theme/Ravern
+ln -s $HOME/Repos/ravern/dots/config/bb/theme/Greptile $HOME/.bb/theme/Greptile
 
 # Install bb plugins and settings (needs bb running)
 sh $HOME/Repos/ravern/dots/config/bb/setup.sh
