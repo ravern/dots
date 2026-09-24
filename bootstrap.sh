@@ -80,10 +80,6 @@ for skill in $HOME/Repos/ravern/dots/config/skills/*; do
   [ -e $HOME/.claude/skills/$name ] || ln -s $skill $HOME/.claude/skills/$name
 done
 
-# bb config (custom models)
-mkdir -p $HOME/.bb
-ln -s $HOME/Repos/ravern/dots/config/bb/config.json $HOME/.bb/config.json
-
 # bb theme
 mkdir -p $HOME/.bb/theme
 ln -s $HOME/Repos/ravern/dots/config/bb/theme/Ravern $HOME/.bb/theme/Ravern
