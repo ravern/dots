@@ -5,12 +5,9 @@ models the model picker shows. Model ids and
 what bb sends to providers are unchanged; text you type is never touched;
 disabling the plugin restores bb's own labels.
 
-**Built-in GPT rule** (on by default): `6-Astra` / `GPT-6-Astra` → `GPT-6 Astra`,
-`5.6-Sol` → `GPT-5.6 Sol`, `5.5` → `GPT-5.5`. Bare picker labels like `5.5`
-are only rewritten inside the model picker.
-
-**Custom renames**: exact label matches, anywhere in bb; they win over the GPT
-rule. An empty "to" hides the label.
+**Renames**: exact label matches, anywhere in bb. An empty "to" hides the
+label. The default list covers the Codex GPT-6 and GPT-5.6 models in both the
+forms bb shows: `GPT-6-Sol` (threads) and `6-Sol` (picker) → `GPT-6 Sol`.
 
 **Visible models** ("show only"): per provider, the model picker hides rows
 that match none of the provider's patterns. A pattern is bb's own label
@@ -28,7 +25,6 @@ applies. Picker only; threads keep their models. Default:
   - `bb model-names list [--json]`
   - `bb model-names add "<from>" "<to>"`
   - `bb model-names remove "<from>"`
-  - `bb model-names gpt-style on|off`
   - `bb model-names visible [--json]`
   - `bb model-names visible-add <provider> "<pattern>"`
   - `bb model-names visible-remove <provider> ["<pattern>"]` (no pattern: show all)

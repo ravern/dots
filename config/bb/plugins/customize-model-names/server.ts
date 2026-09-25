@@ -30,8 +30,20 @@ const DEFAULT_VISIBLE_MODELS: VisibleModels = {
   codex: ["GPT-6*"],
 };
 
+// Codex labels as bb shows them: "GPT-6-Sol" in threads, "6-Sol" in the picker.
+// Bare "5.5" is left out: an exact match on it would hit unrelated text.
+const DEFAULT_RENAMES: Rename[] = ["6-Sol", "6-Astra", "6-Luna", "5.6-Sol", "5.6-Terra", "5.6-Luna"].flatMap(
+  (label) => {
+    const [version, variant] = label.split("-");
+    const to = `GPT-${version} ${variant}`;
+    return [
+      { from: `GPT-${label}`, to },
+      { from: label, to },
+    ];
+  },
+);
+
 const configSchema = z.object({
-  gptStyle: z.boolean(),
   renames: z.array(renameSchema),
   visibleModels: visibleModelsSchema,
 });
@@ -44,7 +56,6 @@ export const rpcContract = defineRpcContract({
   setConfig: {
     input: z
       .object({
-        gptStyle: z.boolean().optional(),
         renames: z.array(renameSchema).max(200).optional(),
         visibleModels: visibleModelsSchema.optional(),
       })
@@ -57,14 +68,9 @@ export const CONFIG_CHANNEL = "config";
 
 export default function customizeModelNames(bb: BbPluginApi) {
   const settings = bb.settings.define({
-    gptStyle: {
-      type: "boolean",
-      label: 'Show Codex models as "GPT-6 Astra"',
-      default: true,
-    },
     renames: {
       type: "string",
-      label: "Custom renames (JSON)",
+      label: "Renames (JSON)",
       experimental_multiline: true,
       experimental_schema: z.string().refine((value) => {
         try {
@@ -73,7 +79,7 @@ export default function customizeModelNames(bb: BbPluginApi) {
           return false;
         }
       }, 'Renames must be a JSON array like [{"from": "6-Astra", "to": "Astra"}]'),
-      default: "[]",
+      default: JSON.stringify(DEFAULT_RENAMES, null, 2),
     },
     visibleModels: {
       type: "string",
@@ -95,19 +101,16 @@ export default function customizeModelNames(bb: BbPluginApi) {
   const read = async (): Promise<Config> => {
     const values = await settings.get();
     return {
-      gptStyle: values.gptStyle,
       renames: parseRenames(values.renames),
       visibleModels: parseVisibleModels(values.visibleModels),
     };
   };
 
   const write = async (next: {
-    gptStyle?: boolean;
     renames?: Rename[];
     visibleModels?: VisibleModels;
   }) => {
     await settings.experimental_set({
-      ...(next.gptStyle === undefined ? {} : { gptStyle: next.gptStyle }),
       ...(next.renames === undefined
         ? {}
         : { renames: JSON.stringify(next.renames, null, 2) }),
@@ -137,12 +140,11 @@ export default function customizeModelNames(bb: BbPluginApi) {
         );
   };
 
-  const format = ({ gptStyle, renames, visibleModels }: Config) =>
+  const format = ({ renames, visibleModels }: Config) =>
     [
-      `GPT-style names: ${gptStyle ? "on" : "off"}`,
       renames.length === 0
-        ? "Custom renames: none"
-        : ["Custom renames:", ...renames.map((r) => `  ${r.from}  →  ${r.to}`)].join("\n"),
+        ? "Renames: none"
+        : ["Renames:", ...renames.map((r) => `  ${r.from}  →  ${r.to}`)].join("\n"),
       formatVisible(visibleModels),
     ].join("\n");
 
@@ -152,7 +154,7 @@ export default function customizeModelNames(bb: BbPluginApi) {
       summary: "Rename or hide models in bb's model labels and picker",
       commands: {
         list: cliCommand({
-          summary: "Show the GPT-style switch, custom renames, and show-only lists",
+          summary: "Show renames and show-only lists",
           options: { json: { type: "boolean", description: "Emit JSON" } },
           async run(input) {
             const config = await read();
@@ -252,19 +254,6 @@ export default function customizeModelNames(bb: BbPluginApi) {
             if (kept.length === 0) delete next[provider];
             else next[provider] = kept;
             return { exitCode: 0, stdout: formatVisible((await write({ visibleModels: next })).visibleModels) };
-          },
-        }),
-        "gpt-style": cliCommand({
-          summary: 'Turn the built-in "GPT-6 Astra" rule on or off',
-          positionals: [
-            { name: "state", description: "on or off", required: true },
-          ],
-          async run(input) {
-            const state = input.positionals.state;
-            if (state !== "on" && state !== "off") {
-              throw new PluginCliError("state must be on or off", { code: "invalid_state" });
-            }
-            return { exitCode: 0, stdout: format(await write({ gptStyle: state === "on" })) };
           },
         }),
       },

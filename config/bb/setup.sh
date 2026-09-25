@@ -25,7 +25,6 @@ for p in coordinator-threads account-pool agent-annotations monaco-editor plugin
 done
 
 # Plugin settings
-bb plugin config customize-model-names set gptStyle true
 bb plugin config customize-model-names set visibleModels '{"claude-code":["Opus 5.5","Fable*"],"codex":["GPT-6*"],"acp-cursor":["Grok 4.7"]}'
 bb plugin config provider-claude-code set memoryEnabled false
 bb plugin config provider-claude-code set subagentsDisabled true
