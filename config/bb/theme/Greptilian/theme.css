@@ -342,3 +342,15 @@ html [data-provider-icon-tint="codex"] {
 html body .usage-page {
   --usage-codex: var(--foreground) !important;
 }
+
+/* ---- Message queue: no gap under the last message ---------------------
+ * Each queued row is `border-b border-border/35 py-0.5` inside a `py-1` list,
+ * so the last row's divider plus the list's bottom padding left a strip above
+ * the composer's own border. */
+.bb-app-shell ul.group\/queue {
+  padding-bottom: 0;
+}
+
+.bb-app-shell [data-queued-message-row]:last-child {
+  border-bottom-width: 0;
+}
