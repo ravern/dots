@@ -108,7 +108,6 @@ ln -s $HOME/Repos/ravern/dots/config/bb/theme $HOME/.bb/theme
 # bb theme
 mkdir -p $HOME/.bb/theme
 ln -s $HOME/Repos/ravern/dots/config/bb/theme/Ravern $HOME/.bb/theme/Ravern
-ln -s $HOME/Repos/ravern/dots/config/bb/theme/Greptile $HOME/.bb/theme/Greptile
 ln -s $HOME/Repos/ravern/dots/config/bb/theme/Greptilian $HOME/.bb/theme/Greptilian
 
 # Install bb plugins and settings (needs bb running)
