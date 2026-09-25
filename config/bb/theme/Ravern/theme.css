@@ -1549,3 +1549,14 @@ button[aria-label^="Provider, model and reasoning"] > span > :first-child:not(:o
 .bb-app-shell [data-queued-message-row]:last-child {
   border-bottom-width: 0;
 }
+
+/* ---- Mobile bottom sheets: clear the home indicator -------------------
+ * bb's bottom drawers (model picker and friends) run their last row to the
+ * screen edge, where iPhone's rounded corners and home indicator cut it off.
+ * Pad by the safe-area inset, as bb's other mobile sheets do. Phone widths
+ * only (bb's md breakpoint). */
+@media (max-width: 767px) {
+  [data-vaul-drawer][data-vaul-drawer-direction="bottom"] {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
