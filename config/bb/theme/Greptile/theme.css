@@ -1578,3 +1578,12 @@ button[aria-label^="Provider, model and reasoning"] > span > :first-child:not(:o
   padding: 0 0.75rem !important;
   gap: 0.375rem !important;
 }
+
+/* Labelled send button ("New thread" in the handoff composer): Greptile
+ * green in every state, including disabled. */
+.bb-app-shell [data-promptbox-submit-action]:has([data-promptbox-submit-label]),
+.bb-app-shell [data-promptbox-submit-action]:has([data-promptbox-submit-label]):disabled {
+  background-color: #007a51 !important;
+  border-color: #007a51 !important;
+  color: #ffffff !important;
+}
