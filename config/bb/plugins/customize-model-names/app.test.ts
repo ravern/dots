@@ -11,27 +11,19 @@ import {
   type RenameConfig,
 } from "./rename.ts";
 
-const gpt: RenameConfig = { gptStyle: true, renames: [] };
-assert.equal(renameLabel("GPT-6-Astra", false, gpt), "GPT-6 Astra");
-assert.equal(renameLabel("GPT-5.6-Sol", false, gpt), "GPT-5.6 Sol");
-assert.equal(renameLabel("GPT-5.5", false, gpt), null);
-assert.equal(renameLabel("6-Astra", true, gpt), "GPT-6 Astra");
-assert.equal(renameLabel("5.5", true, gpt), "GPT-5.5");
-assert.equal(renameLabel(" 5.6-Terra ", true, gpt), " GPT-5.6 Terra ");
-assert.equal(renameLabel("5.5", false, gpt), null); // bare numbers only in picker
-assert.equal(renameLabel("GPT-6 Astra", true, gpt), null); // idempotent
-assert.equal(renameLabel("Opus 4.7", true, gpt), null);
-
-const off: RenameConfig = { gptStyle: false, renames: [] };
-assert.equal(renameLabel("6-Astra", true, off), null);
-
-const custom: RenameConfig = {
-  gptStyle: true,
-  renames: [{ from: "6-Astra", to: "Astra" }, { from: "Opus 4.7", to: "Opus" }],
+const config: RenameConfig = {
+  renames: [
+    { from: "GPT-6-Sol", to: "GPT-6 Sol" },
+    { from: "6-Sol", to: "GPT-6 Sol" },
+    { from: "Opus 4.7", to: "" },
+  ],
 };
-assert.equal(renameLabel("6-Astra", false, custom), "Astra"); // custom wins, anywhere
-assert.equal(renameLabel("Opus 4.7", false, custom), "Opus");
-assert.equal(renameLabel("5.5", true, custom), "GPT-5.5"); // GPT rule still applies
+assert.equal(renameLabel("GPT-6-Sol", config), "GPT-6 Sol");
+assert.equal(renameLabel(" 6-Sol ", config), " GPT-6 Sol "); // keeps surrounding whitespace
+assert.equal(renameLabel("Opus 4.7", config), ""); // empty "to" hides
+assert.equal(renameLabel("GPT-6 Sol", config), null); // idempotent
+assert.equal(renameLabel("6-Sol extra", config), null); // exact only
+assert.equal(renameLabel("5.5", config), null);
 
 assert.deepEqual(parseRenames("not json"), []);
 assert.deepEqual(parseRenames('[{"from":"a","to":"b"},{"from":""},7]'), [{ from: "a", to: "b" }]);

@@ -6,12 +6,8 @@ export interface Rename {
 }
 
 export interface RenameConfig {
-  gptStyle: boolean;
   renames: Rename[];
 }
-
-const FULL = /^GPT-(\d+(?:\.\d+)*)(?:-([A-Za-z]+))?$/;
-const STRIPPED = /^(\d+(?:\.\d+)*)(?:-([A-Za-z]+))?$/;
 
 /** Parses the stored `renames` setting; drops malformed entries. */
 export function parseRenames(raw: string): Rename[] {
@@ -32,29 +28,12 @@ export function parseRenames(raw: string): Rename[] {
   );
 }
 
-/**
- * Returns the replacement for a label's text, or null to leave it alone.
- * Custom renames are exact (trimmed) matches and win over the GPT rule.
- * The GPT rule matches "GPT-6-Astra" anywhere, but the picker's stripped
- * "6-Astra" / "5.5" only when `inPicker` — bare numbers are too generic.
- */
-export function renameLabel(
-  text: string,
-  inPicker: boolean,
-  config: RenameConfig,
-): string | null {
+/** Returns the replacement for a label's text, or null to leave it alone. Exact (trimmed) matches. */
+export function renameLabel(text: string, config: RenameConfig): string | null {
   const trimmed = text.trim();
   if (trimmed === "") return null;
-  const custom = config.renames.find((r) => r.from.trim() === trimmed);
-  if (custom !== undefined) {
-    return custom.to === trimmed ? null : text.replace(trimmed, custom.to);
-  }
-  if (!config.gptStyle) return null;
-  const match = FULL.exec(trimmed) ?? (inPicker ? STRIPPED.exec(trimmed) : null);
-  if (match === null) return null;
-  const [, version, variant] = match;
-  const renamed = variant ? `GPT-${version} ${variant}` : `GPT-${version}`;
-  return renamed === trimmed ? null : text.replace(trimmed, renamed);
+  const r = config.renames.find((r) => r.from.trim() === trimmed);
+  return r === undefined || r.to === trimmed ? null : text.replace(trimmed, r.to);
 }
 
 /** Per-provider "show only" patterns, keyed by provider id. */

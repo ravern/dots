@@ -22,16 +22,9 @@ import type { rpcContract } from "./server";
 
 const PICKER_TRIGGER = 'button[aria-label^="Provider, model and reasoning"]';
 const PICKER_MENU = "[data-bb-portaled-overlay]";
-const CODEX_TAB = '[title="Codex"]';
 const EDITABLE = 'input, textarea, [contenteditable="true"], .ProseMirror';
 // Our own settings rows show raw "from" labels; never rewrite them.
 const OWN_UI = "[data-customize-model-names]";
-
-function isInPicker(el: Element): boolean {
-  if (el.closest(PICKER_TRIGGER) !== null) return true;
-  const menu = el.closest(PICKER_MENU);
-  return menu !== null && menu.querySelector(CODEX_TAB) !== null;
-}
 
 // Provider tabs carry the provider id in their logo URL; the active tab is underlined.
 const PROVIDER_LOGO = /\/providers\/([^/]+)\/logo/;
@@ -163,7 +156,7 @@ function startRewriting(config: RenameConfig): () => void {
     if (parent === null || node.data.length > 200) return;
     if (parent.closest(EDITABLE) !== null || parent.closest(OWN_UI) !== null) return;
     const source = originals.get(node) ?? node.data;
-    const renamed = renameLabel(source, isInPicker(parent), config);
+    const renamed = renameLabel(source, config);
     if (renamed === null || renamed === node.data) return;
     if (!originals.has(node)) originals.set(node, node.data);
     node.data = renamed;
@@ -184,11 +177,6 @@ function startRewriting(config: RenameConfig): () => void {
         scan(m.target);
       }
       for (const added of m.addedNodes) scan(added);
-      // A picker menu opening makes labels already inside it picker-scoped.
-      if (m.target instanceof Element) {
-        const menu = m.target.closest(PICKER_MENU);
-        if (menu !== null) scan(menu);
-      }
     }
     observer.takeRecords(); // drop records caused by our own writes
   });
@@ -307,7 +295,7 @@ function RenamesSettings() {
     <div data-customize-model-names="" style={{ display: "grid", gap: 8, fontSize: 13 }}>
       <p style={{ margin: 0, color: "var(--muted-foreground)" }}>
         Each entry shows a label exactly as bb displays it ("from") as something else ("to").
-        Custom entries win over the GPT rule. Display only; model ids are unchanged.
+        Display only; model ids are unchanged.
       </p>
       {config.renames.length === 0 ? (
         <p style={{ margin: 0, color: "var(--subtle-foreground)" }}>No custom renames yet.</p>
