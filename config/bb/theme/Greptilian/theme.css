@@ -336,6 +336,95 @@ html .rs-header {
   z-index: 11;
 }
 
+/* ---- Question card (builtin ask-user-question plugin) --------------------
+ * The plugin ships no data attributes, so it's scoped by its own root
+ * (`flex max-h-[calc(100dvh-6rem)] flex-col`, unique to this component).
+ * Each part follows its Greptile counterpart in packages/ui. */
+
+/* Header dot: bb's attention dot (amber with a 3px halo) inside the
+ * prompt-stack card. Greptile green, like the unread indicators, and no
+ * halo — Greptile's status dots are flat (`h-2 w-2 rounded-full`). The
+ * error variant keeps bb's red. */
+.bg-surface-raised-solid .bg-attention.ring-surface-attention {
+  background-color: var(--primary) !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  box-shadow: none !important;
+}
+
+/* Question text: a card title (`font-medium`), not semibold. */
+.max-h-\[calc\(100dvh-6rem\)\].flex-col fieldset > div.font-semibold {
+  font-weight: 500;
+}
+
+/* Option rows: RadioList marks the selected row with `bg-foreground/5`
+ * rather than a tinted selection. */
+.max-h-\[calc\(100dvh-6rem\)\].flex-col fieldset button[aria-pressed="true"] {
+  background-color: color-mix(in oklab, var(--foreground) 5%, transparent) !important;
+}
+
+/* Radio: RadioGroupItem's thin 1.2px ring at muted/40, with a filled
+ * centre dot when checked (3.5/16 of the box) — in the text colour, as the
+ * dashboard recolours checked radios. bb draws a filled green disc with a
+ * check; its check icon is hidden. The ring also stays visible on the
+ * hover wash, where bb's `border-input` vanished. */
+.max-h-\[calc\(100dvh-6rem\)\].flex-col fieldset button[aria-pressed] > span:first-child {
+  border: 1.2px solid color-mix(in oklab, var(--muted-foreground) 40%, transparent) !important;
+  background: transparent !important;
+}
+.max-h-\[calc\(100dvh-6rem\)\].flex-col fieldset button[aria-pressed="true"] > span.rounded-full:first-child {
+  border-color: var(--foreground) !important;
+  background: radial-gradient(circle, var(--foreground) 0 3.5px, transparent 4px) !important;
+}
+.max-h-\[calc\(100dvh-6rem\)\].flex-col fieldset button[aria-pressed="true"] > span.rounded-full:first-child > * {
+  display: none;
+}
+
+/* Multi-select boxes: the dashboard's checked Checkbox — text-colour fill,
+ * background-colour check. */
+.max-h-\[calc\(100dvh-6rem\)\].flex-col fieldset button[aria-pressed="true"] > span:first-child:not(.rounded-full) {
+  border-color: var(--foreground) !important;
+  background: var(--foreground) !important;
+  color: var(--background) !important;
+}
+
+/* "Other…" answer: Greptile's Textarea — `border-input`, transparent
+ * fill, border darkening to foreground/30 on focus, no ring (bb's focus
+ * paints a green border and ring from --ring). */
+.max-h-\[calc\(100dvh-6rem\)\].flex-col textarea {
+  border-color: var(--input) !important;
+  background-color: transparent !important;
+}
+.max-h-\[calc\(100dvh-6rem\)\].flex-col textarea:focus-visible {
+  border-color: color-mix(in oklab, var(--foreground) 30%, transparent) !important;
+  box-shadow: none !important;
+}
+
+/* Footer: Submit / Next is the last button on the right, drawn as the
+ * dashboard's "special" button (as the composer's send is). Cancel (bb
+ * ghost) and Back (bb outline) are Greptile's usual Cancel, `outline`,
+ * which the dashboard turns into its "standard" bordered surface button. */
+.max-h-\[calc\(100dvh-6rem\)\].flex-col > .justify-between > div > button:last-child {
+  background-color: var(--foreground) !important;
+  border-color: transparent !important;
+  color: var(--background) !important;
+}
+.max-h-\[calc\(100dvh-6rem\)\].flex-col > .justify-between > div > button:last-child:not(:disabled):hover {
+  background-color: color-mix(in oklab, var(--foreground) 85%, transparent) !important;
+}
+.max-h-\[calc\(100dvh-6rem\)\].flex-col > .justify-between > div > button:last-child:disabled {
+  opacity: 0.3 !important;
+}
+.max-h-\[calc\(100dvh-6rem\)\].flex-col > .justify-between > button,
+.max-h-\[calc\(100dvh-6rem\)\].flex-col > .justify-between > div > button:not(:last-child) {
+  background-color: var(--greptilian-surface) !important;
+  border: 1px solid var(--greptilian-surface-border) !important;
+  color: var(--foreground) !important;
+}
+.max-h-\[calc\(100dvh-6rem\)\].flex-col > .justify-between > button:not(:disabled):hover,
+.max-h-\[calc\(100dvh-6rem\)\].flex-col > .justify-between > div > button:not(:last-child):not(:disabled):hover {
+  background-color: var(--greptilian-surface-hover) !important;
+}
+
 /* ---- OpenAI mark ---------------------------------------------------------
  * True Colors (provider-brand-marks) paints the Codex logo the old ChatGPT
  * green. OpenAI's mark is monochrome: white in dark mode, ink in light (a
