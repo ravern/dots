@@ -73,12 +73,20 @@ ln -s $HOME/Repos/ravern/dots/config/claude/CLAUDE.md     $HOME/.claude/CLAUDE.m
 ln -s $HOME/Repos/ravern/dots/config/codex/hooks.json     $HOME/.codex/hooks.json
 ln -s $HOME/Repos/ravern/dots/config/cursor/permissions.json $HOME/.cursor/permissions.json
 
-# Link Claude skills
-mkdir -p $HOME/.claude/skills
+# Link shared skills into each agent's user skill directory.
+# Claude and Codex follow per-skill symlinks. Cursor's scanner is recursive
+# and skips symlinked skill directories, so ~/.cursor/skills points at the
+# real collection.
+mkdir -p $HOME/.claude/skills $HOME/.codex/skills
 for skill in $HOME/Repos/ravern/dots/config/skills/*; do
   name=$(basename $skill)
-  [ -e $HOME/.claude/skills/$name ] || ln -s $skill $HOME/.claude/skills/$name
+  for dest in $HOME/.claude/skills $HOME/.codex/skills; do
+    [ -e $dest/$name ] || ln -s $skill $dest/$name
+  done
 done
+if [ ! -e $HOME/.cursor/skills ]; then
+  ln -s $HOME/Repos/ravern/dots/config/skills $HOME/.cursor/skills
+fi
 
 # bb config: lists Grok 4.7 (a Cursor "More models" entry) in the main picker
 mkdir -p $HOME/.bb
