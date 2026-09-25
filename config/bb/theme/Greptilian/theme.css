@@ -50,9 +50,6 @@
    * clears 5.4:1 and it stays lively where green-700 read too deep. */
   --greptilian-green: #007a51;
 
-  /* User message bubble: Greptile's --secondary (gray-200). The PR chat's
-   * own 30% --muted wash vanished against bb's canvas. */
-  --greptilian-bubble: #e6e6e6;
 
   /* The dashboard's "standard" button (apps/web globals.css):
    * --dashboard-surface / -surface-border / -hover-step. */
@@ -137,9 +134,7 @@
   --primary: #28e99f;
   --primary-foreground: #000000;
 
-  /* Same recipes, dark values: --secondary gray-800; surface 0 0% 16%,
-   * border 22%, hover 21%. */
-  --greptilian-bubble: #262626;
+  /* Same recipes, dark values: surface 0 0% 16%, border 22%, hover 21%. */
   --greptilian-surface: #292929;
   --greptilian-surface-border: #383838;
   --greptilian-surface-hover: #363636;
@@ -201,18 +196,15 @@ body {
   border-radius: var(--radius) !important;
 }
 
-/* ---- Your message bubble: the PR chat's user message --------------------
+/* ---- Your message bubble: a dashboard tile ------------------------------
  * bb renders your own messages as `rounded-xl bg-surface-recessed` inside
- * [data-message-column]. Shaped like Greptile's PR chat user message:
- * borderless, body-colour text, an 8px corner — the one place the dashboard
- * steps off the 1px radius (a literal in pr-chat.module.css). The fill is a
- * solid --secondary step rather than the PR chat's 30% wash (see
- * --greptilian-bubble). */
+ * [data-message-column]. Drawn as a Greptile dashboard tile: the standard
+ * surface, its 1px border and the 1px radius (the radius rule above already
+ * pins rounded-xl). */
 .bb-app-shell [data-message-column] .rounded-xl.bg-surface-recessed {
-  background-color: var(--greptilian-bubble);
-  border-color: transparent;
+  background-color: var(--greptilian-surface);
+  border: 1px solid var(--greptilian-surface-border);
   color: var(--foreground);
-  border-radius: 8px !important;
 }
 
 /* Quote bars, in the composer and in the message it becomes. */
