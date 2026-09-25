@@ -63,6 +63,11 @@ For fixes, prefer red-green evidence: the relevant test fails on the pre-fix beh
 
 Delete, combine, or strengthen test slop. Preserve deliberate redundancy when it independently protects an important invariant, platform, boundary, or past regression.
 
+When writing or keeping unit tests:
+
+- Keep a unit test only if it would catch a plausible real bug. Delete ones that merely restate the code they were written after; they always pass and break on every refactor.
+- Before writing a unit test, list the ways the code could fail, then test those failures rather than the current implementation.
+
 ## Verify and report
 
 Run validation proportional to the change: focused tests first, then the appropriate broader tests, type checks, linting, or build. Compare the final diff against the requirements brief and confirm that every remaining change has a reason to exist.
