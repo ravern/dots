@@ -1,0 +1,249 @@
+/* Greptilian — Greptile's own design system, mapped onto bb.
+ *
+ * WHERE THE VALUES COME FROM (greptileai/greptilia)
+ *   packages/ui/styles/globals.css      HSL colour scales, semantic tokens
+ *                                       (light + .dark), --radius: 1px
+ *   packages/ui/src/brand.ts            brand colours (green #28E99F,
+ *                                       tree-frog, pond, sky, sandbank, …)
+ *   apps/web/src/styles/globals.css     the current (/new) dashboard: surface
+ *                                       ramp, monochrome selection, fonts
+ *   apps/web/src/app/layout.tsx         DM Sans / Anybody / Space Mono
+ *   packages/ui/src/primitives/button.tsx  hover washes, focus ring
+ *   apps/web/src/components/reviews/pr-code-diff-theme.ts
+ *                                       GitHub code themes + mono stack
+ *
+ *   Greptile's scales are HSL triplets; the hex values below are those
+ *   triplets converted (the hex comments in globals.css are sometimes off
+ *   by a step, so the HSL is what was read).
+ *
+ * MODE HANDLING
+ *   `:root, .light` holds light values plus everything mode-independent;
+ *   `.dark` only re-sets what differs. Anything written as a color-mix of
+ *   --ink / --canvas in the first block re-resolves against the dark anchors.
+ */
+
+/* DM Sans (body) and Anybody (headings) aren't bundled with bb or macOS. */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Anybody:wght@400..700&display=swap");
+
+/* ===================================================================== */
+/* 1. Light mode + mode-independent tokens                                */
+/* ===================================================================== */
+
+:root,
+.light {
+  /* ---- Typography ----------------------------------------------------
+   * Greptile's dashboard body is DM Sans (`.greptile-fonts`). Its code
+   * surfaces (the PR diff viewer) use GitHub's system mono stack rather than
+   * the Space Mono it uses for labels, and bb's --font-mono mostly drives
+   * diffs and code, so the diff stack wins. */
+  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* "1px — single unified corner radius". See section 3 for why the token
+   * alone isn't enough. */
+  --radius: 1px;
+
+  /* The green used for your own message bubble and the send controls. It
+   * sits between Greptile's green-600 (#128C59, 4.3:1 with white) and
+   * green-700 (#0F7045): white text clears 5.4:1, and it stays lively where
+   * green-700 read too deep. Brand #28E99F is too loud as a fill. */
+  --greptilian-green: #007a51;
+  --greptilian-green-hover: #00845a;
+
+  /* ---- Anchors -------------------------------------------------------
+   * /new dashboard: body 0 0% 98%, text 0 0% 9%, tiles pure white. */
+  --canvas: #fafafa;
+  --ink: #171717;
+  --card: #ffffff;
+  --popover: #ffffff;
+  /* --sidebar-background: neutral-100. Opaque on purpose: bb's xterm
+   * reads --sidebar for its background and rejects any alpha. */
+  --sidebar: #f5f5f5;
+
+  /* ---- Accent --------------------------------------------------------
+   * Greptile's --primary is green-500 (#149F65), which is only 3.3:1 on the
+   * canvas — too faint for bb, where --primary also colours links. The
+   * bubble green above is used instead so light mode has one green. */
+  --primary: var(--greptilian-green);
+  --primary-foreground: #ffffff;
+  /* Greptile's --ring token: green-600. */
+  --ring: #128c59;
+
+  /* Greptile's /new dashboard strips green from "selected" states (active
+   * nav item, checked boxes, tab underline) and uses a neutral wash
+   * instead. bb derives these from --primary, so they're restated. */
+  --surface-selected: color-mix(in oklab, var(--ink) 8%, transparent);
+  --surface-selected-border: color-mix(in oklab, var(--ink) 20%, transparent);
+
+  /* Button `default` variant: hover:bg-foreground/5 in light, /10 → /15 in
+   * dark. */
+  --state-hover: color-mix(in oklab, var(--ink) 5%, transparent);
+  --state-active: color-mix(in oklab, var(--ink) 10%, transparent);
+
+  /* ---- Borders -------------------------------------------------------
+   * --border gray-200, --input gray-300. */
+  --border: #e6e6e6;
+  --input: #d4d4d4;
+
+  /* ---- Text tiers ----------------------------------------------------
+   * --muted-foreground gray-600 (6.4:1 on canvas); subtle is gray-500
+   * (4.1:1); readback sits halfway between them. */
+  --muted-foreground: #5c5c5c;
+  --subtle-foreground: #7a7a7a;
+  --readback-foreground: color-mix(in oklch, var(--muted-foreground) 50%, var(--subtle-foreground));
+
+  /* ---- Semantic ------------------------------------------------------
+   * Text variants step down each scale until they clear 4.5:1. */
+  --destructive: #e23232;         /* red-500, Greptile's --destructive */
+  --destructive-foreground: #ffffff;
+  --destructive-text: #cc2424;    /* red-600, 5.2:1 */
+  --warning: #f78c22;             /* orange-400, Greptile's --warn */
+  --warning-text: #a84c00;        /* orange-800, 5.4:1 */
+  --attention: #e9b62b;           /* yellow-700 */
+  --success: #128c59;             /* green-600 */
+  /* Same hues as Greptile's --code-diff-added/-deleted and its +N/−N
+   * counts, at full strength. */
+  --diff-added: #0f7045;          /* green-700 */
+  --diff-removed: #b11b1b;        /* red-700 */
+  --pr-merged: #756cf5;           /* brand tree-frog */
+  --file-accent: #1b6dc5;         /* blue-500, Greptile's --info */
+}
+
+/* ===================================================================== */
+/* 2. Dark mode                                                           */
+/* ===================================================================== */
+
+.dark {
+  /* /new dashboard dark: body/nav #171717 (gray-950), text gray-50;
+   * cards, popovers and the sidebar take gray-900. */
+  --canvas: #171717;
+  --ink: #f7f7f7;
+  --card: #1f1f1f;
+  --popover: #1f1f1f;
+  --sidebar: #1f1f1f;
+
+  /* Brand green on dark, with black text — Greptile's `green` button
+   * variant (bg-greptile-brand-green text-black), 13:1. */
+  --primary: #28e99f;
+  --primary-foreground: #000000;
+
+  --state-hover: color-mix(in oklab, var(--ink) 10%, transparent);
+  --state-active: color-mix(in oklab, var(--ink) 15%, transparent);
+
+  /* --border gray-700; inputs take the dashboard's surface border
+   * (0 0% 22%) because Greptile's dark --input (gray-800) is nearly
+   * invisible on this canvas. */
+  --border: #333333;
+  --input: #383838;
+
+  --muted-foreground: #a3a3a3;    /* gray-400, 7.1:1 */
+  --subtle-foreground: #7a7a7a;   /* gray-500, 4.2:1 */
+
+  --destructive-text: #f34949;    /* red-400, 5.0:1 */
+  --warning-text: #ffa442;        /* orange-300 */
+  --success: #1ab773;             /* green-400 */
+  --diff-added: #1ab773;          /* green-400 */
+  --diff-removed: #f34949;        /* red-400 */
+  --file-accent: #71adff;         /* brand sky (the dark `artifact` tint) */
+}
+
+/* ===================================================================== */
+/* 3. What the tokens can't express                                       */
+/* ===================================================================== */
+
+html,
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Page and section titles in Anybody, as `.greptile-fonts h1–h3` does.
+ * Dialog titles render as <h2> in a portal outside the shell. */
+.bb-app-shell :is(h1, h2, h3),
+[data-bb-portaled-overlay] :is(h1, h2, h3) {
+  font-family: "Anybody", var(--font-sans);
+}
+
+/* ---- Radius ------------------------------------------------------------
+ * Greptile maps every named radius (sm → 3xl) to the one --radius. bb
+ * compiles its rounded-* utilities to calc(var(--radius) ± Npx), so with a
+ * 1px token rounded-xl would still land at 5px and rounded-md at 0. Pin
+ * them all. rounded-full (avatars, dots, switches) is left round, as it is
+ * in Greptile.
+ * ponytail: no per-corner (rounded-r-none …) restores; at 1px a split
+ * control's seam corner isn't visible. Add them if --radius grows. */
+.bb-app-shell :is(.rounded-sm, .rounded, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl),
+[data-bb-portaled-overlay] :is(.rounded-sm, .rounded, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl) {
+  border-radius: var(--radius) !important;
+}
+
+/* ---- Your message bubble: Greptile green --------------------------------
+ * bb renders your own messages as `rounded-xl bg-surface-recessed` inside
+ * [data-message-column]. Text is brand sandbank #EEEEEE (4.6:1). */
+.bb-app-shell [data-message-column] .rounded-xl.bg-surface-recessed {
+  background-color: var(--greptilian-green);
+  border-color: var(--greptilian-green);
+  color: #eeeeee;
+}
+
+/* Links would otherwise take --primary, which in light mode IS the bubble
+ * green. */
+.bb-app-shell [data-message-column] .rounded-xl.bg-surface-recessed a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* Quote bar inside the bubble follows the bubble text. */
+.bb-app-shell [data-message-column] .rounded-xl.bg-surface-recessed blockquote {
+  border-color: #eeeeee;
+}
+
+/* Quote bar in the composer. */
+.bb-app-shell .ProseMirror blockquote {
+  border-color: var(--greptilian-green);
+}
+
+/* ---- Send / stop / split send ------------------------------------------
+ * Every control in the composer's submit slot carries
+ * [data-promptbox-submit-action] (send, stop, voice). The split send +
+ * options pill is bb's `group/send bg-foreground` wrapper; bb makes its
+ * inner buttons transparent, so the wrapper carries the fill. */
+.bb-app-shell [data-promptbox-submit-action]:not(:disabled),
+.bb-app-shell .group\/send.bg-foreground {
+  background-color: var(--greptilian-green) !important;
+  color: #ffffff !important;
+}
+
+.bb-app-shell .group\/send.bg-foreground [data-promptbox-submit-action]:not(:disabled) {
+  background-color: transparent !important;
+}
+
+.bb-app-shell [data-promptbox-submit-action]:not(:disabled):hover,
+.bb-app-shell .group\/send.bg-foreground:hover {
+  background-color: var(--greptilian-green-hover) !important;
+}
+
+/* Empty composer: bb fades its inverted fill to 50%, which lands on a
+ * washed-out grey in both modes. Use a real muted fill instead. */
+.bb-app-shell [data-promptbox-submit-action]:disabled {
+  background-color: var(--muted) !important;
+  color: var(--muted-foreground) !important;
+  opacity: 1 !important;
+}
+
+/* …except inside the split pill, where the wrapper already carries the
+ * (faded) green and the button must stay see-through. */
+.bb-app-shell .group\/send [data-promptbox-submit-action]:disabled {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+/* Labelled send button ("New thread" in the handoff composer): green in
+ * every state, including disabled. Only paint is set; bb's own
+ * `size-auto h-8 px-2.5` keeps it sized to its label. */
+.bb-app-shell [data-promptbox-submit-action]:has([data-promptbox-submit-label]),
+.bb-app-shell [data-promptbox-submit-action]:has([data-promptbox-submit-label]):disabled {
+  background-color: var(--greptilian-green) !important;
+  border-color: var(--greptilian-green) !important;
+  color: #ffffff !important;
+}
