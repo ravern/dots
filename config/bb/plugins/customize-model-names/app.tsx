@@ -47,28 +47,28 @@ function setHidden(el: HTMLElement, hidden: boolean) {
 
 /**
  * Hides picker rows the active provider tab's show-only list doesn't match.
- * Never hides the checked (selected) row; typing a search shows everything.
- * Rows are matched by bb's own label (the row's title, not our renamed text)
+ * Never hides the checked (selected) row. Search results obey the list too.
+ * Rows are matched by bb's own label (the row's title), its renamed label,
  * plus the id / full name of the model it shows.
  */
-function startHiding(visible: VisibleModels, models: Record<string, ModelRef[]>): () => void {
+function startHiding(config: Config, models: Record<string, ModelRef[]>): () => void {
+  const visible = config.visibleModels;
   const apply = () => {
     for (const menu of document.querySelectorAll(PICKER_MENU)) {
       const provider = activeProvider(menu);
       if (provider === null) continue; // not the main picker (or no tabs)
       const patterns = visible[provider];
-      const search = menu.querySelector<HTMLInputElement>('input[aria-label="Search models"]');
-      const showAll = patterns === undefined || (search !== null && search.value.trim() !== "");
+      const showAll = patterns === undefined;
       for (const row of menu.querySelectorAll<HTMLElement>("button")) {
         const label = row.querySelector(":scope > span.truncate[title]")?.getAttribute("title");
         const check = row.querySelector("[data-icon=Check]");
         if (label != null && check !== null) {
           const selected = check.classList.contains("opacity-100");
-          setHidden(row, !showAll && !selected && !isVisible(rowNames(label, models[provider] ?? []), patterns));
+          setHidden(row, !showAll && !selected && !isVisible(rowNames(label, models[provider] ?? [], config), patterns));
         } else if (row.hasAttribute("aria-expanded")) {
           // "More models" (aliases): a submenu trigger (aria-haspopup) on desktop, an inline
           // disclosure (aria-expanded only) in the narrow-screen drawer. Hidden outright
-          // under a list; searching still reaches aliases.
+          // under a list.
           setHidden(row, !showAll);
         }
       }
@@ -83,11 +83,9 @@ function startHiding(visible: VisibleModels, models: Record<string, ModelRef[]>)
     attributes: true,
     attributeFilter: ["class"],
   });
-  document.addEventListener("input", apply, true);
 
   return () => {
     observer.disconnect();
-    document.removeEventListener("input", apply, true);
     for (const el of document.querySelectorAll<HTMLElement>(`[${HIDDEN_ATTR}]`)) setHidden(el, false);
   };
 }
@@ -243,7 +241,7 @@ function Rewriter() {
   useEffect(() => startFastModeLogo(providers), [providers]);
   useEffect(() => (config === null ? undefined : startRewriting(config)), [config]);
   useEffect(
-    () => (config === null || models === null ? undefined : startHiding(config.visibleModels, models)),
+    () => (config === null || models === null ? undefined : startHiding(config, models)),
     [config, models],
   );
   return null;
@@ -388,7 +386,7 @@ function VisibleModelsSettings() {
       <p style={{ margin: 0, color: "var(--muted-foreground)" }}>
         The model picker shows only models matching a provider's list: bb's own label or the model
         id, case-insensitive, trailing * for any suffix. Providers without a list show everything.
-        The selected model and search results always show. Display only.
+        The selected model always shows. Display only.
       </p>
       {Object.keys(visible).length === 0 ? (
         <p style={{ margin: 0, color: "var(--subtle-foreground)" }}>No lists; every model shows.</p>

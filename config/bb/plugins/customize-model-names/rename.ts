@@ -70,12 +70,16 @@ export function matchesPattern(value: string, pattern: string): boolean {
 }
 
 /**
- * Names a picker row can be matched by: bb's own label, plus the id and full
- * display name of the model it shows. The Codex picker strips "GPT-" from the
- * label ("6-Astra" for "GPT-6-Astra"), hence the suffix match.
+ * Names a picker row can be matched by: bb's own label, its renamed label,
+ * plus the id and full display name of the model it shows. The Codex picker
+ * strips "GPT-" from the label ("6-Astra" for "GPT-6-Astra"), hence the
+ * suffix match; the renamed label ("GPT-6 Astra") still matches when the
+ * model list couldn't load.
  */
-export function rowNames(label: string, models: readonly ModelRef[]): string[] {
+export function rowNames(label: string, models: readonly ModelRef[], config: RenameConfig): string[] {
   const names = [label];
+  const renamed = renameLabel(label, config)?.trim();
+  if (renamed) names.push(renamed);
   for (const m of models) {
     if (m.id === label || m.displayName === label || m.displayName.endsWith(`-${label}`)) {
       names.push(m.id, m.displayName);
