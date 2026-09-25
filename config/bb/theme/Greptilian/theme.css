@@ -192,6 +192,13 @@ body {
   border-radius: var(--radius) !important;
 }
 
+/* Mention chips (`.prompt-mention-pill`, in the composer and in messages)
+ * are `rounded-full`, which the rule above skips. Greptile's chips and
+ * badges are `rounded-md`, i.e. the 1px radius. */
+.prompt-mention-pill {
+  border-radius: var(--radius) !important;
+}
+
 /* ---- Your message bubble: the PR chat's user message --------------------
  * bb renders your own messages as `rounded-xl bg-surface-recessed` inside
  * [data-message-column]. Greptile's PR chat draws them as a borderless 30%
@@ -281,18 +288,31 @@ body {
 }
 
 /* ---- Reasoning slider plugin (bb-plugin-reasoning-slider) ---------------
- * Greptile's Slider as the dashboard restyles it: the filled range takes
- * the text colour instead of green, and the thumb is a background-colour
- * disc with Greptile's --primary (green-500) at 50% as its border. No
- * blue→purple gradient at the top level. */
+ * Squared off in the idiom of Greptile's SegmentedToggle (composites/
+ * segmented-toggle.tsx), which is what Greptile uses for discrete levels
+ * (StrictnessSlider wraps it): a `bg-foreground/10` well at the 1px radius,
+ * and a thumb drawn like the active segment — `bg-background border
+ * border-border shadow-sm`. The filled range takes the text colour, as the
+ * dashboard's slider override does; no blue→purple gradient at the top. */
 html .rs-root {
   --rs-fill: var(--foreground);
   --rs-fill-max: var(--foreground);
+  --rs-track: color-mix(in oklab, var(--foreground) 10%, transparent);
   --rs-thumb: var(--background);
 }
 
+html :is(.rs-track, .rs-range, .rs-thumb) {
+  border-radius: var(--radius) !important;
+}
+
 html .rs-thumb {
-  border: 1px solid color-mix(in srgb, #149f65 50%, transparent) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important; /* shadow-sm */
+}
+
+/* Square stops to match. */
+html .rs-tick {
+  border-radius: 0 !important;
 }
 
 /* The plugin's filled stops are white at 30%, invisible on a white range in
