@@ -172,10 +172,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Page and section titles in Anybody, as `.greptile-fonts h1–h3` does.
+/* h1 and h2 in Anybody; h3 and below stay in the body font (DM Sans).
  * Dialog titles render as <h2> in a portal outside the shell. */
-.bb-app-shell :is(h1, h2, h3),
-[data-bb-portaled-overlay] :is(h1, h2, h3) {
+.bb-app-shell :is(h1, h2),
+[data-bb-portaled-overlay] :is(h1, h2) {
   font-family: "Anybody", var(--font-sans);
 }
 
