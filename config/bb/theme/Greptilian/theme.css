@@ -253,6 +253,23 @@ body {
   opacity: 1 !important;
 }
 
+/* ---- Unread indicators: Greptile green ---------------------------------
+ * The sidebar's unread dot (a 5px `bg-muted-foreground/60` span labelled
+ * "Unread thread succeeded"; the error, running and needs-input icons are
+ * other elements) and the in-thread "New" divider. The divider paints with
+ * --timeline-accent, which bb also uses for other timeline accents, so it
+ * is targeted directly. --primary is brand #28E99F in dark mode; light mode
+ * takes #007a51, as the brand green is only 1.5:1 on the light sidebar. */
+[data-sidebar-thread-trailing-indicator] > span[aria-label="Unread thread succeeded"] {
+  background-color: var(--primary);
+}
+[data-testid="thread-unread-divider"] {
+  color: var(--primary);
+}
+[data-testid="thread-unread-divider"] > span:last-child {
+  background-color: var(--primary);
+}
+
 /* ---- OpenAI mark ---------------------------------------------------------
  * True Colors (provider-brand-marks) paints the Codex logo the old ChatGPT
  * green. OpenAI's mark is monochrome: white in dark mode, ink in light (a
