@@ -635,3 +635,14 @@ html body .usage-page {
 [data-icon="Square"].fill-current { --gi: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M224,48V208a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32H208A16,16,0,0,1,224,48Z'/%3E%3C/svg%3E"); }
 [data-icon="Circle"].fill-current { --gi: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M232,128A104,104,0,1,1,128,24,104.13,104.13,0,0,1,232,128Z'/%3E%3C/svg%3E"); }
 /* </greptilian-icons> */
+
+/* ---- Mobile bottom sheets: clear the home indicator -------------------
+ * bb's bottom drawers (model picker and friends) run their last row to the
+ * screen edge, where iPhone's rounded corners and home indicator cut it off.
+ * Pad by the safe-area inset, as bb's other mobile sheets do. Phone widths
+ * only (bb's md breakpoint). */
+@media (max-width: 767px) {
+  [data-vaul-drawer][data-vaul-drawer-direction="bottom"] {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
