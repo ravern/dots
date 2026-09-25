@@ -349,6 +349,10 @@ html .rs-header {
   background-color: var(--primary) !important;
   --tw-ring-shadow: 0 0 #0000 !important;
   box-shadow: none !important;
+  /* DM Sans sits higher than bb's font, so the dot read as low beside
+   * the header text. */
+  position: relative;
+  top: -1px;
 }
 
 /* Question text: a card title (`font-medium`), not semibold. */
