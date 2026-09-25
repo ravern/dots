@@ -247,3 +247,18 @@ body {
   border-color: var(--greptilian-green) !important;
   color: #ffffff !important;
 }
+
+/* ---- OpenAI mark ---------------------------------------------------------
+ * True Colors (provider-brand-marks) paints the Codex logo the old ChatGPT
+ * green. OpenAI's mark is monochrome: white in dark mode, ink in light (a
+ * literal white would vanish on the light canvas). The `html` prefix
+ * out-specifies the plugin's own !important rules. */
+html [data-provider-logo^="/api/v1/system/providers/codex/logo"] {
+  background-color: var(--foreground) !important;
+}
+html [data-provider-icon-tint="codex"] {
+  color: var(--foreground) !important;
+}
+html body .usage-page {
+  --usage-codex: var(--foreground) !important;
+}
