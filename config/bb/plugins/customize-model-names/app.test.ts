@@ -38,12 +38,19 @@ const codex = [
   { id: "gpt-6-astra", displayName: "GPT-6-Astra" },
   { id: "gpt-5.5", displayName: "GPT-5.5" },
 ];
-assert.deepEqual(rowNames("6-Astra", codex), ["6-Astra", "gpt-6-astra", "GPT-6-Astra"]);
-assert.deepEqual(rowNames("5.5", codex), ["5.5", "gpt-5.5", "GPT-5.5"]);
-assert.deepEqual(rowNames("Opus 5.5 alias", codex), ["Opus 5.5 alias"]);
+const none: RenameConfig = { renames: [] };
+assert.deepEqual(rowNames("6-Astra", codex, none), ["6-Astra", "gpt-6-astra", "GPT-6-Astra"]);
+assert.deepEqual(rowNames("5.5", codex, none), ["5.5", "gpt-5.5", "GPT-5.5"]);
+assert.deepEqual(rowNames("Opus 5.5 alias", codex, none), ["Opus 5.5 alias"]);
 
-assert.ok(isVisible(rowNames("6-Astra", codex), ["GPT-6*"])); // via display name / id
-assert.ok(!isVisible(rowNames("5.5", codex), ["GPT-6*"]));
+assert.ok(isVisible(rowNames("6-Astra", codex, none), ["GPT-6*"])); // via display name / id
+assert.ok(!isVisible(rowNames("5.5", codex, none), ["GPT-6*"]));
+
+// Model list failed to load: the renamed label still matches.
+const astra: RenameConfig = { renames: [{ from: "6-Astra", to: "GPT-6 Astra" }] };
+assert.deepEqual(rowNames("6-Astra", [], astra), ["6-Astra", "GPT-6 Astra"]);
+assert.ok(isVisible(rowNames("6-Astra", [], astra), ["GPT-6*"]));
+assert.ok(!isVisible(rowNames("6-Astra", [], none), ["GPT-6*"]));
 assert.ok(isVisible(["Sonnet 5"], undefined)); // no list: show all
 assert.ok(isVisible(["Sonnet 5"], []));
 assert.ok(isVisible(["claude-fable-5-1"], ["claude-fable-5-1"])); // by id

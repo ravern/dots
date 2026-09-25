@@ -11,11 +11,11 @@ forms bb shows: `GPT-6-Sol` (threads) and `6-Sol` (picker) → `GPT-6 Sol`.
 
 **Visible models** ("show only"): per provider, the model picker hides rows
 that match none of the provider's patterns. A pattern is bb's own label
-(`Opus 5.5`, not a renamed one) or a model id (`claude-opus-5-5`),
+(`Opus 5.5`) or a model id (`claude-opus-5-5`),
 case-insensitive, with a trailing `*` wildcard (`GPT-6*`). Providers without a
-list are unchanged. The selected (checked) row always shows, typing in the
-picker's search shows every match, and "More models" is hidden while a list
-applies. Picker only; threads keep their models. Default:
+list are unchanged. A row also matches by its renamed label (`GPT-6 Astra`).
+The selected (checked) row always shows, search results obey the list too, and
+"More models" is hidden while a list applies. Picker only; threads keep their models. Default:
 `{"claude-code": ["Opus 5.5", "Fable 5.1"], "codex": ["GPT-6*"]}`.
 
 ## Manage
