@@ -262,6 +262,18 @@ body {
   opacity: 1 !important;
 }
 
+/* ---- Composer model picker ---------------------------------------------
+ * The trigger is bb's option chip (`gap-1 px-1`): a touch more room on the
+ * left, and 1px more between the provider icon (or ⚡ fast-mode icon) and
+ * the model name. The icon is the first child of the trigger's content
+ * span; `:not(:only-child)` skips the chevron's own span. */
+button[aria-label^="Provider, model and reasoning"] {
+  padding-left: 0.375rem;
+}
+button[aria-label^="Provider, model and reasoning"] > span > :first-child:not(:only-child) {
+  margin-right: 1px;
+}
+
 /* ---- Unread indicators: Greptile green ---------------------------------
  * The sidebar's unread dot (a 5px `bg-muted-foreground/60` span labelled
  * "Unread thread succeeded"; the error, running and needs-input icons are
