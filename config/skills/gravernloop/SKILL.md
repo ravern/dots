@@ -90,12 +90,13 @@ After the last code change and after all required Greptile feedback is clean, re
 - Every current-head E2B check is terminal and successful. At this final gate, poll pending E2B checks rather than ignoring them.
 - The branch is pushed and has no uncommitted intended changes.
 - If Vercel provides a preview, capture the user-facing `Preview` URL for each affected app. Prefer the preview URL from the matching project row in the Vercel bot comment, not the deployment inspector URL. A missing preview is not a blocker.
+- If `greptile-apps-staging[bot]` has reviewed the PR, capture the `View in Greptile` URL from its latest review or summary comment, with or without the staging option. A missing staging link is not a blocker.
 
 If a new push changes the head SHA while waiting, restart the final gate for the new SHA. Never count a passing review, CI run, or E2B build from an older commit.
 
 ## Report
 
-After every final gate passes or the loop reaches five iterations, post exactly one Gravernloop summary comment on the PR. Post the comment on unsuccessful runs too; do not wait for another invocation. Include the same result in the user-facing response and link to the posted summary comment.
+After every final gate passes or the loop reaches five iterations, post exactly one Gravernloop summary comment on the PR. Post the comment on unsuccessful runs too; do not wait for another invocation. Include the same result in the user-facing response and link to the posted summary comment. When a staging `View in Greptile` URL was captured, include it in the user-facing response as a clickable Markdown link.
 
 When human decisions remain open, spell them out in the final response in the current chat thread, even if they were already asked asynchronously or documented on the PR. For each decision, state the concrete issue, the available choices and their scope or behavior consequences, your recommendation, and the linked review comment. Ask the user to choose. Do not replace this with a count, a link alone, or vague wording such as "an ownership-scope decision remains open." Keep these decisions separate from pending automated checks and the routine migration human-review gate; "additional human review required" does not explain an open product or implementation decision. Include the same open decisions in the PR summary.
 
@@ -113,6 +114,7 @@ Report `ready for merge` only after every final gate passes. Use this structure 
 - CI: passing
 - E2B: passing on `<head-sha>`
 - Vercel preview: <url> <!-- omit when unavailable -->
+- Staging Greptile review: <view-in-greptile-url> <!-- omit when unavailable -->
 - Gravernloop: complete
 - Ready for merge: yes
 
