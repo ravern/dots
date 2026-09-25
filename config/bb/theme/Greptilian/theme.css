@@ -270,6 +270,44 @@ body {
   background-color: var(--primary);
 }
 
+/* ---- Menu section headings ---------------------------------------------
+ * bb pins group headings ("Model", "Reasoning") with `sticky top-0
+ * bg-background`, which paints the canvas (#171717) as a dark bar across the
+ * #1F1F1F popover. Paint the popover instead; it stays opaque so rows still
+ * scroll under a sticky heading. (`sticky top-0` is part of the match so a
+ * switch thumb, also `bg-background`, isn't caught.) */
+:is(.bg-popover, [data-radix-popper-content-wrapper], [role="dialog"], [role="listbox"], [role="menu"]) .sticky.top-0.bg-background {
+  background-color: var(--popover) !important;
+}
+
+/* ---- Reasoning slider plugin (bb-plugin-reasoning-slider) ---------------
+ * Greptile's Slider as the dashboard restyles it: the filled range takes
+ * the text colour instead of green, and the thumb is a background-colour
+ * disc with Greptile's --primary (green-500) at 50% as its border. No
+ * blue→purple gradient at the top level. */
+html .rs-root {
+  --rs-fill: var(--foreground);
+  --rs-fill-max: var(--foreground);
+  --rs-thumb: var(--background);
+}
+
+html .rs-thumb {
+  border: 1px solid color-mix(in srgb, #149f65 50%, transparent) !important;
+}
+
+/* The plugin's filled stops are white at 30%, invisible on a white range in
+ * dark mode. */
+html .rs-tick[data-filled] {
+  background: color-mix(in srgb, var(--background) 40%, transparent) !important;
+}
+
+/* The value label is pulled up onto the "Reasoning" heading's line; lift it
+ * above that sticky (z-10) heading so it isn't painted over. */
+html .rs-header {
+  position: relative;
+  z-index: 11;
+}
+
 /* ---- OpenAI mark ---------------------------------------------------------
  * True Colors (provider-brand-marks) paints the Codex logo the old ChatGPT
  * green. OpenAI's mark is monochrome: white in dark mode, ink in light (a
