@@ -43,12 +43,20 @@
    * alone isn't enough. */
   --radius: 1px;
 
-  /* The green used for your own message bubble and the send controls. It
-   * sits between Greptile's green-600 (#128C59, 4.3:1 with white) and
-   * green-700 (#0F7045): white text clears 5.4:1, and it stays lively where
-   * green-700 read too deep. Brand #28E99F is too loud as a fill. */
+  /* Light-mode --primary and the quote bars. It sits between Greptile's
+   * green-600 (#128C59, 4.3:1 with white) and green-700 (#0F7045): white
+   * clears 5.4:1 and it stays lively where green-700 read too deep. */
   --greptilian-green: #007a51;
-  --greptilian-green-hover: #00845a;
+
+  /* PR chat user message: `background: hsl(var(--muted) / 0.3)` with
+   * --muted gray-300 (pr-chat.module.css). */
+  --greptilian-bubble: color-mix(in srgb, #d4d4d4 30%, transparent);
+
+  /* The dashboard's "standard" button (apps/web globals.css):
+   * --dashboard-surface / -surface-border / -hover-step. */
+  --greptilian-surface: #ffffff;
+  --greptilian-surface-border: #dbdbdb;
+  --greptilian-surface-hover: #f0f0f0;
 
   /* ---- Anchors -------------------------------------------------------
    * /new dashboard: body 0 0% 98%, text 0 0% 9%, tiles pure white. */
@@ -127,6 +135,13 @@
   --primary: #28e99f;
   --primary-foreground: #000000;
 
+  /* Same recipes, dark values: --muted gray-800 at 30%; surface 0 0% 16%,
+   * border 22%, hover 21%. */
+  --greptilian-bubble: color-mix(in srgb, #262626 30%, transparent);
+  --greptilian-surface: #292929;
+  --greptilian-surface-border: #383838;
+  --greptilian-surface-hover: #363636;
+
   --state-hover: color-mix(in oklab, var(--ink) 10%, transparent);
   --state-active: color-mix(in oklab, var(--ink) 15%, transparent);
 
@@ -177,75 +192,65 @@ body {
   border-radius: var(--radius) !important;
 }
 
-/* ---- Your message bubble: Greptile green --------------------------------
+/* ---- Your message bubble: the PR chat's user message --------------------
  * bb renders your own messages as `rounded-xl bg-surface-recessed` inside
- * [data-message-column]. Text is brand sandbank #EEEEEE (4.6:1). */
+ * [data-message-column]. Greptile's PR chat draws them as a borderless 30%
+ * muted wash with body-colour text and an 8px corner — the one place the
+ * dashboard steps off the 1px radius (a literal in pr-chat.module.css). */
 .bb-app-shell [data-message-column] .rounded-xl.bg-surface-recessed {
-  background-color: var(--greptilian-green);
-  border-color: var(--greptilian-green);
-  color: #eeeeee;
+  background-color: var(--greptilian-bubble);
+  border-color: transparent;
+  color: var(--foreground);
+  border-radius: 8px !important;
 }
 
-/* Links would otherwise take --primary, which in light mode IS the bubble
- * green. */
-.bb-app-shell [data-message-column] .rounded-xl.bg-surface-recessed a {
-  color: inherit;
-  text-decoration: underline;
-}
-
-/* Quote bar inside the bubble follows the bubble text. */
+/* Quote bars, in the composer and in the message it becomes. */
+.bb-app-shell .ProseMirror blockquote,
 .bb-app-shell [data-message-column] .rounded-xl.bg-surface-recessed blockquote {
-  border-color: #eeeeee;
-}
-
-/* Quote bar in the composer. */
-.bb-app-shell .ProseMirror blockquote {
   border-color: var(--greptilian-green);
 }
 
-/* ---- Send / stop / split send ------------------------------------------
- * Every control in the composer's submit slot carries
- * [data-promptbox-submit-action] (send, stop, voice). The split send +
- * options pill is bb's `group/send bg-foreground` wrapper; bb makes its
- * inner buttons transparent, so the wrapper carries the fill. */
-.bb-app-shell [data-promptbox-submit-action]:not(:disabled),
-.bb-app-shell .group\/send.bg-foreground {
-  background-color: var(--greptilian-green) !important;
-  color: #ffffff !important;
+/* ---- Send / stop: the PR chat's composer --------------------------------
+ * Every control in bb's submit slot carries [data-promptbox-submit-action]
+ * (send, stop, voice); send is the `type=submit` one. Greptile's send is
+ * Button `primary` as the dashboard restyles it ("special": text-colour
+ * fill, background-colour icon, no border, 85% on hover, 30% disabled).
+ * The split send + options pill is bb's own `group/send bg-foreground`
+ * wrapper, already that fill, so it's left alone. */
+.bb-app-shell [data-promptbox-submit-action][type="submit"]:not(.group\/send *) {
+  background-color: var(--foreground) !important;
+  border-color: transparent !important;
+  color: var(--background) !important;
+  border-radius: var(--radius) !important;
 }
 
-.bb-app-shell .group\/send.bg-foreground [data-promptbox-submit-action]:not(:disabled) {
-  background-color: transparent !important;
+.bb-app-shell [data-promptbox-submit-action][type="submit"]:not(.group\/send *):not(:disabled):hover {
+  background-color: color-mix(in oklab, var(--foreground) 85%, transparent) !important;
 }
 
-.bb-app-shell [data-promptbox-submit-action]:not(:disabled):hover,
-.bb-app-shell .group\/send.bg-foreground:hover {
-  background-color: var(--greptilian-green-hover) !important;
+.bb-app-shell [data-promptbox-submit-action][type="submit"]:not(.group\/send *):disabled {
+  opacity: 0.3 !important;
 }
 
-/* Empty composer: bb fades its inverted fill to 50%, which lands on a
- * washed-out grey in both modes. Use a real muted fill instead. */
-.bb-app-shell [data-promptbox-submit-action]:disabled {
-  background-color: var(--muted) !important;
-  color: var(--muted-foreground) !important;
+/* Stop is Button `outline`, which the dashboard turns into its "standard"
+ * button: surface fill, visible border that doesn't change on hover. */
+.bb-app-shell [data-promptbox-submit-action][aria-label="Stop run"] {
+  background-color: var(--greptilian-surface) !important;
+  border: 1px solid var(--greptilian-surface-border) !important;
+  color: var(--foreground) !important;
+  border-radius: var(--radius) !important;
+}
+
+.bb-app-shell [data-promptbox-submit-action][aria-label="Stop run"]:hover {
+  background-color: var(--greptilian-surface-hover) !important;
+}
+
+/* Labelled send button ("New thread" in the handoff composer): full
+ * strength in every state — bb otherwise draws the disabled one as faint
+ * bordered text. Only paint is set; bb's own `size-auto h-8 px-2.5` keeps
+ * it sized to its label. */
+.bb-app-shell [data-promptbox-submit-action]:has([data-promptbox-submit-label]):not(.group\/send *):disabled {
   opacity: 1 !important;
-}
-
-/* …except inside the split pill, where the wrapper already carries the
- * (faded) green and the button must stay see-through. */
-.bb-app-shell .group\/send [data-promptbox-submit-action]:disabled {
-  background-color: transparent !important;
-  color: inherit !important;
-}
-
-/* Labelled send button ("New thread" in the handoff composer): green in
- * every state, including disabled. Only paint is set; bb's own
- * `size-auto h-8 px-2.5` keeps it sized to its label. */
-.bb-app-shell [data-promptbox-submit-action]:has([data-promptbox-submit-label]),
-.bb-app-shell [data-promptbox-submit-action]:has([data-promptbox-submit-label]):disabled {
-  background-color: var(--greptilian-green) !important;
-  border-color: var(--greptilian-green) !important;
-  color: #ffffff !important;
 }
 
 /* ---- OpenAI mark ---------------------------------------------------------
