@@ -260,5 +260,5 @@ export default function customizeModelNames(bb: BbPluginApi) {
     }),
   );
 
-  bb.log.info("Customize Model Visibility loaded");
+  bb.log.info("Customize Model Picker loaded");
 }

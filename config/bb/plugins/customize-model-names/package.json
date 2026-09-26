@@ -7,7 +7,7 @@
     "bbPluginSdk": ">=0.5.9"
   },
   "bb": {
-    "name": "Customize Model Visibility",
+    "name": "Customize Model Picker",
     "description": "Rename or hide models in bb: Codex \"6-Astra\" as \"GPT-6 Astra\", your own renames, and per-provider show-only lists for the model picker.",
     "branding": {
       "icon": "TextFont"

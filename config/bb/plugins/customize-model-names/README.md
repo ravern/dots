@@ -1,4 +1,4 @@
-# Customize Model Visibility
+# Customize Model Picker
 
 Personal bb plugin that changes how model names are *displayed* and which
 models the model picker shows. Model ids and
@@ -20,7 +20,7 @@ The selected (checked) row always shows, search results obey the list too, and
 
 ## Manage
 
-- Settings → Installed plugins → Customize Model Visibility → **Renames** panel.
+- Settings → Installed plugins → Customize Model Picker → **Renames** panel.
 - CLI:
   - `bb model-names list [--json]`
   - `bb model-names add "<from>" "<to>"`
@@ -28,7 +28,7 @@ The selected (checked) row always shows, search results obey the list too, and
   - `bb model-names visible [--json]`
   - `bb model-names visible-add <provider> "<pattern>"`
   - `bb model-names visible-remove <provider> ["<pattern>"]` (no pattern: show all)
-- Settings → Installed plugins → Customize Model Visibility → **Visible models** panel
+- Settings → Installed plugins → Customize Model Picker → **Visible models** panel
   (or the raw "Show only these models" JSON setting).
 
 ## Develop
