@@ -8,6 +8,9 @@
 //   "-priority-" tier; translate bb's picks back to the real devin_version.
 // - A new cloud session has no repo. Pick the one matching the workspace's
 //   git origin, so Devin clones the repo the bb thread is in.
+// - A Devin secret request arrives as a generic tool call; retitle it
+//   "Devin needs secret NAME" and put the request in its rawInput (bb's item
+//   `arguments.devinSecretRequest`) so the server can prompt for it (server.ts).
 // - On follow-up turns the cloud agent answers session/prompt before the
 //   reply it announced (is_typing) arrives; bb would drop the late reply.
 //   Hold the prompt result until announced replies are delivered.
@@ -157,6 +160,18 @@ export function isLegacyId(raw: Json, value: string): boolean {
   return families(raw.options ?? []).has(value);
 }
 
+export type SecretRequest = { name: string; note: string; requestId: string };
+
+/** A Devin Cloud secret request (`request_secret` tool call): its name, note, and request id. */
+export function secretRequest(update: Json): SecretRequest | null {
+  const meta = update?._meta;
+  if (update?.sessionUpdate !== "tool_call" || meta?.["cognition.ai/eventType"] !== "request_secret") return null;
+  const name = meta["cognition.ai/secretName"];
+  const requestId = meta["cognition.ai/requestId"] ?? update.toolCallId;
+  if (typeof name !== "string" || !name || typeof requestId !== "string" || !requestId) return null;
+  return { name, note: String(meta["cognition.ai/note"] ?? ""), requestId };
+}
+
 /** The `repos` value matching a git remote URL (ssh or https), if Devin offers it. */
 export function matchRepo(configOptions: unknown, remote: string): string | null {
   if (!Array.isArray(configOptions)) return null;
@@ -267,6 +282,11 @@ export function runRelay([command, ...args]: string[]): void {
       return emit(pending, pending.result.sessionId);
     }
     const update = msg.method === "session/update" ? msg.params?.update : undefined;
+    const secret = update ? secretRequest(update) : null;
+    if (secret) {
+      update.title = `Devin needs secret ${secret.name}${secret.note ? ` — ${secret.note}` : ""}`;
+      update.rawInput = { devinSecretRequest: secret };
+    }
     if (update) {
       const count = typing.get(sessionId) ?? 0;
       if (update._meta?.["cognition.ai/isTyping"] === true) typing.set(sessionId, count + 1);
