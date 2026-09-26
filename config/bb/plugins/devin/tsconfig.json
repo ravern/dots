@@ -11,5 +11,5 @@
     "jsx": "react-jsx",
     "allowImportingTsExtensions": true
   },
-  "include": ["server.ts", "host.ts", "relay.ts", "app.tsx", "relay.test.ts"]
+  "include": ["server.ts", "host.ts", "relay.ts", "labels.ts", "app.tsx", "relay.test.ts"]
 }

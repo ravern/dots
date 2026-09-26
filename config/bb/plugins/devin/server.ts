@@ -6,7 +6,11 @@ import {
   type BbPluginApi,
   type PluginProviderDeclaration,
 } from "@get-bb/plugin-sdk";
+import { spawn } from "node:child_process";
+import { tmpdir } from "node:os";
+import { createInterface } from "node:readline";
 import { z } from "zod";
+import { priorityModels } from "./relay.ts";
 
 export const CLOUD = "devin-cloud";
 export const SESSION_CHANNEL = "session";
@@ -15,7 +19,10 @@ const VM_TITLE = "Devin VM";
 const VM_COMMAND = (url: string) => `devin ssh ${url} -t 'cd ~/repos/*/ 2>/dev/null; exec "$SHELL" -l'`;
 
 // Devin works on its own VM and never asks bb for permission, so Full access is the only mode.
-// The model picker lists Devin Cloud's versions (tagged by the relay); there is no reasoning knob.
+// The relay collapses Devin's level families (SWE-2 Medium/High/Max) into one model with
+// reasoning levels; models without levels advertise none. A family's "-priority-" tier is bb's
+// service tier, labelled Priority. bb declares tiers per provider, not per model: models
+// without a priority tier show the switch too, and it does nothing for them.
 const cloud: PluginProviderDeclaration = {
   id: CLOUD,
   displayName: "Devin Cloud",
@@ -23,17 +30,20 @@ const cloud: PluginProviderDeclaration = {
   experimental_bridgeOptions: {
     acpLaunchSpec: { displayName: "Devin Cloud", command: "devin", args: ["acp", "--cloud"], env: {} },
     acpDialect: "generic",
+    // Makes the bridge pass bb's service tier (Priority) through to the relay's `fast` option.
+    parameterizedModelPicker: true,
   },
   capabilities: {
-    supportsServiceTier: false,
+    supportsServiceTier: true,
     supportsNativeUserQuestion: false,
     fork: "none",
     supportsManualCompaction: false,
     supportsThreadArchive: false,
     supportsThreadRename: false,
     permissionModes: ["full"],
-    reasoningLevels: ["medium"],
+    reasoningLevels: ["low", "medium", "high", "xhigh", "max"],
   },
+  serviceTiers: [{ id: "fast", label: "Priority", description: "Devin's priority capacity, for models that offer it" }],
   composerActions: [],
   strings: {
     signInHint: "Run `devin auth login` on this machine.",
@@ -49,7 +59,42 @@ export function sessionUrl(providerThreadId: string | undefined): string | null 
   return hex ? `https://app.devin.ai/sessions/${hex}` : null;
 }
 
+/** Devin Cloud's models with a priority tier, from a throwaway cloud session (unlisted until prompted). */
+function probePriorityModels(): Promise<string[] | null> {
+  return new Promise((resolve) => {
+    const child = spawn("devin", ["acp", "--cloud"], { stdio: ["pipe", "pipe", "ignore"] });
+    const finish = (names: string[] | null) => {
+      clearTimeout(timer);
+      child.kill();
+      resolve(names);
+    };
+    const timer = setTimeout(() => finish(null), 30_000);
+    const send = (id: number, method: string, params: object) =>
+      child.stdin.write(JSON.stringify({ jsonrpc: "2.0", id, method, params }) + "\n");
+    child.on("error", () => finish(null));
+    createInterface({ input: child.stdout }).on("line", (line) => {
+      let msg: { id?: number; result?: { configOptions?: { id?: string }[] } };
+      try {
+        msg = JSON.parse(line);
+      } catch {
+        return;
+      }
+      if (msg.id === 1) send(2, "session/new", { cwd: tmpdir(), mcpServers: [] });
+      if (msg.id === 2) {
+        const raw = msg.result?.configOptions?.find((o) => o?.id === "devin_version");
+        finish(raw ? priorityModels(raw) : null);
+      }
+    });
+    send(1, "initialize", { protocolVersion: 1, clientCapabilities: {} });
+  });
+}
+
 export const rpcContract = defineRpcContract({
+  priorityModels: {
+    input: z.null(),
+    // null: unknown (Devin unreachable), so the picker keeps bb's own toggle.
+    output: z.object({ names: z.array(z.string()).nullable() }),
+  },
   session: {
     input: z.object({ threadId: z.string().min(1) }).strict(),
     output: z.object({ url: z.string().nullable() }),
@@ -109,7 +154,16 @@ export default function devin(bb: BbPluginApi) {
   bb.events.on("thread.active", onThread);
   bb.events.on("thread.idle", onThread);
 
+  // ponytail: probed once per plugin load (retried after a failure); reload the plugin to pick up new models.
+  let priority: Promise<string[] | null> | undefined;
+
   bb.rpc.register(rpcContract, {
+    priorityModels: async () => {
+      priority ??= probePriorityModels();
+      const names = await priority;
+      if (names === null) priority = undefined;
+      return { names };
+    },
     session: async ({ threadId }) => ({ url: await urlFor(threadId) }),
     openVm: async ({ threadId }) => ({ ok: await ensureVm(threadId, true) }),
   });
