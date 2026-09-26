@@ -21,10 +21,16 @@ Devin Cloud session on Devin's hosted VM, driven over ACP by
   ignores a stale "on" for such models. The toggle and its picker menu carry
   `data-devin-priority="available|unavailable"` for other picker plugins.
 - **Secrets**: when Devin requests a secret, the thread row reads "Devin
-  needs secret NAME" and bb opens a password form. The server hands the value straight to
+  needs secret NAME" and bb opens a password form: Send, "Save for future
+  sessions" (Devin's Personal scope; delete saved ones at
+  https://app.devin.ai/secrets), or Skip. Skip posts "Skipped NAME; continue
+  without it." to the thread, since Devin's ACP has no way to decline. The server hands the value straight to
   Devin (`_cognition.ai/secret/provide` on its own `devin acp --cloud`
   connection); it isn't stored in the thread, logged, or written to a file.
   Devin's errors are reduced to their code because they echo the request.
+- **Updates**: agent processes outlive a plugin reinstall, so the plugin stops
+  idle Devin Cloud threads on load; each picks up the new relay on its next
+  message (same Devin session).
 - **Old threads**: a thread that stored a pre-collapse id
   (`devin-swe-2-high`, `devin-swe-2-priority-max`) keeps that exact version;
   its stored reasoning/tier is ignored for that pick.

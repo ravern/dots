@@ -92,9 +92,11 @@ const secretUpdate = {
     "cognition.ai/secretName": "TEST_SECRET",
     "cognition.ai/requestId": "secret-request-abc",
     "cognition.ai/note": "for a test",
+    "cognition.ai/shouldSave": false,
   },
 };
-assert.deepEqual(secretRequest(secretUpdate), { name: "TEST_SECRET", note: "for a test", requestId: "secret-request-abc" });
+assert.deepEqual(secretRequest(secretUpdate), { name: "TEST_SECRET", note: "for a test", requestId: "secret-request-abc", save: false });
+assert.equal(secretRequest({ ...secretUpdate, _meta: { ...secretUpdate._meta, "cognition.ai/shouldSave": true } })!.save, true);
 assert.equal(secretRequest({ ...secretUpdate, _meta: { "cognition.ai/eventType": "context_growth_update" } }), null);
 assert.equal(secretRequest({ sessionUpdate: "agent_message_chunk", _meta: secretUpdate._meta }), null);
 
@@ -203,7 +205,7 @@ assert.deepEqual([option(keptTier, "devin_version").currentValue, option(keptTie
 send("test/secret", { sessionId: "devin-abc" });
 const asked = (await next()).params.update;
 assert.equal(asked.title, "Devin needs secret TEST_SECRET — for a test");
-assert.deepEqual(asked.rawInput.devinSecretRequest, { name: "TEST_SECRET", note: "for a test", requestId: "secret-request-abc" });
+assert.deepEqual(asked.rawInput.devinSecretRequest, { name: "TEST_SECRET", note: "for a test", requestId: "secret-request-abc", save: false });
 await next();
 
 // The announced reply lands inside the turn; the relay's own requests never reach bb.

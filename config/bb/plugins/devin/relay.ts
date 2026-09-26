@@ -160,16 +160,16 @@ export function isLegacyId(raw: Json, value: string): boolean {
   return families(raw.options ?? []).has(value);
 }
 
-export type SecretRequest = { name: string; note: string; requestId: string };
+export type SecretRequest = { name: string; note: string; requestId: string; save: boolean };
 
-/** A Devin Cloud secret request (`request_secret` tool call): its name, note, and request id. */
+/** A Devin Cloud secret request (`request_secret` tool call): name, note, request id, and whether Devin suggests saving it. */
 export function secretRequest(update: Json): SecretRequest | null {
   const meta = update?._meta;
   if (update?.sessionUpdate !== "tool_call" || meta?.["cognition.ai/eventType"] !== "request_secret") return null;
   const name = meta["cognition.ai/secretName"];
   const requestId = meta["cognition.ai/requestId"] ?? update.toolCallId;
   if (typeof name !== "string" || !name || typeof requestId !== "string" || !requestId) return null;
-  return { name, note: String(meta["cognition.ai/note"] ?? ""), requestId };
+  return { name, note: String(meta["cognition.ai/note"] ?? ""), requestId, save: meta["cognition.ai/shouldSave"] === true };
 }
 
 /** The `repos` value matching a git remote URL (ssh or https), if Devin offers it. */
