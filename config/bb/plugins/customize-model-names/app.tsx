@@ -18,6 +18,7 @@ import {
   type RenameConfig,
   type VisibleModels,
 } from "./rename";
+import { registerReasoningSlider } from "./reasoning-slider";
 import type { rpcContract } from "./server";
 
 const PICKER_TRIGGER = 'button[aria-label^="Provider, model and reasoning"]';
@@ -460,4 +461,5 @@ export default definePluginApp((app) => {
     description: "Show only these models in the model picker, per provider.",
     component: VisibleModelsSettings,
   });
+  registerReasoningSlider(app);
 });

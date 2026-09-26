@@ -297,7 +297,7 @@ button[aria-label^="Provider, model and reasoning"] > span > :first-child:not(:o
   background-color: var(--popover) !important;
 }
 
-/* ---- Reasoning slider plugin (bb-plugin-reasoning-slider) ---------------
+/* ---- Reasoning slider (Customize Model Picker plugin) ---------------
  * Squared off in the idiom of Greptile's SegmentedToggle (composites/
  * segmented-toggle.tsx), which is what Greptile uses for discrete levels
  * (StrictnessSlider wraps it): a `bg-foreground/10` well at the 1px radius,

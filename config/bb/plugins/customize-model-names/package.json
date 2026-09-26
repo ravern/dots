@@ -8,7 +8,7 @@
   },
   "bb": {
     "name": "Customize Model Picker",
-    "description": "Rename or hide models in bb: Codex \"6-Astra\" as \"GPT-6 Astra\", your own renames, and per-provider show-only lists for the model picker.",
+    "description": "Rename or hide models in bb: your own renames, per-provider show-only lists for the model picker, and a slider for reasoning levels.",
     "branding": {
       "icon": "TextFont"
     },
@@ -26,6 +26,6 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0"
   },
-  "description": "Rename or hide models in bb: Codex \"6-Astra\" as \"GPT-6 Astra\", your own renames, and per-provider show-only lists for the model picker.",
+  "description": "Rename or hide models in bb: your own renames, per-provider show-only lists for the model picker, and a slider for reasoning levels.",
   "private": true
 }
