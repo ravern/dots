@@ -5,7 +5,7 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
-import { collapseVersion, expandLevel, expandModel, expandTier, isLegacyId, matchRepo, priorityModels, RELAY_FLAG } from "./relay.ts";
+import { collapseVersion, expandLevel, expandModel, expandTier, isLegacyId, matchRepo, priorityModels, RELAY_FLAG, secretRequest } from "./relay.ts";
 import { relayCloudLaunches } from "./host.ts";
 import { devinModelFromTitle, relabel } from "./labels.ts";
 import { sessionUrl } from "./server.ts";
@@ -80,6 +80,24 @@ assert.deepEqual(thought.options, [
 assert.deepEqual([tier.id, tier.currentValue], ["fast", "true"]);
 assert.equal(collapseVersion(version("devin-swe-2-low"))[2].currentValue, "false");
 
+// Devin's secret request: detected from its request_secret tool call, with the request id.
+const secretUpdate = {
+  sessionUpdate: "tool_call",
+  toolCallId: "secret-request-abc",
+  kind: "other",
+  status: "pending",
+  title: "Requesting secret: TEST_SECRET — for a test",
+  _meta: {
+    "cognition.ai/eventType": "request_secret",
+    "cognition.ai/secretName": "TEST_SECRET",
+    "cognition.ai/requestId": "secret-request-abc",
+    "cognition.ai/note": "for a test",
+  },
+};
+assert.deepEqual(secretRequest(secretUpdate), { name: "TEST_SECRET", note: "for a test", requestId: "secret-request-abc" });
+assert.equal(secretRequest({ ...secretUpdate, _meta: { "cognition.ai/eventType": "context_growth_update" } }), null);
+assert.equal(secretRequest({ sessionUpdate: "agent_message_chunk", _meta: secretUpdate._meta }), null);
+
 // Only families with a priority tier offer the Priority switch (by picker name).
 assert.deepEqual(priorityModels(version("devin-auto")), ["SWE-2"]);
 assert.deepEqual(priorityModels({ options: version("").options.filter((o) => !o.value.includes("priority")) }), []);
@@ -123,6 +141,10 @@ const fakeAgent = `
   rl.on("line", (line) => {
     const m = JSON.parse(line);
     if (m.method === "session/set_config_option") state[m.params.configId] = m.params.value;
+    if (m.method === "test/secret") {
+      send({ jsonrpc: "2.0", method: "session/update", params: { sessionId: "devin-abc", update: ${JSON.stringify(secretUpdate)} } });
+      return send({ jsonrpc: "2.0", id: m.id, result: {} });
+    }
     if (m.method === "session/prompt") {
       // Devin Cloud's order on follow-ups: announce, answer the prompt, then deliver the reply.
       const update = (u) => send({ jsonrpc: "2.0", method: "session/update", params: { sessionId: "devin-abc", update: u } });
@@ -176,6 +198,13 @@ send("session/set_config_option", { sessionId: "devin-abc", configId: "fast", va
 const keptTier = await next();
 assert.equal(keptTier.result.got, undefined);
 assert.deepEqual([option(keptTier, "devin_version").currentValue, option(keptTier, "fast").currentValue], ["devin-swe-2", "true"]);
+
+// A secret request reaches bb retitled, with the request in its rawInput (bb's item arguments).
+send("test/secret", { sessionId: "devin-abc" });
+const asked = (await next()).params.update;
+assert.equal(asked.title, "Devin needs secret TEST_SECRET — for a test");
+assert.deepEqual(asked.rawInput.devinSecretRequest, { name: "TEST_SECRET", note: "for a test", requestId: "secret-request-abc" });
+await next();
 
 // The announced reply lands inside the turn; the relay's own requests never reach bb.
 send("session/prompt", { sessionId: "devin-abc" });

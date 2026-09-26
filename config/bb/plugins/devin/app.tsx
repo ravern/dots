@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { definePluginApp, UrlLink, useRealtime, useRpc, type PluginThreadHeaderActionProps } from "@get-bb/plugin-sdk/app";
+import {
+  definePluginApp,
+  UrlLink,
+  useRealtime,
+  useRpc,
+  type PluginPendingInteractionProps,
+  type PluginThreadHeaderActionProps,
+} from "@get-bb/plugin-sdk/app";
 import { devinModelFromTitle, relabel } from "./labels.ts";
 import type { rpcContract } from "./server";
 
@@ -27,6 +34,56 @@ function DevinSession({ threadId }: PluginThreadHeaderActionProps) {
         VM
       </button>
     </span>
+  );
+}
+
+/** bb's prompt for a Devin Cloud secret request; the value goes to the server, which hands it to Devin. */
+function SecretForm({ interaction, submit, cancel }: PluginPendingInteractionProps) {
+  const { name, note, url, error } = interaction.payload as { name: string; note: string; url: string | null; error: string | null };
+  const [value, setValue] = useState("");
+  const [busy, setBusy] = useState(false);
+  const send = async () => {
+    setBusy(true);
+    await submit({ value }).finally(() => setBusy(false));
+    setValue("");
+  };
+  return (
+    <form
+      className="flex flex-col gap-2 p-3 text-sm"
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (value !== "") void send();
+      }}
+    >
+      <div className="font-medium">Devin needs secret {name}</div>
+      {note ? <div className="text-muted-foreground">{note}</div> : null}
+      <input
+        type="password"
+        autoComplete="off"
+        spellCheck={false}
+        aria-label={`Value for ${name}`}
+        placeholder={name}
+        value={value}
+        onChange={(event) => setValue(event.target.value)}
+        className="h-8 rounded-md border border-border bg-transparent px-2 font-mono"
+        autoFocus
+      />
+      {error ? <div className="text-xs text-destructive">{error}</div> : null}
+      <div className="flex items-center gap-2">
+        <button type="submit" disabled={value === "" || busy} className={`${button} border border-border text-foreground disabled:opacity-50`}>
+          Send to Devin
+        </button>
+        <button type="button" onClick={() => void cancel()} className={button}>
+          Cancel
+        </button>
+        {url ? (
+          <UrlLink href={url} className={`${button} ml-auto`}>
+            Enter it in Devin instead ↗
+          </UrlLink>
+        ) : null}
+      </div>
+      <div className="text-xs text-muted-foreground">Sent straight to Devin; not saved in this thread.</div>
+    </form>
   );
 }
 
@@ -130,4 +187,5 @@ function PriorityToggle() {
 export default definePluginApp((app) => {
   app.slots.experimental_threadHeaderAction({ id: "devin-session", title: "Devin Cloud session", component: DevinSession });
   app.slots.experimental_appOverlay({ id: "priority-toggle", component: PriorityToggle });
+  app.slots.pendingInteraction({ id: "devin-secret", component: SecretForm });
 });

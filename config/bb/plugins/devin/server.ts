@@ -10,11 +10,12 @@ import { spawn } from "node:child_process";
 import { tmpdir } from "node:os";
 import { createInterface } from "node:readline";
 import { z } from "zod";
-import { priorityModels } from "./relay.ts";
+import { priorityModels, type SecretRequest } from "./relay.ts";
 
 export const CLOUD = "devin-cloud";
 export const SESSION_CHANNEL = "session";
 const VM_TITLE = "Devin VM";
+export const SECRET_FORM = "devin-secret";
 // Land in the session's repo: the relay picks at most one, cloned under ~/repos.
 const VM_COMMAND = (url: string) => `devin ssh ${url} -t 'cd ~/repos/*/ 2>/dev/null; exec "$SHELL" -l'`;
 
@@ -59,34 +60,43 @@ export function sessionUrl(providerThreadId: string | undefined): string | null 
   return hex ? `https://app.devin.ai/sessions/${hex}` : null;
 }
 
-/** Devin Cloud's models with a priority tier, from a throwaway cloud session (unlisted until prompted). */
-function probePriorityModels(): Promise<string[] | null> {
+type CloudReply = { result?: any; error?: { code?: number } };
+
+/**
+ * One request on a fresh `devin acp --cloud` connection. The reply's error is reduced to its
+ * code: Devin's validation messages echo the request, which may hold a secret value.
+ */
+function cloudRequest(method: string, params: object): Promise<CloudReply | null> {
   return new Promise((resolve) => {
     const child = spawn("devin", ["acp", "--cloud"], { stdio: ["pipe", "pipe", "ignore"] });
-    const finish = (names: string[] | null) => {
+    const finish = (reply: CloudReply | null) => {
       clearTimeout(timer);
       child.kill();
-      resolve(names);
+      resolve(reply);
     };
     const timer = setTimeout(() => finish(null), 30_000);
     const send = (id: number, method: string, params: object) =>
       child.stdin.write(JSON.stringify({ jsonrpc: "2.0", id, method, params }) + "\n");
     child.on("error", () => finish(null));
     createInterface({ input: child.stdout }).on("line", (line) => {
-      let msg: { id?: number; result?: { configOptions?: { id?: string }[] } };
+      let msg: { id?: number } & CloudReply;
       try {
         msg = JSON.parse(line);
       } catch {
         return;
       }
-      if (msg.id === 1) send(2, "session/new", { cwd: tmpdir(), mcpServers: [] });
-      if (msg.id === 2) {
-        const raw = msg.result?.configOptions?.find((o) => o?.id === "devin_version");
-        finish(raw ? priorityModels(raw) : null);
-      }
+      if (msg.id === 1) send(2, method, params);
+      if (msg.id === 2) finish(msg.error ? { error: { code: msg.error.code } } : { result: msg.result });
     });
     send(1, "initialize", { protocolVersion: 1, clientCapabilities: {} });
   });
+}
+
+/** Devin Cloud's models with a priority tier, from a throwaway cloud session (unlisted until prompted). */
+async function probePriorityModels(): Promise<string[] | null> {
+  const reply = await cloudRequest("session/new", { cwd: tmpdir(), mcpServers: [] });
+  const raw = reply?.result?.configOptions?.find((o: { id?: string }) => o?.id === "devin_version");
+  return raw ? priorityModels(raw) : null;
 }
 
 export const rpcContract = defineRpcContract({
@@ -108,12 +118,15 @@ export const rpcContract = defineRpcContract({
 export default function devin(bb: BbPluginApi) {
   bb.providers.register(cloud);
 
-  async function urlFor(threadId: string): Promise<string | null> {
+  /** The thread's Devin Cloud session id (`devin-<hex>`), once it has one. */
+  async function sessionIdOf(threadId: string): Promise<string | null> {
     const thread = await bb.sdk.threads.get({ threadId });
     if (thread.providerId !== CLOUD) return null;
     const [identity] = await bb.sdk.threads.events.list({ threadId, types: ["thread/identity"], order: "desc", limit: "1" });
-    return sessionUrl((identity?.data as { providerThreadId?: string } | undefined)?.providerThreadId);
+    const id = (identity?.data as { providerThreadId?: string } | undefined)?.providerThreadId;
+    return sessionUrl(id) === null ? null : id!;
   }
+  const urlFor = async (threadId: string) => sessionUrl((await sessionIdOf(threadId)) ?? undefined);
 
   // ponytail: one in-flight check per thread; thread.active and thread.idle can land together.
   const inFlight = new Map<string, Promise<boolean>>();
@@ -153,6 +166,62 @@ export default function devin(bb: BbPluginApi) {
   };
   bb.events.on("thread.active", onThread);
   bb.events.on("thread.idle", onThread);
+
+  // Devin Cloud secret requests (tagged by the relay) → a bb form → _cognition.ai/secret/provide.
+  // The value goes from the form straight to Devin: never into a transcript, log, or file.
+  const asked = new Set<string>(); // request ids prompted by this process
+
+  async function askSecret(threadId: string, request: SecretRequest): Promise<void> {
+    const sessionId = await sessionIdOf(threadId);
+    if (sessionId === null) return;
+    const url = sessionUrl(sessionId);
+    let error: string | null = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const result = await bb.ui.requestInput({
+        threadId,
+        rendererId: SECRET_FORM,
+        title: `${request.name} for Devin`,
+        payload: { name: request.name, note: request.note, url, error },
+        timeoutMs: 60 * 60_000,
+        presentation: { label: { pending: `Devin needs secret ${request.name}`, completed: `Entered ${request.name} for Devin` } },
+      });
+      if (result.outcome !== "submitted") return;
+      const value = (result.value as { value?: unknown } | null)?.value;
+      if (typeof value !== "string" || value === "") return;
+      const reply = await cloudRequest("_cognition.ai/secret/provide", {
+        session_id: sessionId,
+        request_id: request.requestId,
+        secret_name: request.name,
+        secret_value: value,
+      });
+      if (reply !== null && reply.error === undefined) return;
+      bb.log.warn(`Devin didn't accept ${request.name} for ${threadId} (error ${reply?.error?.code ?? "no reply"})`);
+      error = "Devin didn't accept it. Try again, or enter it in Devin.";
+    }
+  }
+
+  async function findSecretRequests(threadId: string): Promise<void> {
+    const events = await bb.sdk.threads.events.list({ threadId, types: ["item/started"], order: "desc", limit: "50" });
+    for (const event of events) {
+      const item = (event.data as { item?: { arguments?: { devinSecretRequest?: SecretRequest } } }).item;
+      const request = item?.arguments?.devinSecretRequest;
+      if (!request?.requestId || asked.has(request.requestId)) continue;
+      asked.add(request.requestId);
+      // Persisted so a restart doesn't ask again; the form itself doesn't survive one.
+      const { secretRequests } = await bb.sdk.threads.getPluginMetadata({ threadId });
+      const seen = Array.isArray(secretRequests) ? secretRequests.filter((id): id is string => typeof id === "string") : [];
+      if (seen.includes(request.requestId)) continue;
+      await bb.sdk.threads.updatePluginMetadata({ threadId, set: { secretRequests: [...seen, request.requestId] } });
+      askSecret(threadId, request).catch((error) => bb.log.warn(`Devin secret form for ${threadId}: ${error instanceof Error ? error.name : "failed"}`));
+    }
+  }
+
+  const onThreadEvents = ({ thread }: { thread: { id: string; providerId: string } }) => {
+    if (thread.providerId !== CLOUD) return;
+    findSecretRequests(thread.id).catch(() => bb.log.warn(`Devin secret check for ${thread.id} failed`));
+  };
+  bb.events.on("experimental_thread.events", onThreadEvents);
+  bb.events.on("thread.idle", onThreadEvents);
 
   // ponytail: probed once per plugin load (retried after a failure); reload the plugin to pick up new models.
   let priority: Promise<string[] | null> | undefined;

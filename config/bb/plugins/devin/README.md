@@ -20,6 +20,12 @@ Devin Cloud session on Devin's hosted VM, driven over ACP by
   overlay hides it when the picked model has no priority tier, and the relay
   ignores a stale "on" for such models. The toggle and its picker menu carry
   `data-devin-priority="available|unavailable"` for other picker plugins.
+- **Secrets**: when Devin requests a secret, the thread row reads "Devin
+  needs secret NAME" and bb opens a password form ("Send to Devin", or a link
+  to enter it in Devin's web app). The server hands the value straight to
+  Devin (`_cognition.ai/secret/provide` on its own `devin acp --cloud`
+  connection); it isn't stored in the thread, logged, or written to a file.
+  Devin's errors are reduced to their code because they echo the request.
 - **Old threads**: a thread that stored a pre-collapse id
   (`devin-swe-2-high`, `devin-swe-2-priority-max`) keeps that exact version;
   its stored reasoning/tier is ignored for that pick.

@@ -23,3 +23,7 @@ Models: level families collapse into one model with reasoning levels
 (`--model devin-swe-2 --reasoning-level high`); Priority is the service tier
 (`--service-tier fast`), only meaningful for models with a priority tier
 (SWE-2). Old ids such as `devin-swe-2-priority-high` still work.
+
+Secrets: when Devin requests one, bb shows a "Devin needs secret NAME" form in
+the thread. Never ask the user to paste a secret into chat for Devin; let
+them answer the form (or enter it in Devin's web app).
