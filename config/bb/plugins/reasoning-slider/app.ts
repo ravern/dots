@@ -95,6 +95,7 @@ class ReasoningSlider {
     this.options = readOptions(this.group);
     this.index = selectedIndex(this.options);
     const count = this.options.length;
+    this.setSectionHidden(count <= 1);
     if (this.ticks.childElementCount !== count) {
       this.ticks.replaceChildren(
         // No handlers: presses bubble to the track, which snaps to the
@@ -191,8 +192,22 @@ class ReasoningSlider {
     this.commit(next);
   };
 
+  /**
+   * Nothing to choose (one level or none, e.g. Devin Cloud models): hide bb's
+   * whole Reasoning block — heading and the divider above it — not just the
+   * control. bb renders `div.border-t` + `div` (heading, group) as siblings.
+   */
+  private setSectionHidden(hidden: boolean) {
+    const section = this.group.parentElement;
+    const divider = section?.previousElementSibling;
+    for (const el of [section, divider?.classList.contains("border-t") ? divider : null]) {
+      if (el instanceof HTMLElement) el.style.display = hidden ? "none" : "";
+    }
+  }
+
   dispose() {
     this.observer.disconnect();
+    this.setSectionHidden(false);
     this.root.remove();
     this.group.removeAttribute(HIDDEN_ATTR);
   }
