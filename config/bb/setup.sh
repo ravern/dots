@@ -11,7 +11,7 @@ if ! bb status >/dev/null 2>&1; then
 fi
 
 # Local plugins
-for p in coordinator-threads customize-model-names reasoning-slider; do
+for p in coordinator-threads customize-model-names devin reasoning-slider; do
   (cd $DIR/plugins/$p && npm ci --silent && bb plugin build)
   bb plugin install path:$DIR/plugins/$p --yes
 done
