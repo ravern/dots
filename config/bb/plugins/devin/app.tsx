@@ -37,31 +37,24 @@ function DevinSession({ threadId }: PluginThreadHeaderActionProps) {
   );
 }
 
-/** bb's prompt for a Devin Cloud secret request; the value goes to the server, which hands it to Devin. */
+/** bb's prompt for a Devin Cloud secret request; the server hands the value to Devin. */
 function SecretForm({ interaction, submit, cancel }: PluginPendingInteractionProps) {
-  const { name, note, url, error } = interaction.payload as { name: string; note: string; url: string | null; error: string | null };
+  const { name, note, error } = interaction.payload as { name: string; note: string; error: string | null };
   const [value, setValue] = useState("");
-  const [busy, setBusy] = useState(false);
-  const send = async () => {
-    setBusy(true);
-    await submit({ value }).finally(() => setBusy(false));
-    setValue("");
-  };
   return (
     <form
       className="flex flex-col gap-2 p-3 text-sm"
       onSubmit={(event) => {
         event.preventDefault();
-        if (value !== "") void send();
+        if (value !== "") void submit({ value });
       }}
     >
-      <div className="font-medium">Devin needs secret {name}</div>
       {note ? <div className="text-muted-foreground">{note}</div> : null}
       <input
         type="password"
         autoComplete="off"
         spellCheck={false}
-        aria-label={`Value for ${name}`}
+        aria-label={name}
         placeholder={name}
         value={value}
         onChange={(event) => setValue(event.target.value)}
@@ -69,20 +62,14 @@ function SecretForm({ interaction, submit, cancel }: PluginPendingInteractionPro
         autoFocus
       />
       {error ? <div className="text-xs text-destructive">{error}</div> : null}
-      <div className="flex items-center gap-2">
-        <button type="submit" disabled={value === "" || busy} className={`${button} border border-border text-foreground disabled:opacity-50`}>
-          Send to Devin
+      <div className="flex gap-2">
+        <button type="submit" disabled={value === ""} className={`${button} border border-border text-foreground disabled:opacity-50`}>
+          Send
         </button>
         <button type="button" onClick={() => void cancel()} className={button}>
           Cancel
         </button>
-        {url ? (
-          <UrlLink href={url} className={`${button} ml-auto`}>
-            Enter it in Devin instead ↗
-          </UrlLink>
-        ) : null}
       </div>
-      <div className="text-xs text-muted-foreground">Sent straight to Devin; not saved in this thread.</div>
     </form>
   );
 }

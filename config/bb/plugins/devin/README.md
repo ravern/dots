@@ -21,8 +21,7 @@ Devin Cloud session on Devin's hosted VM, driven over ACP by
   ignores a stale "on" for such models. The toggle and its picker menu carry
   `data-devin-priority="available|unavailable"` for other picker plugins.
 - **Secrets**: when Devin requests a secret, the thread row reads "Devin
-  needs secret NAME" and bb opens a password form ("Send to Devin", or a link
-  to enter it in Devin's web app). The server hands the value straight to
+  needs secret NAME" and bb opens a password form. The server hands the value straight to
   Devin (`_cognition.ai/secret/provide` on its own `devin acp --cloud`
   connection); it isn't stored in the thread, logged, or written to a file.
   Devin's errors are reduced to their code because they echo the request.
