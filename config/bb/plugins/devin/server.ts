@@ -174,16 +174,15 @@ export default function devin(bb: BbPluginApi) {
   async function askSecret(threadId: string, request: SecretRequest): Promise<void> {
     const sessionId = await sessionIdOf(threadId);
     if (sessionId === null) return;
-    const url = sessionUrl(sessionId);
     let error: string | null = null;
     for (let attempt = 0; attempt < 3; attempt++) {
       const result = await bb.ui.requestInput({
         threadId,
         rendererId: SECRET_FORM,
-        title: `${request.name} for Devin`,
-        payload: { name: request.name, note: request.note, url, error },
+        title: request.name,
+        payload: { name: request.name, note: request.note, error },
         timeoutMs: 60 * 60_000,
-        presentation: { label: { pending: `Devin needs secret ${request.name}`, completed: `Entered ${request.name} for Devin` } },
+        presentation: { label: { pending: `Devin needs secret ${request.name}`, completed: `Sent ${request.name}` } },
       });
       if (result.outcome !== "submitted") return;
       const value = (result.value as { value?: unknown } | null)?.value;
@@ -196,7 +195,7 @@ export default function devin(bb: BbPluginApi) {
       });
       if (reply !== null && reply.error === undefined) return;
       bb.log.warn(`Devin didn't accept ${request.name} for ${threadId} (error ${reply?.error?.code ?? "no reply"})`);
-      error = "Devin didn't accept it. Try again, or enter it in Devin.";
+      error = "Devin didn't accept it.";
     }
   }
 
