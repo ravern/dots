@@ -11,7 +11,7 @@ if ! bb status >/dev/null 2>&1; then
 fi
 
 # Local plugins
-for p in coordinator-threads customize-model-names devin reasoning-slider; do
+for p in coordinator-threads customize-model-names reasoning-slider; do
   (cd $DIR/plugins/$p && npm ci --silent && bb plugin build)
   bb plugin install path:$DIR/plugins/$p --yes
 done
@@ -25,7 +25,7 @@ for p in coordinator-threads account-pool agent-annotations monaco-editor plugin
 done
 
 # Plugin settings
-bb plugin config customize-model-names set visibleModels '{"claude-code":["Opus 5.5","Fable 5.1"],"codex":["GPT-6*"],"acp-cursor":["Grok 4.7"],"devin-cloud":["SWE-2*","Fusion"]}'
+bb plugin config customize-model-names set visibleModels '{"claude-code":["Opus 5.5","Fable 5.1"],"codex":["GPT-6*"],"acp-cursor":["Grok 4.7"]}'
 bb plugin config provider-claude-code set memoryEnabled false
 bb plugin config provider-claude-code set subagentsDisabled true
 bb plugin config provider-claude-code set workflowsDisabled true
