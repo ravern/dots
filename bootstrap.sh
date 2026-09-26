@@ -76,9 +76,9 @@ ln -s $HOME/Repos/ravern/dots/config/bin/sish             $HOME/.local/bin/sish
 mkdir -p $HOME/.bb
 ln -s $HOME/Repos/ravern/dots/config/bb/config.json $HOME/.bb/config.json
 
-# bb theme
-mkdir -p $HOME/.bb/theme
-ln -s $HOME/Repos/ravern/dots/config/bb/theme/Ravern $HOME/.bb/theme/Ravern
+# bb themes: link the whole folder (bb's theme list skips symlinked theme dirs)
+mkdir -p $HOME/.bb
+ln -s $HOME/Repos/ravern/dots/config/bb/theme $HOME/.bb/theme
 
 # Install bb plugins and settings (needs bb running)
 sh $HOME/Repos/ravern/dots/config/bb/setup.sh
