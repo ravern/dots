@@ -11,7 +11,7 @@ if ! bb status >/dev/null 2>&1; then
 fi
 
 # Local plugins
-for p in coordinator-threads customize-model-names; do
+for p in customize-model-names; do
   (cd $DIR/plugins/$p && npm ci --silent && bb plugin build)
   bb plugin install path:$DIR/plugins/$p --yes
 done
@@ -20,7 +20,7 @@ done
 bb plugin install git:https://github.com/ChrBoebel/bb-plugin-provider-brand-marks.git@^0.1.0 --yes
 
 # Disabled plugins
-for p in coordinator-threads account-pool agent-annotations monaco-editor plugin-api-docs plugin-api-tester provider-pi workflows; do
+for p in account-pool agent-annotations monaco-editor plugin-api-docs plugin-api-tester provider-pi workflows; do
   bb plugin disable $p
 done
 
