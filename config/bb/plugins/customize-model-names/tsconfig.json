@@ -24,6 +24,7 @@
     "app.test.ts",
     "reasoning-slider.ts",
     "slider-math.ts",
-    "reasoning-slider.test.ts"
+    "reasoning-slider.test.ts",
+    "brand-marks.ts"
   ]
 }

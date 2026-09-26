@@ -16,8 +16,6 @@ for p in customize-model-names; do
   bb plugin install path:$DIR/plugins/$p --yes
 done
 
-# Community plugins
-bb plugin install git:https://github.com/ChrBoebel/bb-plugin-provider-brand-marks.git@^0.1.0 --yes
 
 # Disabled plugins
 for p in account-pool agent-annotations monaco-editor plugin-api-docs plugin-api-tester provider-pi workflows; do

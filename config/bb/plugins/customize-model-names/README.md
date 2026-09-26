@@ -48,6 +48,12 @@ theme via `--rs-fill`, `--rs-fill-max`, `--rs-track`, `--rs-thumb`,
 `--rs-height` on `.rs-root`. If a bb update changes the picker markup
 (`role="radiogroup"` labelled "Reasoning"), the plain buttons come back.
 
+**Provider brand colours** (from "True Colors", ChrBoebel/bb-plugin-provider-brand-marks,
+MIT — `LICENSE-provider-brand-marks`): provider logos are tinted in their brand
+colour (Claude clay, OpenAI green, Pi, Hermes, OpenCode), fitted to the palette
+in light and dark; Cursor tracks the foreground. Override from a theme via
+`--pbm-brand-<provider-id>`, `--pbm-lightness`, `--pbm-chroma-scale`, `--pbm-chroma-cap`.
+
 - Checks: `node --experimental-strip-types app.test.ts` and
   `node --experimental-strip-types reasoning-slider.test.ts`
 - After edits: `bb plugin build && bb plugin reload customize-model-names`
