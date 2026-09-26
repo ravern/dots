@@ -18,6 +18,7 @@ import {
   type RenameConfig,
   type VisibleModels,
 } from "./rename";
+import { registerBrandMarks } from "./brand-marks";
 import { registerReasoningSlider } from "./reasoning-slider";
 import type { rpcContract } from "./server";
 
@@ -462,4 +463,5 @@ export default definePluginApp((app) => {
     component: VisibleModelsSettings,
   });
   registerReasoningSlider(app);
+  registerBrandMarks(app);
 });
