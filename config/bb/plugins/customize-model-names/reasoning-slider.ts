@@ -1,5 +1,5 @@
-import { definePluginApp } from "@get-bb/plugin-sdk/app";
-import "./app.css";
+import type { definePluginApp } from "@get-bb/plugin-sdk/app";
+import "./reasoning-slider.css";
 import { indexAtPosition, indexForKey, percentForIndex } from "./slider-math";
 
 /**
@@ -213,7 +213,10 @@ class ReasoningSlider {
   }
 }
 
-export default definePluginApp((app) => {
+type PluginApp = Parameters<Parameters<typeof definePluginApp>[0]>[0];
+
+/** Registers the reasoning slider content script on the plugin app. */
+export function registerReasoningSlider(app: PluginApp) {
   app.contentScripts.register({
     id: "reasoning-slider",
     mount({ signal }) {
@@ -249,4 +252,4 @@ export default definePluginApp((app) => {
       return dispose;
     },
   });
-});
+}

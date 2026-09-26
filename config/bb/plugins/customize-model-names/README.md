@@ -36,3 +36,18 @@ The selected (checked) row always shows, search results obey the list too, and
 - Logic: `rename.ts`; check: `node --experimental-strip-types app.test.ts`
 - After edits: `bb plugin build && bb plugin reload customize-model-names`
 - Remove: `bb plugin uninstall customize-model-names --yes`
+
+**Reasoning slider**: replaces the picker's reasoning buttons with a slider
+modelled on the Codex desktop app's (pill track, fill, stop dots, thumb).
+Drag the thumb (previews while dragging, applies on release), click the
+track, or focus it and use ← → / Home / End. bb's own buttons stay in the
+page, hidden, and the slider clicks them, so bb sets the level itself and
+⌥T / model switches show up in the slider. With one level or none (e.g.
+Devin Cloud models) the whole Reasoning section is hidden. Restyle from a
+theme via `--rs-fill`, `--rs-fill-max`, `--rs-track`, `--rs-thumb`,
+`--rs-height` on `.rs-root`. If a bb update changes the picker markup
+(`role="radiogroup"` labelled "Reasoning"), the plain buttons come back.
+
+- Checks: `node --experimental-strip-types app.test.ts` and
+  `node --experimental-strip-types reasoning-slider.test.ts`
+- After edits: `bb plugin build && bb plugin reload customize-model-names`
