@@ -118,6 +118,22 @@ export const rpcContract = defineRpcContract({
 export default function devin(bb: BbPluginApi) {
   bb.providers.register(cloud);
 
+  // Agent processes outlive a plugin reinstall and keep running the old relay. Stop idle
+  // Devin Cloud threads on load so each starts the current one on its next message (same
+  // Devin session). Never touches a running turn; stopping fires no load, so it can't loop.
+  (async () => {
+    let stopped = 0;
+    for (let offset = 0; ; offset += 100) {
+      const page = await bb.sdk.threads.list({ limit: 100, offset });
+      for (const thread of page) {
+        if (thread.providerId !== CLOUD || thread.status !== "idle") continue;
+        if (await bb.sdk.threads.stop({ threadId: thread.id }).then(() => true, () => false)) stopped++;
+      }
+      if (page.length < 100) break;
+    }
+    bb.log.info(`Stopped ${stopped} idle Devin Cloud threads`);
+  })().catch(() => bb.log.warn("Couldn't stop idle Devin Cloud threads"));
+
   /** The thread's Devin Cloud session id (`devin-<hex>`), once it has one. */
   async function sessionIdOf(threadId: string): Promise<string | null> {
     const thread = await bb.sdk.threads.get({ threadId });
@@ -180,19 +196,30 @@ export default function devin(bb: BbPluginApi) {
         threadId,
         rendererId: SECRET_FORM,
         title: request.name,
-        payload: { name: request.name, note: request.note, error },
+        payload: { name: request.name, note: request.note, save: request.save, error },
         timeoutMs: 60 * 60_000,
         presentation: { label: { pending: `Devin needs secret ${request.name}`, completed: `Sent ${request.name}` } },
       });
       if (result.outcome !== "submitted") return;
-      const value = (result.value as { value?: unknown } | null)?.value;
-      if (typeof value !== "string" || value === "") return;
-      const reply = await cloudRequest("_cognition.ai/secret/provide", {
-        session_id: sessionId,
-        request_id: request.requestId,
-        secret_name: request.name,
-        secret_value: value,
-      });
+      const answer = (result.value ?? {}) as { value?: unknown; save?: unknown; skip?: unknown };
+      if (answer.skip === true) {
+        // Devin's ACP has no way to decline a secret request (provide rejects an empty list),
+        // so tell Devin in the thread.
+        await bb.sdk.threads.send({ threadId, mode: "queue-if-active", input: [{ type: "text", text: `Skipped ${request.name}; continue without it.`, mentions: [] }] });
+        return;
+      }
+      let params: object;
+      if (typeof answer.value === "string" && answer.value !== "") {
+        params = {
+          session_id: sessionId,
+          request_id: request.requestId,
+          secret_name: request.name,
+          secret_value: answer.value,
+          // ponytail: "user" scope only; org/repo saving is left to Devin's web app.
+          ...(answer.save === true ? { should_save: true, save_scope: "user" } : {}),
+        };
+      } else return;
+      const reply = await cloudRequest("_cognition.ai/secret/provide", params);
       if (reply !== null && reply.error === undefined) return;
       bb.log.warn(`Devin didn't accept ${request.name} for ${threadId} (error ${reply?.error?.code ?? "no reply"})`);
       error = "Devin didn't accept it.";

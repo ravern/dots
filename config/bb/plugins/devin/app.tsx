@@ -38,15 +38,17 @@ function DevinSession({ threadId }: PluginThreadHeaderActionProps) {
 }
 
 /** bb's prompt for a Devin Cloud secret request; the server hands the value to Devin. */
-function SecretForm({ interaction, submit, cancel }: PluginPendingInteractionProps) {
-  const { name, note, error } = interaction.payload as { name: string; note: string; error: string | null };
+function SecretForm({ interaction, submit }: PluginPendingInteractionProps) {
+  const payload = interaction.payload as { name: string; note: string; save?: boolean; error: string | null };
+  const { name, note, error } = payload;
   const [value, setValue] = useState("");
+  const [save, setSave] = useState(payload.save === true);
   return (
     <form
       className="flex flex-col gap-2 p-3 text-sm"
       onSubmit={(event) => {
         event.preventDefault();
-        if (value !== "") void submit({ value });
+        if (value !== "") void submit({ value, save });
       }}
     >
       {note ? <div className="text-muted-foreground">{note}</div> : null}
@@ -61,13 +63,17 @@ function SecretForm({ interaction, submit, cancel }: PluginPendingInteractionPro
         className="h-8 rounded-md border border-border bg-transparent px-2 font-mono"
         autoFocus
       />
+      <label className="flex items-center gap-2 text-xs text-muted-foreground">
+        <input type="checkbox" checked={save} onChange={(event) => setSave(event.target.checked)} />
+        Save for future sessions
+      </label>
       {error ? <div className="text-xs text-destructive">{error}</div> : null}
       <div className="flex gap-2">
         <button type="submit" disabled={value === ""} className={`${button} border border-border text-foreground disabled:opacity-50`}>
           Send
         </button>
-        <button type="button" onClick={() => void cancel()} className={button}>
-          Cancel
+        <button type="button" onClick={() => void submit({ skip: true })} className={button}>
+          Skip
         </button>
       </div>
     </form>
