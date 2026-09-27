@@ -41,6 +41,9 @@ const DEFAULT_RENAMES: Rename[] = ["6-Sol", "6-Astra", "6-Luna", "5.6-Sol", "5.6
       { from: label, to },
     ];
   },
+).concat(
+  // bb's picker recases Devin Cloud's collapsed "SWE-2" model from its id.
+  { from: "Swe-2", to: "SWE-2" },
 );
 
 const configSchema = z.object({
