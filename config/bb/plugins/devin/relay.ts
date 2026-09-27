@@ -11,6 +11,9 @@
 // - A Devin secret request arrives as a generic tool call; retitle it
 //   "Devin needs secret NAME" and put the request in its rawInput (bb's item
 //   `arguments.devinSecretRequest`) so the server can prompt for it (server.ts).
+// - A Devin question (message with cognition.ai/questions) gets a tool-call row
+//   "Devin asks: …" carrying the questions (`arguments.devinQuestion`), so the
+//   server can offer them as a form.
 // - On follow-up turns the cloud agent answers session/prompt before the
 //   reply it announced (is_typing) arrives; bb would drop the late reply.
 //   Hold the prompt result until announced replies are delivered.
@@ -172,6 +175,27 @@ export function secretRequest(update: Json): SecretRequest | null {
   return { name, note: String(meta["cognition.ai/note"] ?? ""), requestId, save: meta["cognition.ai/shouldSave"] === true };
 }
 
+export type DevinQuestion = { id: string; questions: { question: string; options: string[]; multiple: boolean }[] };
+
+/** A Devin question: a message whose meta carries `cognition.ai/questions` (options per question). */
+export function devinQuestion(update: Json): DevinQuestion | null {
+  const meta = update?._meta;
+  if (update?.sessionUpdate !== "agent_message_chunk" || meta?.["cognition.ai/userQuestion"] !== true) return null;
+  const raw = meta["cognition.ai/questions"];
+  const id = meta["cognition.ai/eventId"];
+  if (!Array.isArray(raw) || typeof id !== "string") return null;
+  const questions = raw
+    .filter((q) => typeof q?.question === "string" && Array.isArray(q.options))
+    .map((q) => ({ question: q.question, options: q.options.filter((o: unknown) => typeof o === "string"), multiple: q.allow_multiple === true }));
+  return questions.length > 0 ? { id, questions } : null;
+}
+
+/** The thread message that answers a question: each question's picks, one line per question. */
+export function questionAnswer(question: DevinQuestion, picks: string[][]): string {
+  const lines = question.questions.map((q, i) => (picks[i] ?? []).join(", "));
+  return question.questions.length === 1 ? lines[0] : question.questions.map((q, i) => `${q.question}: ${lines[i]}`).join("\n");
+}
+
 /** The `repos` value matching a git remote URL (ssh or https), if Devin offers it. */
 export function matchRepo(configOptions: unknown, remote: string): string | null {
   if (!Array.isArray(configOptions)) return null;
@@ -283,6 +307,16 @@ export function runRelay([command, ...args]: string[]): void {
     }
     const update = msg.method === "session/update" ? msg.params?.update : undefined;
     const secret = update ? secretRequest(update) : null;
+    const question = update ? devinQuestion(update) : null;
+    if (question) {
+      // Before the message itself, so the row lands inside the turn even when its end is held.
+      const title = `Devin asks: ${question.questions[0].question}`;
+      toBridge(JSON.stringify({
+        jsonrpc: "2.0",
+        method: "session/update",
+        params: { sessionId, update: { sessionUpdate: "tool_call", toolCallId: `devin-question-${question.id}`, kind: "other", status: "completed", title, rawInput: { devinQuestion: question } } },
+      }));
+    }
     if (secret) {
       update.title = `Devin needs secret ${secret.name}${secret.note ? ` — ${secret.note}` : ""}`;
       update.rawInput = { devinSecretRequest: secret };

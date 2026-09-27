@@ -5,7 +5,7 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
-import { collapseVersion, expandLevel, expandModel, expandTier, isLegacyId, matchRepo, priorityModels, RELAY_FLAG, secretRequest } from "./relay.ts";
+import { collapseVersion, expandLevel, expandModel, expandTier, isLegacyId, matchRepo, priorityModels, questionAnswer, RELAY_FLAG, secretRequest, devinQuestion } from "./relay.ts";
 import { relayCloudLaunches } from "./host.ts";
 import { devinModelFromTitle, relabel } from "./labels.ts";
 import { sessionUrl } from "./server.ts";
@@ -100,6 +100,25 @@ assert.equal(secretRequest({ ...secretUpdate, _meta: { ...secretUpdate._meta, "c
 assert.equal(secretRequest({ ...secretUpdate, _meta: { "cognition.ai/eventType": "context_growth_update" } }), null);
 assert.equal(secretRequest({ sessionUpdate: "agent_message_chunk", _meta: secretUpdate._meta }), null);
 
+// Devin's question: a message whose meta carries the questions (real shape from Devin Cloud).
+const questionUpdate = {
+  sessionUpdate: "agent_message_chunk",
+  content: { type: "text", text: "Which fruit do you choose?" },
+  _meta: {
+    "cognition.ai/eventType": "devin_message",
+    "cognition.ai/eventId": "event-q1",
+    "cognition.ai/userQuestion": true,
+    "cognition.ai/questions": [{ options: ["Apple", "Banana", "Cherry"], question: "Choose a fruit", allow_multiple: false }],
+  },
+};
+const fruit = { id: "event-q1", questions: [{ question: "Choose a fruit", options: ["Apple", "Banana", "Cherry"], multiple: false }] };
+assert.deepEqual(devinQuestion(questionUpdate), fruit);
+assert.equal(devinQuestion({ ...questionUpdate, _meta: { "cognition.ai/eventType": "devin_message" } }), null);
+assert.equal(devinQuestion({ ...questionUpdate, _meta: { ...questionUpdate._meta, "cognition.ai/questions": [{ question: 1 }] } }), null);
+assert.equal(questionAnswer(fruit, [["Banana"]]), "Banana");
+const two = { id: "q2", questions: [{ question: "Fruit", options: [], multiple: true }, { question: "Colour", options: [], multiple: false }] };
+assert.equal(questionAnswer(two, [["Apple", "Kiwi"], ["Blue"]]), "Fruit: Apple, Kiwi\nColour: Blue");
+
 // Only families with a priority tier offer the Priority switch (by picker name).
 assert.deepEqual(priorityModels(version("devin-auto")), ["SWE-2"]);
 assert.deepEqual(priorityModels({ options: version("").options.filter((o) => !o.value.includes("priority")) }), []);
@@ -143,6 +162,10 @@ const fakeAgent = `
   rl.on("line", (line) => {
     const m = JSON.parse(line);
     if (m.method === "session/set_config_option") state[m.params.configId] = m.params.value;
+    if (m.method === "test/question") {
+      send({ jsonrpc: "2.0", method: "session/update", params: { sessionId: "devin-abc", update: ${JSON.stringify(questionUpdate)} } });
+      return send({ jsonrpc: "2.0", id: m.id, result: {} });
+    }
     if (m.method === "test/secret") {
       send({ jsonrpc: "2.0", method: "session/update", params: { sessionId: "devin-abc", update: ${JSON.stringify(secretUpdate)} } });
       return send({ jsonrpc: "2.0", id: m.id, result: {} });
@@ -206,6 +229,14 @@ send("test/secret", { sessionId: "devin-abc" });
 const asked = (await next()).params.update;
 assert.equal(asked.title, "Devin needs secret TEST_SECRET — for a test");
 assert.deepEqual(asked.rawInput.devinSecretRequest, { name: "TEST_SECRET", note: "for a test", requestId: "secret-request-abc", save: false });
+await next();
+
+// A question reaches bb as a "Devin asks" row with the questions, just before Devin's message.
+send("test/question", { sessionId: "devin-abc" });
+const row = (await next()).params.update;
+assert.deepEqual([row.sessionUpdate, row.title], ["tool_call", "Devin asks: Choose a fruit"]);
+assert.deepEqual(row.rawInput.devinQuestion, fruit);
+assert.equal((await next()).params.update.content.text, "Which fruit do you choose?");
 await next();
 
 // The announced reply lands inside the turn; the relay's own requests never reach bb.

@@ -10,12 +10,13 @@ import { spawn } from "node:child_process";
 import { tmpdir } from "node:os";
 import { createInterface } from "node:readline";
 import { z } from "zod";
-import { priorityModels, type SecretRequest } from "./relay.ts";
+import { priorityModels, questionAnswer, type DevinQuestion, type SecretRequest } from "./relay.ts";
 
 export const CLOUD = "devin-cloud";
 export const SESSION_CHANNEL = "session";
 const VM_TITLE = "Devin VM";
 export const SECRET_FORM = "devin-secret";
+export const QUESTION_FORM = "devin-question";
 // Land in the session's repo: the relay picks at most one, cloned under ~/repos.
 const VM_COMMAND = (url: string) => `devin ssh ${url} -t 'cd ~/repos/*/ 2>/dev/null; exec "$SHELL" -l'`;
 
@@ -185,7 +186,7 @@ export default function devin(bb: BbPluginApi) {
 
   // Devin Cloud secret requests (tagged by the relay) → a bb form → _cognition.ai/secret/provide.
   // The value goes from the form straight to Devin: never into a transcript, log, or file.
-  const asked = new Set<string>(); // request ids prompted by this process
+  const asked = new Set<string>(); // secret request / question ids prompted by this process
 
   async function askSecret(threadId: string, request: SecretRequest): Promise<void> {
     const sessionId = await sessionIdOf(threadId);
@@ -226,25 +227,70 @@ export default function devin(bb: BbPluginApi) {
     }
   }
 
-  async function findSecretRequests(threadId: string): Promise<void> {
-    const events = await bb.sdk.threads.events.list({ threadId, types: ["item/started"], order: "desc", limit: "50" });
-    for (const event of events) {
-      const item = (event.data as { item?: { arguments?: { devinSecretRequest?: SecretRequest } } }).item;
-      const request = item?.arguments?.devinSecretRequest;
-      if (!request?.requestId || asked.has(request.requestId)) continue;
-      asked.add(request.requestId);
-      // Persisted so a restart doesn't ask again; the form itself doesn't survive one.
-      const { secretRequests } = await bb.sdk.threads.getPluginMetadata({ threadId });
-      const seen = Array.isArray(secretRequests) ? secretRequests.filter((id): id is string => typeof id === "string") : [];
-      if (seen.includes(request.requestId)) continue;
-      await bb.sdk.threads.updatePluginMetadata({ threadId, set: { secretRequests: [...seen, request.requestId] } });
-      askSecret(threadId, request).catch((error) => bb.log.warn(`Devin secret form for ${threadId}: ${error instanceof Error ? error.name : "failed"}`));
+  /** Devin's question as a bb form; the answer goes back as the user's message (Devin's ACP has no answer method). */
+  async function askQuestion(threadId: string, question: DevinQuestion, signal: AbortSignal): Promise<void> {
+    if (signal.aborted) return;
+    const result = await bb.ui.requestInput({
+      threadId,
+      rendererId: QUESTION_FORM,
+      title: question.questions[0].question,
+      payload: question,
+      timeoutMs: 60 * 60_000,
+      presentation: { label: { pending: "Devin asks", completed: "Answered Devin" } },
+    }, { signal });
+    if (result.outcome !== "submitted") return;
+    const picks = (result.value as { picks?: unknown } | null)?.picks;
+    if (!Array.isArray(picks)) return;
+    const clean = picks.map((p) => (Array.isArray(p) ? p.filter((x): x is string => typeof x === "string" && x.trim() !== "") : []));
+    if (clean.every((p) => p.length === 0)) return;
+    await bb.sdk.threads.send({ threadId, mode: "queue-if-active", input: [{ type: "text", text: questionAnswer(question, clean), mentions: [] }] });
+  }
+
+  /** True the first time this id is seen for the thread; persisted so a restart doesn't ask again. */
+  async function firstTime(threadId: string, key: "secretRequests" | "questions", id: string): Promise<boolean> {
+    if (asked.has(id)) return false;
+    asked.add(id);
+    const meta = await bb.sdk.threads.getPluginMetadata({ threadId });
+    const seen = Array.isArray(meta[key]) ? (meta[key] as unknown[]).filter((x): x is string => typeof x === "string") : [];
+    if (seen.includes(id)) return false;
+    await bb.sdk.threads.updatePluginMetadata({ threadId, set: { [key]: [...seen, id] } });
+    return true;
+  }
+
+  // bb shows one plugin form per thread at a time, so forms queue per thread. Devin keeps one
+  // question open at a time, so a newer question withdraws the older one's form.
+  const formQueue = new Map<string, Promise<void>>();
+  const openQuestion = new Map<string, AbortController>();
+  const enqueue = (threadId: string, what: string, run: () => Promise<void>) => {
+    const next = (formQueue.get(threadId) ?? Promise.resolve())
+      .then(run)
+      .catch((error) => bb.log.warn(`Devin ${what} form for ${threadId}: ${error instanceof Error ? error.message : "failed"}`));
+    formQueue.set(threadId, next);
+  };
+
+  async function findPrompts(threadId: string): Promise<void> {
+    const events = await bb.sdk.threads.events.list({ threadId, types: ["item/started", "item/completed"], order: "desc", limit: "100" });
+    let newest: DevinQuestion | null = null;
+    for (const event of [...events].reverse()) {
+      const args = (event.data as { item?: { arguments?: { devinSecretRequest?: SecretRequest; devinQuestion?: DevinQuestion } } }).item?.arguments;
+      const request = args?.devinSecretRequest;
+      if (request?.requestId && (await firstTime(threadId, "secretRequests", request.requestId))) {
+        enqueue(threadId, "secret", () => askSecret(threadId, request));
+      }
+      const question = args?.devinQuestion;
+      if (question?.id && (await firstTime(threadId, "questions", question.id))) newest = question;
     }
+    if (newest === null) return;
+    const question: DevinQuestion = newest;
+    openQuestion.get(threadId)?.abort();
+    const controller = new AbortController();
+    openQuestion.set(threadId, controller);
+    enqueue(threadId, "question", () => askQuestion(threadId, question, controller.signal));
   }
 
   const onThreadEvents = ({ thread }: { thread: { id: string; providerId: string } }) => {
     if (thread.providerId !== CLOUD) return;
-    findSecretRequests(thread.id).catch(() => bb.log.warn(`Devin secret check for ${thread.id} failed`));
+    findPrompts(thread.id).catch(() => bb.log.warn(`Devin prompt check for ${thread.id} failed`));
   };
   bb.events.on("experimental_thread.events", onThreadEvents);
   bb.events.on("thread.idle", onThreadEvents);

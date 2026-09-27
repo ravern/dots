@@ -28,6 +28,12 @@ Devin Cloud session on Devin's hosted VM, driven over ACP by
   Devin (`_cognition.ai/secret/provide` on its own `devin acp --cloud`
   connection); it isn't stored in the thread, logged, or written to a file.
   Devin's errors are reduced to their code because they echo the request.
+- **Questions**: Devin's multiple-choice questions (`cognition.ai/questions`
+  on its message) get a "Devin asks" row and a form (radio, or checkboxes when
+  it allows several). The answer goes back as your message: Devin's ACP has no
+  answer method, so Devin's own record shows the question as skipped even
+  though Devin acts on the answer. A newer question replaces an unanswered
+  one; forms queue one at a time per thread.
 - **Updates**: agent processes outlive a plugin reinstall, so the plugin stops
   idle Devin Cloud threads on load; each picks up the new relay on its next
   message (same Devin session).
