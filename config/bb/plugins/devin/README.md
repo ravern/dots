@@ -43,8 +43,9 @@ Devin Cloud session on Devin's hosted VM, driven over ACP by
 - **Session URL**: thread header **Devin ↗** opens it in Devin's web app.
 - **VM terminal**: a "Devin VM" thread terminal runs `devin ssh <session>` in
   `~/repos/<name>`, opened automatically when the session exists and reopened
-  after it exits (not after you close it). Header **VM** or `bb devin vm`
-  reopens it. First connect asks to trust `ssh.devin.ai`.
+  after it exits (not after you close it). **Devin VM** in the side panel's
+  New tab launcher (or `bb devin vm`) reopens it and shows it as a tab; bb
+  lists launcher actions on every thread, so elsewhere it just says so. First connect asks to trust `ssh.devin.ai`.
 - **Resume**: threads reload the same cloud session (`session/load`) after the
   agent process restarts, including across bb restarts.
 

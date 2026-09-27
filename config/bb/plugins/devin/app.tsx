@@ -5,8 +5,10 @@ import {
   useRealtime,
   useRpc,
   type PluginPendingInteractionProps,
+  type PluginRpcClient,
   type PluginThreadHeaderActionProps,
 } from "@get-bb/plugin-sdk/app";
+import { toast } from "sonner"; // shimmed to bb's toaster
 import { devinModelFromTitle, hasPriority, relabel } from "./labels.ts";
 import type { DevinQuestion } from "./relay.ts";
 import type { rpcContract } from "./server";
@@ -14,7 +16,7 @@ import type { rpcContract } from "./server";
 const button =
   "inline-flex h-7 items-center rounded-md px-2 text-xs text-muted-foreground hover:bg-accent hover:text-foreground";
 
-/** "Devin ↗" (web app) and "VM" (terminal) for Devin Cloud threads; nothing elsewhere. */
+/** "Devin ↗" (the session in Devin's web app) for Devin Cloud threads; nothing elsewhere. */
 function DevinSession({ threadId }: PluginThreadHeaderActionProps) {
   const rpc = useRpc<typeof rpcContract>();
   const [url, setUrl] = useState<string | null>(null);
@@ -27,14 +29,9 @@ function DevinSession({ threadId }: PluginThreadHeaderActionProps) {
   });
   if (url === null) return null;
   return (
-    <span className="inline-flex items-center gap-1">
-      <UrlLink href={url} className={button} title="Open this session in Devin's web app">
-        Devin ↗
-      </UrlLink>
-      <button type="button" className={button} title="Open a terminal on the Devin VM" onClick={() => rpc.call("openVm", { threadId })}>
-        VM
-      </button>
-    </span>
+    <UrlLink href={url} className={button} title="Open this session in Devin's web app">
+      Devin ↗
+    </UrlLink>
   );
 }
 
@@ -216,9 +213,13 @@ function startPriority(priority: readonly string[] | null): () => void {
   };
 }
 
+// The panel launcher's `run` gets no RPC client; the always-mounted overlay lends it one.
+let appRpc: PluginRpcClient<typeof rpcContract> | null = null;
+
 /** Renders nothing: keeps Devin Cloud's Priority toggle labelled, and shown only where it applies. */
 function PriorityToggle() {
   const rpc = useRpc<typeof rpcContract>();
+  appRpc = rpc;
   const [priority, setPriority] = useState<readonly string[] | null>(null);
   useEffect(() => {
     rpc.call("priorityModels", null).then((r) => setPriority(r.names), () => {});
@@ -230,6 +231,17 @@ function PriorityToggle() {
 export default definePluginApp((app) => {
   app.slots.experimental_threadHeaderAction({ id: "devin-session", title: "Devin Cloud session", component: DevinSession });
   app.slots.experimental_appOverlay({ id: "priority-toggle", component: PriorityToggle });
+  app.slots.threadPanelAction({
+    id: "devin-vm",
+    title: "Devin VM",
+    icon: "Terminal",
+    // Never opened: `run` opens the VM terminal tab instead of a plugin panel.
+    component: () => null,
+    async run({ threadId }) {
+      const result = await appRpc?.call("openVm", { threadId });
+      if (!result?.ok) toast("Devin VM needs a Devin Cloud thread with a session.");
+    },
+  });
   app.slots.pendingInteraction({ id: "devin-secret", component: SecretForm });
   app.slots.pendingInteraction({ id: "devin-question", component: QuestionForm });
 });

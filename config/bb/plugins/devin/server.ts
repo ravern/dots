@@ -55,6 +55,21 @@ const cloud: PluginProviderDeclaration = {
   models: { scope: "host" },
 };
 
+type Tab = { id: string; kind: string; terminalId?: string; [key: string]: unknown };
+
+/** The panel tab bb uses for a thread terminal (its id scheme is `terminal:<terminalId>:none`). */
+export const vmTab = (threadId: string, terminalId: string): Tab => ({
+  id: `terminal:${encodeURIComponent(terminalId)}:none`,
+  kind: "terminal",
+  terminalId,
+  target: { kind: "thread", threadId },
+});
+
+/** The thread's tabs with the VM terminal's tab added, or null when it's already there. */
+export function withVmTab(tabs: readonly Tab[], tab: Tab): Tab[] | null {
+  return tabs.some((t) => t.kind === "terminal" && t.terminalId === tab.terminalId) ? null : [...tabs, tab];
+}
+
 /** Devin web app URL for a cloud ACP session id (`devin-<hex>`). */
 export function sessionUrl(providerThreadId: string | undefined): string | null {
   const hex = /^devin-([0-9a-f]+)$/.exec(providerThreadId ?? "")?.[1];
@@ -306,7 +321,22 @@ export default function devin(bb: BbPluginApi) {
       return { names };
     },
     session: async ({ threadId }) => ({ url: await urlFor(threadId) }),
-    openVm: async ({ threadId }) => ({ ok: await ensureVm(threadId, true) }),
+    openVm: async ({ threadId }) => {
+      if (!(await ensureVm(threadId, true))) return { ok: false };
+      const { vmTerminalId } = await bb.sdk.threads.getPluginMetadata({ threadId });
+      if (typeof vmTerminalId !== "string") return { ok: false };
+      // Show it in the thread's side panel; retried once if the tabs changed underneath.
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const { revision, tabs } = await bb.sdk.threads.tabs.get({ threadId });
+        const next = withVmTab(tabs as Tab[], vmTab(threadId, vmTerminalId));
+        if (next === null) break;
+        const saved = await bb.sdk.threads.tabs
+          .update({ threadId, expectedRevision: revision, tabs: next as never })
+          .then(() => true, () => false);
+        if (saved) break;
+      }
+      return { ok: true };
+    },
   });
 
   bb.cli.register(
