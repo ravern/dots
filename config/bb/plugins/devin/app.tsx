@@ -233,13 +233,13 @@ export default definePluginApp((app) => {
   app.slots.experimental_appOverlay({ id: "priority-toggle", component: PriorityToggle });
   app.slots.threadPanelAction({
     id: "devin-vm",
-    title: "Devin VM",
+    title: "Start Devin terminal",
     icon: "Terminal",
     // Never opened: `run` opens the VM terminal tab instead of a plugin panel.
     component: () => null,
     async run({ threadId }) {
       const result = await appRpc?.call("openVm", { threadId });
-      if (!result?.ok) toast("Devin VM needs a Devin Cloud thread with a session.");
+      if (!result?.ok) toast("Start Devin terminal needs a Devin Cloud thread with a session.");
     },
   });
   app.slots.pendingInteraction({ id: "devin-secret", component: SecretForm });

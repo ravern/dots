@@ -8,7 +8,7 @@ description: Find a Devin Cloud thread's session URL or open a terminal on its D
 Threads on the **Devin Cloud** provider (`devin-cloud`) run as Devin Cloud
 sessions on Devin's hosted VM, not in the local workspace. The thread header
 shows **Devin ↗** (the session in Devin's web app); the side panel's New tab
-launcher has **Devin VM** (a terminal on the VM).
+launcher has **Start Devin terminal** (a terminal on the VM).
 
 bb opens a thread terminal titled "Devin VM" running `devin ssh <session>` in
 the session's repo (`~/repos/<name>`) once the session exists, and reopens it
