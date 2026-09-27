@@ -18,3 +18,9 @@ export function relabel(text: string): string {
 export function devinModelFromTitle(title: string): string | null {
   return /^Devin Cloud: (.+?)(?: · .+ reasoning)?(?: \((?:Fast mode|Priority)\))?$/.exec(title)?.[1] ?? null;
 }
+
+/** Whether a picker's model label names one of the priority models; bb may recase it ("Swe-2"). */
+export function hasPriority(label: string | null, priority: readonly string[]): boolean {
+  const key = (name: string) => name.toLowerCase().replace(/[^a-z0-9]/g, "");
+  return label !== null && priority.some((name) => key(name) === key(label));
+}

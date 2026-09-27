@@ -7,7 +7,7 @@ import {
   type PluginPendingInteractionProps,
   type PluginThreadHeaderActionProps,
 } from "@get-bb/plugin-sdk/app";
-import { devinModelFromTitle, relabel } from "./labels.ts";
+import { devinModelFromTitle, hasPriority, relabel } from "./labels.ts";
 import type { DevinQuestion } from "./relay.ts";
 import type { rpcContract } from "./server";
 
@@ -174,7 +174,7 @@ function startPriority(priority: readonly string[] | null): () => void {
   // bb renders the toggle as: <div border-t/> <div p-1><div row><span>label</span><switch aria-label/></div></div>
   const markToggles = () => {
     const model = devinModelFromTitle(document.querySelector(OPEN_TRIGGER)?.getAttribute("title") ?? "");
-    const state = priority === null || (model !== null && priority.includes(model)) ? "available" : "unavailable";
+    const state = priority === null || hasPriority(model, priority) ? "available" : "unavailable";
     for (const toggle of document.querySelectorAll('[aria-label="Priority"], [aria-label="Priority mode"]')) {
       for (const el of [toggle, toggle.closest(PICKER_MENU)]) {
         if (el && el.getAttribute(PRIORITY_ATTR) !== state) el.setAttribute(PRIORITY_ATTR, state);
