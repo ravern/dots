@@ -8,7 +8,7 @@ import { createInterface } from "node:readline";
 import { collapseVersion, expandLevel, expandModel, expandTier, isLegacyId, matchRepo, priorityModels, questionAnswer, RELAY_FLAG, secretRequest, devinQuestion } from "./relay.ts";
 import { relayCloudLaunches } from "./host.ts";
 import { devinModelFromTitle, hasPriority, relabel } from "./labels.ts";
-import { sessionUrl } from "./server.ts";
+import { sessionUrl, vmTab, withVmTab } from "./server.ts";
 
 const repos = { id: "repos", currentValue: "", options: [{ value: "greptileai/dataset" }, { value: "acme/app" }] };
 assert.equal(matchRepo([repos], "git@github.com:greptileai/dataset.git\n"), "greptileai/dataset");
@@ -36,6 +36,12 @@ assert.equal(hasPriority(null, ["SWE-2"]), false);
 
 assert.equal(sessionUrl("devin-97eee97c"), "https://app.devin.ai/sessions/97eee97c");
 assert.equal(sessionUrl("statuesque-loaf"), null);
+
+// The VM terminal tab: bb's id scheme, added once.
+const tab = vmTab("thr_1", "term_a/b");
+assert.deepEqual(tab, { id: "terminal:term_a%2Fb:none", kind: "terminal", terminalId: "term_a/b", target: { kind: "thread", threadId: "thr_1" } });
+assert.deepEqual(withVmTab([{ id: "thread-info", kind: "thread-info" }], tab), [{ id: "thread-info", kind: "thread-info" }, tab]);
+assert.equal(withVmTab([tab], tab), null);
 
 const request = { params: { options: { providerOptions: { acpLaunchSpec: { command: "devin", args: ["acp", "--cloud"], env: {} } } } } };
 relayCloudLaunches(request);
