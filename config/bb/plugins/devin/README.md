@@ -40,7 +40,7 @@ Devin Cloud session on Devin's hosted VM, driven over ACP by
 - **Old threads**: a thread that stored a pre-collapse id
   (`devin-swe-2-high`, `devin-swe-2-priority-max`) keeps that exact version;
   its stored reasoning/tier is ignored for that pick.
-- **Session URL**: thread header **Devin ↗** opens it in Devin's web app.
+- **Session URL**: thread header **Open in Devin** opens it in Devin's web app.
 - **VM terminal**: a "Devin VM" thread terminal runs `devin ssh <session>` in
   `~/repos/<name>`, opened automatically when the session exists and reopened
   after it exits (not after you close it). **Start Devin terminal** in the side panel's

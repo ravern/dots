@@ -16,7 +16,7 @@ import type { rpcContract } from "./server";
 const button =
   "inline-flex h-7 items-center rounded-md px-2 text-xs text-muted-foreground hover:bg-accent hover:text-foreground";
 
-/** "Devin ↗" (the session in Devin's web app) for Devin Cloud threads; nothing elsewhere. */
+/** "Open in Devin" (the session in Devin's web app) for Devin Cloud threads; nothing elsewhere. */
 function DevinSession({ threadId }: PluginThreadHeaderActionProps) {
   const rpc = useRpc<typeof rpcContract>();
   const [url, setUrl] = useState<string | null>(null);
@@ -30,7 +30,7 @@ function DevinSession({ threadId }: PluginThreadHeaderActionProps) {
   if (url === null) return null;
   return (
     <UrlLink href={url} className={button} title="Open this session in Devin's web app">
-      Devin ↗
+      Open in Devin
     </UrlLink>
   );
 }
