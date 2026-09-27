@@ -27,3 +27,6 @@ Models: level families collapse into one model with reasoning levels
 Secrets: when Devin requests one, bb shows a "Devin needs secret NAME" form in
 the thread. Never ask the user to paste a secret into chat for Devin; let
 them answer the form (or enter it in Devin's web app).
+
+Questions: Devin's multiple-choice questions show as a form in the thread;
+the choice is sent back as the user's message.

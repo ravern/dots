@@ -8,6 +8,7 @@ import {
   type PluginThreadHeaderActionProps,
 } from "@get-bb/plugin-sdk/app";
 import { devinModelFromTitle, relabel } from "./labels.ts";
+import type { DevinQuestion } from "./relay.ts";
 import type { rpcContract } from "./server";
 
 const button =
@@ -73,6 +74,51 @@ function SecretForm({ interaction, submit }: PluginPendingInteractionProps) {
           Send
         </button>
         <button type="button" onClick={() => void submit({ skip: true })} className={button}>
+          Skip
+        </button>
+      </div>
+    </form>
+  );
+}
+
+/** Devin's multiple-choice question; the picks go back as the user's answer. */
+function QuestionForm({ interaction, submit, cancel }: PluginPendingInteractionProps) {
+  const { questions } = interaction.payload as DevinQuestion;
+  const [picks, setPicks] = useState<string[][]>(() => questions.map(() => []));
+  const answers = picks;
+  const toggle = (i: number, option: string, multiple: boolean) =>
+    setPicks((all) =>
+      all.map((p, j) => (j !== i ? p : multiple ? (p.includes(option) ? p.filter((o) => o !== option) : [...p, option]) : [option])),
+    );
+  return (
+    <form
+      className="flex flex-col gap-3 p-3 text-sm"
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (answers.some((a) => a.length > 0)) void submit({ picks: answers });
+      }}
+    >
+      {questions.map((q, i) => (
+        <fieldset key={i} className="flex flex-col gap-1">
+          <legend className="mb-1">{q.question}</legend>
+          {q.options.map((option) => (
+            <label key={option} className="flex items-center gap-2">
+              <input
+                type={q.multiple ? "checkbox" : "radio"}
+                name={`${interaction.id}-${i}`}
+                checked={picks[i].includes(option)}
+                onChange={() => toggle(i, option, q.multiple)}
+              />
+              {option}
+            </label>
+          ))}
+        </fieldset>
+      ))}
+      <div className="flex gap-2">
+        <button type="submit" disabled={answers.every((a) => a.length === 0)} className={`${button} border border-border text-foreground disabled:opacity-50`}>
+          Send
+        </button>
+        <button type="button" onClick={() => void cancel()} className={button}>
           Skip
         </button>
       </div>
@@ -181,4 +227,5 @@ export default definePluginApp((app) => {
   app.slots.experimental_threadHeaderAction({ id: "devin-session", title: "Devin Cloud session", component: DevinSession });
   app.slots.experimental_appOverlay({ id: "priority-toggle", component: PriorityToggle });
   app.slots.pendingInteraction({ id: "devin-secret", component: SecretForm });
+  app.slots.pendingInteraction({ id: "devin-question", component: QuestionForm });
 });
