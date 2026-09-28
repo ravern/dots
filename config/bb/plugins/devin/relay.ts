@@ -14,6 +14,8 @@
 // - A Devin question (message with cognition.ai/questions) gets a tool-call row
 //   "Devin asks: …" carrying the questions (`arguments.devinQuestion`), so the
 //   server can offer them as a form.
+// - A steer (session/cancel + follow-up session/prompt) in a new session's first
+//   moments is held until Devin has created the session (see StartupGate).
 // - On follow-up turns the cloud agent answers session/prompt before the
 //   reply it announced (is_typing) arrives; bb would drop the late reply.
 //   Hold the prompt result until announced replies are delivered.
@@ -196,6 +198,58 @@ export function questionAnswer(question: DevinQuestion, picks: string[][]): stri
   return question.questions.length === 1 ? lines[0] : question.questions.map((q, i) => `${q.question}: ${lines[i]}`).join("\n");
 }
 
+/**
+ * Holds a steer on a new cloud session until Devin has created it, which it signals by echoing
+ * the first message (`initial_user_message`). Before that Devin ignores the cancel (and answers
+ * the first prompt anyway, after bb has closed its turn) and denies the follow-up prompt with
+ * "Access denied". Loaded sessions are never gated, so a steer there cancels as before.
+ */
+export class StartupGate {
+  private starting = new Set<string>();
+  private inFlight = new Map<string, number>(); // prompts sent to Devin, not yet answered
+  private held = new Map<string, Json[]>();
+
+  started(sessionId: string): void {
+    this.starting.add(sessionId);
+  }
+
+  /** What to send Devin now for one message from the bridge; empty while it's held. */
+  toAgent(msg: Json): Json[] {
+    const sessionId = msg.params?.sessionId;
+    const steer = msg.method === "session/cancel" || (msg.method === "session/prompt" && (this.inFlight.get(sessionId) ?? 0) > 0);
+    if (this.starting.has(sessionId) && (steer || this.held.has(sessionId))) {
+      this.held.set(sessionId, [...(this.held.get(sessionId) ?? []), msg]);
+      return [];
+    }
+    return this.sent([msg]);
+  }
+
+  /** Devin created the session: release the held steer, in order. */
+  ready(sessionId: string): Json[] {
+    return this.starting.delete(sessionId) ? this.release(sessionId, true) : [];
+  }
+
+  /** Devin answered a prompt; one answered before the session was ready leaves a held cancel nothing to cancel. */
+  answered(sessionId: string): Json[] {
+    this.inFlight.set(sessionId, Math.max(0, (this.inFlight.get(sessionId) ?? 0) - 1));
+    return this.starting.delete(sessionId) ? this.release(sessionId, false) : [];
+  }
+
+  private release(sessionId: string, keepCancel: boolean): Json[] {
+    const held = this.held.get(sessionId) ?? [];
+    this.held.delete(sessionId);
+    return this.sent(keepCancel ? held : held.filter((m) => m.method !== "session/cancel"));
+  }
+
+  private sent(msgs: Json[]): Json[] {
+    for (const m of msgs) {
+      const sessionId = m.params?.sessionId;
+      if (m.method === "session/prompt") this.inFlight.set(sessionId, (this.inFlight.get(sessionId) ?? 0) + 1);
+    }
+    return msgs;
+  }
+}
+
 /** The `repos` value matching a git remote URL (ssh or https), if Devin offers it. */
 export function matchRepo(configOptions: unknown, remote: string): string | null {
   if (!Array.isArray(configOptions)) return null;
@@ -226,6 +280,15 @@ export function runRelay([command, ...args]: string[]): void {
   const typing = new Map<string, number>(); // sessionId → announced replies not yet delivered
   const heldPrompt = new Map<string, { line: string; timer: NodeJS.Timeout }>();
   const agentOptions = new Map<string, Json[]>(); // sessionId → Devin's own latest configOptions
+  const gate = new StartupGate();
+  /** Sends a bridge message on to Devin, tracking prompts for the held-reply logic. */
+  const forward = (msg: Json) => {
+    if (msg.method === "session/prompt") {
+      promptSession.set(msg.id, msg.params?.sessionId);
+      typing.set(msg.params?.sessionId, 0);
+    }
+    toAgent(msg);
+  };
   const legacyPick = new Set<string>(); // sessions whose model pick was a legacy id (its level is baked in)
 
   const version = (sessionId: string) => agentOptions.get(sessionId)?.find((o) => o?.id === VERSION);
@@ -281,11 +344,7 @@ export function runRelay([command, ...args]: string[]): void {
     }
     if (msg.id !== undefined && msg.params?.sessionId) requestSession.set(msg.id, msg.params.sessionId);
     if (msg.method === "session/new") newSessionCwd.set(msg.id, msg.params?.cwd);
-    if (msg.method === "session/prompt") {
-      promptSession.set(msg.id, msg.params?.sessionId);
-      typing.set(msg.params?.sessionId, 0);
-    }
-    if (translatePick(msg)) toAgent(msg);
+    if (translatePick(msg)) for (const out of gate.toAgent(msg)) forward(out);
   });
   process.stdin.on("end", () => child.stdin.end());
 
@@ -321,6 +380,7 @@ export function runRelay([command, ...args]: string[]): void {
       update.title = `Devin needs secret ${secret.name}${secret.note ? ` — ${secret.note}` : ""}`;
       update.rawInput = { devinSecretRequest: secret };
     }
+    if (update?._meta?.["cognition.ai/eventType"] === "initial_user_message") for (const out of gate.ready(sessionId)) forward(out);
     if (update) {
       const count = typing.get(sessionId) ?? 0;
       if (update._meta?.["cognition.ai/isTyping"] === true) typing.set(sessionId, count + 1);
@@ -334,6 +394,7 @@ export function runRelay([command, ...args]: string[]): void {
     const promptOf = promptSession.get(msg.id);
     if (promptOf !== undefined) {
       promptSession.delete(msg.id);
+      for (const out of gate.answered(promptOf)) forward(out);
       if ((typing.get(promptOf) ?? 0) > 0) {
         const line = JSON.stringify(msg);
         heldPrompt.set(promptOf, { line, timer: setTimeout(() => releasePrompt(promptOf), REPLY_WAIT_MS) });
@@ -343,6 +404,7 @@ export function runRelay([command, ...args]: string[]): void {
     const cwd = newSessionCwd.get(msg.id);
     if (cwd !== undefined && msg.result?.sessionId) {
       newSessionCwd.delete(msg.id);
+      gate.started(msg.result.sessionId);
       const repo = matchRepo(msg.result.configOptions, originOf(cwd));
       if (repo) {
         // Hold the result until the repo is set, so it lands before the first prompt.

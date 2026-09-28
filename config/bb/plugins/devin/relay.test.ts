@@ -5,7 +5,7 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
-import { collapseVersion, expandLevel, expandModel, expandTier, isLegacyId, matchRepo, priorityModels, questionAnswer, RELAY_FLAG, secretRequest, devinQuestion } from "./relay.ts";
+import { collapseVersion, expandLevel, expandModel, expandTier, isLegacyId, matchRepo, priorityModels, questionAnswer, RELAY_FLAG, secretRequest, devinQuestion, StartupGate } from "./relay.ts";
 import { relayCloudLaunches } from "./host.ts";
 import { devinModelFromTitle, hasPriority, relabel } from "./labels.ts";
 import { sessionUrl, vmTab, withVmTab } from "./server.ts";
@@ -129,6 +129,35 @@ assert.equal(devinQuestion({ ...questionUpdate, _meta: { ...questionUpdate._meta
 assert.equal(questionAnswer(fruit, [["Banana"]]), "Banana");
 const two = { id: "q2", questions: [{ question: "Fruit", options: [], multiple: true }, { question: "Colour", options: [], multiple: false }] };
 assert.equal(questionAnswer(two, [["Apple", "Kiwi"], ["Blue"]]), "Fruit: Apple, Kiwi\nColour: Blue");
+
+// A steer in a new session's first moments waits until Devin has created the session.
+{
+  const msg = (method: string, id?: number) => ({ jsonrpc: "2.0", ...(id ? { id } : {}), method, params: { sessionId: "s" } });
+  const gate = new StartupGate();
+  gate.started("s");
+  const first = msg("session/prompt", 1);
+  assert.deepEqual(gate.toAgent(first), [first]); // the first prompt goes straight through
+  const cancel = msg("session/cancel");
+  const second = msg("session/prompt", 2);
+  assert.deepEqual(gate.toAgent(cancel), []); // held: Devin would ignore it
+  assert.deepEqual(gate.toAgent(second), []); // held: Devin would deny it
+  assert.deepEqual(gate.ready("s"), [cancel, second]); // released once, in order
+  assert.deepEqual(gate.ready("s"), []);
+  assert.deepEqual(gate.toAgent(msg("session/cancel")), [msg("session/cancel")]); // ready: steers pass as before
+
+  // The first prompt answered before the session was ready: nothing left to cancel.
+  const early = new StartupGate();
+  early.started("s");
+  early.toAgent(first);
+  early.toAgent(cancel);
+  assert.deepEqual(early.answered("s"), []);
+  assert.deepEqual(early.toAgent(second), [second]);
+
+  // A loaded (already running) session is never gated.
+  const loaded = new StartupGate();
+  loaded.toAgent(first);
+  assert.deepEqual(loaded.toAgent(cancel), [cancel]);
+}
 
 // Only families with a priority tier offer the Priority switch (by picker name).
 assert.deepEqual(priorityModels(version("devin-auto")), ["SWE-2"]);
