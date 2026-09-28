@@ -34,6 +34,10 @@ Devin Cloud session on Devin's hosted VM, driven over ACP by
   answer method, so Devin's own record shows the question as skipped even
   though Devin acts on the answer. A newer question replaces an unanswered
   one; forms queue one at a time per thread.
+- **Early follow-ups**: a message sent while a new session is still starting
+  is held until Devin has created the session (its first-message echo), then
+  steers as usual; before that Devin ignores the cancel and denies the new
+  prompt ("Access denied", shown by bb as an auth error).
 - **Updates**: agent processes outlive a plugin reinstall, so the plugin stops
   idle Devin Cloud threads on load; each picks up the new relay on its next
   message (same Devin session).
