@@ -10,6 +10,7 @@ export GOPATH=$HOME/.go
 export DOTS_PATH=$HOME/Repos/ravern/dots
 export PATH=/opt/homebrew/bin:$PATH
 export PATH=/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH
+export PATH=/opt/homebrew/opt/postgresql@17/bin:$PATH
 export PATH=$PATH:$HOME/.dotnet/tools
 export PATH=$HOME/.local/bin:$PATH
 export PATH=$HOME/.go/bin:$PATH
