@@ -29,7 +29,7 @@ const VM_COMMAND = (url: string) => `devin ssh ${url} -t 'cd ~/repos/*/ 2>/dev/n
 const cloud: PluginProviderDeclaration = {
   id: CLOUD,
   displayName: "Devin Cloud",
-  icon: "./icons/cognition.svg",
+  icon: "./icons/devin-cloud.svg",
   experimental_bridgeOptions: {
     acpLaunchSpec: { displayName: "Devin Cloud", command: "devin", args: ["acp", "--cloud"], env: {} },
     acpDialect: "generic",
@@ -148,8 +148,8 @@ export default function devin(bb: BbPluginApi) {
       }
       if (page.length < 100) break;
     }
-    bb.log.info(`Stopped ${stopped} idle Devin Cloud threads`);
-  })().catch(() => bb.log.warn("Couldn't stop idle Devin Cloud threads"));
+    bb.log.info(`Stopped ${stopped} idle Devin Cloud thread(s).`);
+  })().catch(() => bb.log.warn("Could not stop idle Devin Cloud threads."));
 
   /** The thread's Devin Cloud session id (`devin-<hex>`), once it has one. */
   async function sessionIdOf(threadId: string): Promise<string | null> {
@@ -196,14 +196,20 @@ export default function devin(bb: BbPluginApi) {
       });
       await bb.sdk.threads.updatePluginMetadata({ threadId, set: { vmTerminalId: vm.id } });
       return true;
-    })().finally(() => inFlight.delete(threadId));
+    })()
+      .catch((error) => {
+        // Every caller (auto-open, launcher, CLI) goes through here, so log once for all.
+        bb.log.warn(`Could not open the Devin VM terminal for ${threadId}: ${error instanceof Error ? error.message : error}.`);
+        throw error;
+      })
+      .finally(() => inFlight.delete(threadId));
     inFlight.set(threadId, work);
     return work;
   }
 
   const onThread = ({ thread }: { thread: { id: string; providerId: string } }) => {
     if (thread.providerId !== CLOUD) return;
-    ensureVm(thread.id, false).catch((error) => bb.log.warn(`Devin VM terminal for ${thread.id}: ${error}`));
+    ensureVm(thread.id, false).catch(() => {}); // ensureVm logs its own failures
   };
   bb.events.on("thread.active", onThread);
   bb.events.on("thread.idle", onThread);
@@ -246,7 +252,7 @@ export default function devin(bb: BbPluginApi) {
       } else return;
       const reply = await cloudRequest("_cognition.ai/secret/provide", params);
       if (reply !== null && reply.error === undefined) return;
-      bb.log.warn(`Devin didn't accept ${request.name} for ${threadId} (error ${reply?.error?.code ?? "no reply"})`);
+      bb.log.warn(`Devin did not accept ${request.name} for ${threadId} (error ${reply?.error?.code ?? "no reply"}).`);
       error = "Devin didn't accept it.";
     }
   }
@@ -288,7 +294,7 @@ export default function devin(bb: BbPluginApi) {
   const enqueue = (threadId: string, what: string, run: () => Promise<void>) => {
     const next = (formQueue.get(threadId) ?? Promise.resolve())
       .then(run)
-      .catch((error) => bb.log.warn(`Devin ${what} form for ${threadId}: ${error instanceof Error ? error.message : "failed"}`));
+      .catch((error) => bb.log.warn(`Could not show the Devin ${what} form for ${threadId}: ${error instanceof Error ? error.message : "unknown error"}.`));
     formQueue.set(threadId, next);
   };
 
@@ -316,7 +322,7 @@ export default function devin(bb: BbPluginApi) {
 
   const onThreadEvents = ({ thread }: { thread: { id: string; providerId: string } }) => {
     if (thread.providerId !== CLOUD) return;
-    findPrompts(thread.id).catch(() => bb.log.warn(`Devin prompt check for ${thread.id} failed`));
+    findPrompts(thread.id).catch(() => bb.log.warn(`Could not check ${thread.id} for Devin prompts.`));
   };
   bb.events.on("experimental_thread.events", onThreadEvents);
   bb.events.on("thread.idle", onThreadEvents);

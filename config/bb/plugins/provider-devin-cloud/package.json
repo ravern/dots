@@ -1,18 +1,18 @@
 {
-  "name": "bb-plugin-provider-devin",
+  "name": "bb-plugin-provider-devin-cloud",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Devin Cloud as a bb provider: threads run as Devin Cloud sessions on Devin's hosted VM, over ACP, with a terminal on the VM.",
+  "description": "Run bb threads with Devin Cloud.",
   "engines": {
     "bb": ">=0.44",
     "bbPluginSdk": ">=0.5.29"
   },
   "bb": {
-    "name": "Devin Cloud",
-    "description": "Devin Cloud as a bb provider: threads run as Devin Cloud sessions on Devin's hosted VM, over ACP, with a terminal on the VM.",
+    "name": "Devin Cloud provider",
+    "description": "Run bb threads with Devin Cloud.",
     "branding": {
-      "icon": "./icons/cognition.svg"
+      "icon": "./icons/devin-cloud.svg"
     },
     "server": "./server.ts",
     "host": "./host.ts",
