@@ -7,7 +7,7 @@ import { join } from "node:path";
 import { createInterface } from "node:readline";
 import { collapseVersion, expandLevel, expandModel, expandTier, isLegacyId, matchRepo, priorityModels, questionAnswer, RELAY_FLAG, secretRequest, devinQuestion, StartupGate } from "./relay.ts";
 import { relayCloudLaunches } from "./host.ts";
-import { devinModelFromTitle, hasPriority, relabel } from "./labels.ts";
+import { devinModelFromTitle, hasPriority, panelThread, relabel, showDevinTerminal } from "./labels.ts";
 import { sessionUrl, vmTab, withVmTab } from "./server.ts";
 
 const repos = { id: "repos", currentValue: "", options: [{ value: "greptileai/dataset" }, { value: "acme/app" }] };
@@ -28,6 +28,18 @@ assert.equal(devinModelFromTitle("Devin Cloud: SWE-2 · High reasoning (Fast mod
 assert.equal(devinModelFromTitle("Devin Cloud: Fusion"), "Fusion");
 assert.equal(devinModelFromTitle("Devin Cloud: GPT-5.6 Sol Promo (Priority)"), "GPT-5.6 Sol Promo");
 assert.equal(devinModelFromTitle("Codex: GPT-6 Sol · High reasoning (Fast mode)"), null);
+// The launcher's Devin row: the panel's thread (split pane, else routed), hidden only for a known non-Devin thread.
+const panes = [{ paneId: "p1", threadId: "thr_devin" }, { paneId: "p2", threadId: "thr_codex" }, { paneId: "p3", threadId: null }];
+assert.equal(panelThread(null, null, "thr_routed"), "thr_routed");
+assert.equal(panelThread("p2", panes, "thr_devin"), "thr_codex");
+assert.equal(panelThread("p3", panes, "thr_devin"), null);
+assert.equal(panelThread("p9", panes, "thr_devin"), null);
+const providers = new Map([["thr_devin", "devin-cloud"], ["thr_codex", "codex"]]);
+assert.equal(showDevinTerminal("thr_devin", providers), true);
+assert.equal(showDevinTerminal("thr_codex", providers), false);
+assert.equal(showDevinTerminal("thr_unknown", providers), true); // fail open
+assert.equal(showDevinTerminal(null, providers), true);
+
 // bb's picker may recase Devin's name ("Swe-2"); the priority check still matches it.
 assert.equal(hasPriority("Swe-2", ["SWE-2"]), true);
 assert.equal(hasPriority("SWE-2", ["SWE-2"]), true);
