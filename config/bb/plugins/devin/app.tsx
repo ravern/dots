@@ -1,7 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   definePluginApp,
+  experimental_useSidebarThreads,
   UrlLink,
+  useBbContext,
+  useSidebarSplitLayout,
   useRealtime,
   useRpc,
   type PluginPendingInteractionProps,
@@ -9,7 +12,7 @@ import {
   type PluginThreadHeaderActionProps,
 } from "@get-bb/plugin-sdk/app";
 import { toast } from "sonner"; // shimmed to bb's toaster
-import { devinModelFromTitle, hasPriority, relabel } from "./labels.ts";
+import { devinModelFromTitle, hasPriority, panelThread, relabel, showDevinTerminal } from "./labels.ts";
 import type { DevinQuestion } from "./relay.ts";
 import type { rpcContract } from "./server";
 
@@ -216,6 +219,53 @@ function startPriority(priority: readonly string[] | null): () => void {
 // The panel launcher's `run` gets no RPC client; the always-mounted overlay lends it one.
 let appRpc: PluginRpcClient<typeof rpcContract> | null = null;
 
+const VM_ACTION = "Start Devin terminal";
+const VM_HIDDEN_ATTR = "data-devin-terminal-hidden";
+
+/**
+ * Hides the side panel launcher's "Start Devin terminal" row in panels of threads that aren't
+ * Devin Cloud (bb lists plugin launcher actions on every thread). Returns a restorer.
+ */
+function startLauncherFilter(threadOf: (paneId: string | null) => string | null, providers: ReadonlyMap<string, string>): () => void {
+  const apply = () => {
+    for (const item of document.querySelectorAll("[data-panel-new-tab-item]")) {
+      if (item.textContent?.trim() !== VM_ACTION) continue;
+      // The whole row: climb while the ancestor holds only this launcher item.
+      let row = item as HTMLElement;
+      while (row.parentElement && row.parentElement.querySelectorAll("[data-panel-new-tab-item]").length === 1) row = row.parentElement;
+      const paneId = row.closest("[data-split-pane-id]")?.getAttribute("data-split-pane-id") ?? null;
+      const hidden = !showDevinTerminal(threadOf(paneId), providers);
+      if (hidden === row.hasAttribute(VM_HIDDEN_ATTR)) continue;
+      row.toggleAttribute(VM_HIDDEN_ATTR, hidden);
+      row.style.display = hidden ? "none" : "";
+    }
+  };
+  const observer = new MutationObserver(() => {
+    apply();
+    observer.takeRecords();
+  });
+  apply();
+  observer.observe(document.body, { childList: true, subtree: true });
+  return () => {
+    observer.disconnect();
+    for (const el of document.querySelectorAll<HTMLElement>(`[${VM_HIDDEN_ATTR}]`)) {
+      el.removeAttribute(VM_HIDDEN_ATTR);
+      el.style.display = "";
+    }
+  };
+}
+
+/** Renders nothing: keeps the launcher's Devin row to Devin Cloud threads. */
+function LauncherFilter() {
+  const { threadId } = useBbContext();
+  const split = useSidebarSplitLayout();
+  const { threads } = experimental_useSidebarThreads();
+  const providers = useMemo(() => new Map(threads.map((t) => [t.id, t.providerId])), [threads]);
+  const panes = split?.panes ?? null;
+  useEffect(() => startLauncherFilter((paneId) => panelThread(paneId, panes, threadId), providers), [panes, threadId, providers]);
+  return null;
+}
+
 /** Renders nothing: keeps Devin Cloud's Priority toggle labelled, and shown only where it applies. */
 function PriorityToggle() {
   const rpc = useRpc<typeof rpcContract>();
@@ -231,6 +281,7 @@ function PriorityToggle() {
 export default definePluginApp((app) => {
   app.slots.experimental_threadHeaderAction({ id: "devin-session", title: "Devin Cloud session", component: DevinSession });
   app.slots.experimental_appOverlay({ id: "priority-toggle", component: PriorityToggle });
+  app.slots.experimental_appOverlay({ id: "launcher-filter", component: LauncherFilter });
   app.slots.threadPanelAction({
     id: "devin-vm",
     title: "Start Devin terminal",

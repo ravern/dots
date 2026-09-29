@@ -24,3 +24,22 @@ export function hasPriority(label: string | null, priority: readonly string[]): 
   const key = (name: string) => name.toLowerCase().replace(/[^a-z0-9]/g, "");
   return label !== null && priority.some((name) => key(name) === key(label));
 }
+
+/**
+ * The thread whose side panel holds a launcher row: the thread of the split pane it sits in, or
+ * the routed thread when there is no split. Null (unknown) for a pane bb doesn't list.
+ */
+export function panelThread(
+  paneId: string | null,
+  panes: readonly { paneId: string; threadId: string | null }[] | null,
+  routedThreadId: string | null,
+): string | null {
+  if (paneId === null) return routedThreadId;
+  return panes?.find((pane) => pane.paneId === paneId)?.threadId ?? null;
+}
+
+/** Whether the "Start Devin terminal" row shows: hidden only for a thread known not to be Devin Cloud. */
+export function showDevinTerminal(threadId: string | null, providers: ReadonlyMap<string, string>): boolean {
+  const provider = threadId === null ? undefined : providers.get(threadId);
+  return provider === undefined || provider === "devin-cloud";
+}
