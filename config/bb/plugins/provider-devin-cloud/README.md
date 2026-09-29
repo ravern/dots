@@ -1,4 +1,4 @@
-# Devin Cloud
+# Devin Cloud provider
 
 Personal bb plugin: **Devin Cloud** in bb's provider picker. Each thread is a
 Devin Cloud session on Devin's hosted VM, driven over ACP by

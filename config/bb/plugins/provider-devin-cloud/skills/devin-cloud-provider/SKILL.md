@@ -1,9 +1,9 @@
 ---
-name: devin-cloud
-description: Find a Devin Cloud thread's session URL or open a terminal on its Devin VM with `bb devin vm`. Use when the user wants to look at, shell into, or open in Devin's web app a thread running on the Devin Cloud provider.
+name: devin-cloud-provider
+description: "Diagnose BB-specific Devin Cloud sessions, VM terminals, secret requests, and questions; open a thread's session or VM with `bb devin vm`."
 ---
 
-# Devin Cloud
+# Devin Cloud provider
 
 Threads on the **Devin Cloud** provider (`devin-cloud`) run as Devin Cloud
 sessions on Devin's hosted VM, not in the local workspace. The thread header
