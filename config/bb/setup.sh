@@ -11,7 +11,7 @@ if ! bb status >/dev/null 2>&1; then
 fi
 
 # Local plugins
-for p in customize-model-names provider-devin-cloud; do
+for p in customize-model-names provider-devin-cloud provider-plugin-manager; do
   (cd $DIR/plugins/$p && npm ci --silent && bb plugin build)
   bb plugin install path:$DIR/plugins/$p --yes
 done
