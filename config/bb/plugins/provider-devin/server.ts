@@ -17,6 +17,7 @@ export const SESSION_CHANNEL = "session";
 const VM_TITLE = "Devin VM";
 export const SECRET_FORM = "devin-secret";
 export const QUESTION_FORM = "devin-question";
+const FORM_TIMEOUT_MS = 60 * 60_000; // also the age past which a secret request or question is stale
 // Land in the session's repo: the relay picks at most one, cloned under ~/repos.
 const VM_COMMAND = (url: string) => `devin ssh ${url} -t 'cd ~/repos/*/ 2>/dev/null; exec "$SHELL" -l'`;
 
@@ -177,6 +178,14 @@ export default function devin(bb: BbPluginApi) {
         const vm = await bb.sdk.terminals.get({ terminalId: vmTerminalId }).catch(() => null);
         if (vm?.status === "running" || vm?.status === "starting") return true;
         if (!force && vm?.closeReason === "user") return true;
+      } else {
+        // Nothing remembered (e.g. the plugin was renamed): adopt a running Devin VM terminal.
+        const { sessions } = await bb.sdk.terminals.list({ scope: { kind: "thread", threadId } });
+        const running = sessions.find((t) => t.title === VM_TITLE && (t.status === "running" || t.status === "starting"));
+        if (running) {
+          await bb.sdk.threads.updatePluginMetadata({ threadId, set: { vmTerminalId: running.id } });
+          return true;
+        }
       }
       const vm = await bb.sdk.terminals.create({
         scope: { kind: "thread", threadId },
@@ -213,7 +222,7 @@ export default function devin(bb: BbPluginApi) {
         rendererId: SECRET_FORM,
         title: request.name,
         payload: { name: request.name, note: request.note, save: request.save, error },
-        timeoutMs: 60 * 60_000,
+        timeoutMs: FORM_TIMEOUT_MS,
         presentation: { label: { pending: `Devin needs secret ${request.name}`, completed: `Sent ${request.name}` } },
       });
       if (result.outcome !== "submitted") return;
@@ -250,7 +259,7 @@ export default function devin(bb: BbPluginApi) {
       rendererId: QUESTION_FORM,
       title: question.questions[0].question,
       payload: question,
-      timeoutMs: 60 * 60_000,
+      timeoutMs: FORM_TIMEOUT_MS,
       presentation: { label: { pending: "Devin asks", completed: "Answered Devin" } },
     }, { signal });
     if (result.outcome !== "submitted") return;
@@ -287,6 +296,8 @@ export default function devin(bb: BbPluginApi) {
     const events = await bb.sdk.threads.events.list({ threadId, types: ["item/started", "item/completed"], order: "desc", limit: "100" });
     let newest: DevinQuestion | null = null;
     for (const event of [...events].reverse()) {
+      // Older than a form's lifetime: stale, even if this plugin's records don't say so (renamed plugin).
+      if (Date.now() - event.createdAt > FORM_TIMEOUT_MS) continue;
       const args = (event.data as { item?: { arguments?: { devinSecretRequest?: SecretRequest; devinQuestion?: DevinQuestion } } }).item?.arguments;
       const request = args?.devinSecretRequest;
       if (request?.requestId && (await firstTime(threadId, "secretRequests", request.requestId))) {
