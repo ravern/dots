@@ -1,7 +1,7 @@
 // Run: node --experimental-strip-types cli.test.ts
 // Fixtures are trimmed real outputs (claude 2.1.285, codex 0.157.1, cursor-agent 2026.07.23, devin 3000.11.3).
 import assert from "node:assert/strict";
-import { actionArgv, actionSchema, codexManifestPaths, parseCatalog, parseDevinCatalog, parseMarketplaces, parseMcp, parsePlugins, queryStore, redact, shellQuote } from "./cli.ts";
+import { actionArgv, actionSchema, claudePluginDirs, codexManifestPaths, dirIcon, manifestIcon, parseCatalog, parseDevinCatalog, parseMarketplaces, parseMcp, parsePlugins, queryStore, redact, shellQuote } from "./cli.ts";
 
 const claudeList = JSON.stringify([
   {
@@ -44,13 +44,21 @@ const codexList = JSON.stringify({
   ],
 });
 assert.deepEqual(parsePlugins("codex", codexList).map((p) => [p.id, p.source, p.enabled]), [["ponytail@ponytail", "ponytail", true]]);
-assert.deepEqual(codexManifestPaths(codexList), ["/b/messages/.codex-plugin/plugin.json"]);
+assert.deepEqual(codexManifestPaths(codexList).sort(), ["/b/messages/.codex-plugin/plugin.json", "~/.codex/plugins/cache/ponytail/ponytail/1.0.0/.codex-plugin/plugin.json"]);
 const codexCatalog = parseCatalog("codex", codexList, {
-  "/b/messages/.codex-plugin/plugin.json": { interface: { displayName: "Messages", shortDescription: "Chat on this Mac", category: "Productivity" } },
+  "/b/messages/.codex-plugin/plugin.json": {
+    interface: { displayName: "Messages", shortDescription: "Chat on this Mac", category: "Productivity", composerIcon: "./assets/icon.png", logo: "./assets/logo.png" },
+  },
+  "~/.codex/plugins/cache/ponytail/ponytail/1.0.0/.codex-plugin/plugin.json": { interface: { logo: "assets/logo.png" } },
 });
 const messages = codexCatalog.find((e) => e.id === "messages@openai-bundled")!;
 assert.deepEqual([messages.displayName, messages.description, messages.categories, messages.installable], ["Messages", "Chat on this Mac", ["Productivity"], true]);
 assert.equal(codexCatalog.find((e) => e.name === "ponytail")!.installed, true);
+// Icons: the manifest's small composerIcon first; installed plugins read Codex's cache.
+assert.deepEqual(messages.icon, { base: "/b/messages", rel: "assets/icon.png" });
+assert.deepEqual(codexCatalog.find((e) => e.name === "ponytail")!.icon, { base: "~/.codex/plugins/cache/ponytail/ponytail/1.0.0", rel: "assets/logo.png" });
+assert.equal(codexCatalog.find((e) => e.name === "app-6a05")!.icon, null);
+assert.ok(codexManifestPaths(codexList).includes("~/.codex/plugins/cache/ponytail/ponytail/1.0.0/.codex-plugin/plugin.json"));
 // Codex's remote catalog is mostly NOT_AVAILABLE: hidden unless asked for.
 const q = { query: "", category: null, marketplace: null, unavailable: false, offset: 0, limit: 1 };
 const page1 = queryStore(codexCatalog, q);
@@ -64,10 +72,20 @@ const claudeAvail = JSON.stringify({
   installed: [{ id: "a@m" }],
   available: [{ pluginId: "b@m", name: "b", marketplaceName: "m", description: "Bee" }, { pluginId: "c@other", name: "c", marketplaceName: "other" }],
 });
-const claudeCatalog = parseCatalog("claude", claudeAvail, {
-  m: { plugins: [{ name: "a", description: "Ay", category: "development", author: { name: "Anthropic" } }, { name: "b-tools", category: "database" }] },
+const claudeManifests = {
+  m: { plugins: [{ name: "a", description: "Ay", category: "development", author: { name: "Anthropic" } }, { name: "b-tools", category: "database", source: "./plugins/b-tools" }] },
   other: null,
+};
+const claudeWithPath = JSON.stringify({ ...JSON.parse(claudeAvail), installed: [{ id: "a@m", installPath: "/cache/m/a/1.0" }] });
+const claudeDirs = claudePluginDirs(claudeWithPath, claudeManifests, { m: "/mk/m" });
+assert.deepEqual(claudeDirs, { "b-tools@m": "/mk/m/plugins/b-tools", "a@m": "/cache/m/a/1.0" });
+// Claude manifests name no icon; the plugin's Codex or Cursor manifest can.
+const claudeCatalog = parseCatalog("claude", claudeAvail, claudeManifests, {
+  dirs: claudeDirs,
+  read: { "/cache/m/a/1.0/.cursor-plugin/plugin.json": { logo: "assets/a.svg" }, "/mk/m/plugins/b-tools/.claude-plugin/plugin.json": { name: "b-tools" } },
 });
+assert.deepEqual(claudeCatalog.find((e) => e.id === "a@m")!.icon, { base: "/cache/m/a/1.0", rel: "assets/a.svg" });
+assert.equal(claudeCatalog.find((e) => e.id === "b-tools@m")!.icon, null);
 assert.deepEqual(
   claudeCatalog.map((e) => [e.id, e.installed, e.categories[0] ?? null]),
   [
@@ -95,7 +113,20 @@ assert.deepEqual(devinCatalog[0], {
   installed: true,
   installable: true,
   mcpServers: ["notion"],
+  icon: null,
 });
+assert.deepEqual(
+  parseDevinCatalog({ slack: { name: "slack", logo: "logo.svg" }, "..": { logo: "logo.svg" } }, new Set()).map((e) => e.icon),
+  [{ base: "@devin/slack", rel: "logo.svg" }, null],
+);
+
+// Icon fields: https URLs pass through; local paths must stay inside the plugin dir and be images.
+assert.deepEqual(manifestIcon({ logo: "https://cdn.test/x.png" }, "/p"), { url: "https://cdn.test/x.png" });
+for (const bad of ["http://cdn.test/x.png", "../x.png", "a/../../x.png", "/etc/x.png", "file:///x.png", "data:image/png;base64,AA", "logo.txt", "a\\..\\x.png"]) {
+  assert.equal(manifestIcon({ logo: bad }, "/p"), null, bad);
+}
+assert.deepEqual(dirIcon("/p", { "/p/.codex-plugin/plugin.json": { interface: { logo: "./l.webp" } } }), { base: "/p", rel: "l.webp" });
+assert.equal(dirIcon(undefined, {}), null);
 assert.equal(devinCatalog[1].displayName, "Broken");
 
 const devin = parsePlugins("devin", "Installed plugins\n\n  \x1b[1m•\x1b[0m notion unversioned\n  • review 1.2.0 [blocked by org policy]\n");

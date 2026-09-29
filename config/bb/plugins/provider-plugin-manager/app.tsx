@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   definePluginApp,
   experimental_Icon as Icon,
@@ -16,7 +16,7 @@ import { toast } from "sonner"; // shimmed to bb's toaster
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { DEVIN_MARKETPLACE_URL, type Action, type Entry, type McpServer } from "./cli.ts";
+import { DEVIN_MARKETPLACE_URL, type Action, type Entry, type IconRef, type McpServer } from "./cli.ts";
 import type { ActResult, InstalledPlugin, LoginResult, Machine, McpResult, rpcContract, State, StorePage, TerminalChunk } from "./server.ts";
 
 const PANEL = "provider-plugins";
@@ -95,6 +95,85 @@ function Initial({ name, large }: { name: string; large?: boolean }) {
     >
       {(name.match(/[A-Za-z0-9]/)?.[0] ?? "?").toUpperCase()}
     </span>
+  );
+}
+
+// ── Plugin icons: local files come from the machine through the plugin's host, batched and
+// fetched only once a row scrolls into view; https URLs load directly. Anything that fails
+// falls back to the letter avatar.
+
+const HostContext = createContext<{ rpc: Rpc; hostId: string } | null>(null);
+const iconCache = new Map<string, Promise<string | null>>();
+let iconQueue: { key: string; hostId: string; ref: { base: string; rel: string }; rpc: Rpc; resolve: (v: string | null) => void }[] = [];
+
+function flushIcons() {
+  const queue = iconQueue;
+  iconQueue = [];
+  const byHost = new Map<string, typeof queue>();
+  for (const q of queue) byHost.set(q.hostId, [...(byHost.get(q.hostId) ?? []), q]);
+  for (const [hostId, items] of byHost) {
+    for (let i = 0; i < items.length; i += 100) {
+      const chunk = items.slice(i, i + 100);
+      chunk[0].rpc.call("icons", { hostId, refs: chunk.map((c) => c.ref) }).then(
+        (urls: (string | null)[]) => chunk.forEach((c, j) => c.resolve(urls[j] ?? null)),
+        () => chunk.forEach((c) => (iconCache.delete(c.key), c.resolve(null))),
+      );
+    }
+  }
+}
+
+function loadIcon(rpc: Rpc, hostId: string, ref: { base: string; rel: string }): Promise<string | null> {
+  const key = `${hostId}\n${ref.base}\n${ref.rel}`;
+  let icon = iconCache.get(key);
+  if (!icon) {
+    icon = new Promise((resolve) => {
+      if (iconQueue.length === 0) setTimeout(flushIcons, 30);
+      iconQueue.push({ key, hostId, ref, rpc, resolve });
+    });
+    iconCache.set(key, icon);
+  }
+  return icon;
+}
+
+function PluginIcon({ icon, name, large }: { icon: IconRef | null; name: string; large?: boolean }) {
+  const host = useContext(HostContext);
+  const box = useRef<HTMLSpanElement>(null);
+  const [visible, setVisible] = useState(false);
+  const [src, setSrc] = useState<string | null>(icon && "url" in icon ? icon.url : null);
+  const [failed, setFailed] = useState(false);
+  const local = icon && "base" in icon ? icon : null;
+  useEffect(() => {
+    if (local === null || visible || !box.current) return;
+    const seen = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && setVisible(true), { rootMargin: "200px" });
+    seen.observe(box.current);
+    return () => seen.disconnect();
+  }, [local?.base, local?.rel, visible]);
+  useEffect(() => {
+    if (!visible || local === null || host === null) return;
+    let live = true;
+    loadIcon(host.rpc, host.hostId, local).then((url) => live && setSrc(url));
+    return () => {
+      live = false;
+    };
+  }, [visible, local?.base, local?.rel, host?.hostId]);
+  const size = large ? "size-10" : "size-6";
+  if (src === null || failed) {
+    return (
+      <span ref={box} className="inline-flex shrink-0">
+        <Initial name={name} large={large} />
+      </span>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt=""
+      aria-hidden
+      loading="lazy"
+      referrerPolicy="no-referrer"
+      onError={() => setFailed(true)}
+      className={cn(size, "shrink-0 rounded-md border border-border bg-background object-contain", large ? "p-1" : "p-0.5")}
+    />
   );
 }
 
@@ -298,7 +377,7 @@ function InstalledView({ state, actions, open }: { state: Ready; actions: Action
               className="flex cursor-pointer items-center gap-3 px-3 py-2.5 transition-colors hover:bg-state-hover"
               onClick={() => open(p.id)}
             >
-              <Initial name={p.displayName} />
+              <PluginIcon icon={p.icon} name={p.displayName} />
               <div className={cn("min-w-0 flex-1 space-y-0.5", p.enabled === false && "opacity-60")}>
                 <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                   <span className="truncate text-sm font-medium text-foreground">{p.displayName}</span>
@@ -329,7 +408,7 @@ function StoreCard({ entry, busy, onInstall, onOpen }: { entry: Entry; busy: boo
       className="group relative grid h-full min-h-36 w-full cursor-pointer grid-rows-[auto_1fr_auto] gap-2 rounded-xl border border-border bg-card p-3 text-left transition-[border-color,box-shadow,background-color] duration-150 hover:border-foreground/30 hover:shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
     >
       <div className="flex min-w-0 items-center gap-2">
-        <Initial name={entry.displayName} />
+        <PluginIcon icon={entry.icon} name={entry.displayName} />
         <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">{entry.displayName}</span>
       </div>
       <span className="line-clamp-2 block min-h-[2lh] text-xs leading-snug text-muted-foreground">{entry.description || entry.name}</span>
@@ -541,6 +620,7 @@ function ServerRows({ servers, actions, login }: { servers: McpServer[]; actions
       {servers.map((s) => (
         <li key={s.name} className="space-y-1.5 px-3 py-2.5">
           <div className="flex items-center gap-3">
+            <PluginIcon icon={s.icon} name={s.plugin ?? s.name.replace(/^(claude\.ai |plugin:[^:]+:)/, "")} />
             <div className="min-w-0 flex-1 space-y-0.5">
               <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                 <span className="truncate text-sm font-medium text-foreground">{s.name}</span>
@@ -645,7 +725,7 @@ function DetailView({ rpc, target, state, actions, id, back, login }: { rpc: Rpc
         Back
       </button>
       <div className="flex items-start gap-3">
-        <Initial name={displayName} large />
+        <PluginIcon icon={plugin?.icon ?? entry?.icon ?? null} name={displayName} large />
         <div className="min-w-0 flex-1 space-y-1">
           <h1 className="flex flex-wrap items-center gap-2 text-xl font-semibold text-foreground">
             {displayName}
@@ -697,6 +777,7 @@ function AgentPanel({ provider, hostId, machineName, view, pluginId }: { provide
   const go = useGo();
   const panel = experimental_useAppPanel();
   const target = useMemo(() => ({ providerId: provider.id, hostId }), [provider.id, hostId]);
+  const hostValue = useMemo(() => ({ rpc, hostId }), [rpc, hostId]);
   const [state, setState] = useState<State | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [restarting, setRestarting] = useState(false);
@@ -751,6 +832,7 @@ function AgentPanel({ provider, hostId, machineName, view, pluginId }: { provide
     { view: "connections", label: "Connections" },
   ];
   return (
+    <HostContext.Provider value={hostValue}>
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="min-w-0 max-w-2xl text-xs leading-relaxed text-muted-foreground">
@@ -794,6 +876,7 @@ function AgentPanel({ provider, hostId, machineName, view, pluginId }: { provide
         <InstalledView state={state} actions={actions} open={(id) => go(provider.id, "installed", id)} />
       )}
     </div>
+    </HostContext.Provider>
   );
 }
 

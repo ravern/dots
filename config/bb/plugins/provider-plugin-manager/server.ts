@@ -5,9 +5,12 @@ import {
   actionSchema,
   BIN,
   claudeManifestPaths,
+  claudeMarketplaceRoots,
+  claudePluginDirs,
   codexManifestPaths,
   FEATURES,
   hostContract,
+  iconManifestPaths,
   LIST,
   loginArgv,
   mcpName,
@@ -24,6 +27,7 @@ import {
   VERSION_ARGS,
   type Agent,
   type Entry,
+  type IconRef,
   type Marketplace,
   type McpServer,
   type Plugin,
@@ -51,6 +55,10 @@ export const rpcContract = defineRpcContract({
   mcp: { input: target, output: loose },
   act: { input: target.extend({ action: actionSchema }), output: loose },
   login: { input: target.extend({ server: mcpName }), output: loose },
+  icons: {
+    input: z.object({ hostId: z.string().min(1).max(100), refs: z.array(z.object({ base: z.string().max(1000), rel: z.string().max(300) }).strict()).max(100) }).strict(),
+    output: z.array(z.string().nullable()),
+  },
   terminalOutput: { input: terminal.extend({ sinceSeq: z.number().int().min(0) }), output: loose },
   terminalInput: { input: terminal.extend({ text: z.string().max(4000) }), output: loose },
   terminalClose: { input: terminal, output: loose },
@@ -59,7 +67,7 @@ export const rpcContract = defineRpcContract({
 
 export type Machine = { id: string; name: string; connected: boolean };
 /** An installed plugin with what the store knows about it. */
-export type InstalledPlugin = Plugin & { displayName: string; description: string; categories: string[]; homepage: string | null };
+export type InstalledPlugin = Plugin & { displayName: string; description: string; categories: string[]; homepage: string | null; icon: IconRef | null };
 export type State =
   | { agent: null }
   | { agent: Agent; bin: string; missing: true }
@@ -117,7 +125,10 @@ export default function plugin(bb: BbPluginApi) {
         const paths = claudeManifestPaths(markets);
         const read = await host.call("readManifests", { paths: Object.values(paths) }, { hostId });
         const manifests = Object.fromEntries(Object.entries(paths).map(([market, path]) => [market, read[path] ?? null]));
-        result = { entries: parseCatalog(agent, list, manifests), error: null };
+        // Claude manifests name no icon; a plugin's Codex/Cursor manifest often does.
+        const dirs = claudePluginDirs(list, manifests, claudeMarketplaceRoots(markets));
+        const icons = await host.call("readManifests", { paths: iconManifestPaths(Object.values(dirs)).slice(0, 800) }, { hostId });
+        result = { entries: parseCatalog(agent, list, manifests, { dirs, read: icons }), error: null };
       } else if (agent === "codex") {
         const list = await output(hostId, agent, LIST.catalog.codex);
         const manifests = await host.call("readManifests", { paths: codexManifestPaths(list).slice(0, 500) }, { hostId });
@@ -136,7 +147,26 @@ export default function plugin(bb: BbPluginApi) {
       return { entries: cached?.entries ?? [], error: errorText(e) };
     }
     catalogs.set(key, { at: Date.now(), ...result });
+    for (const e of result.entries) if (e.icon && "base" in e.icon) issued.add(iconKey(hostId, e.icon));
     return result;
+  }
+
+  // Icon files the catalogs named, per machine: the app may only fetch these.
+  const issued = new Set<string>();
+  const iconKey = (hostId: string, icon: { base: string; rel: string }) => `${hostId}\n${icon.base}\n${icon.rel}`;
+
+  /** The icon of the plugin an MCP server came from (Claude says; elsewhere, a same-named plugin). */
+  function serverIcons(agent: Agent, servers: McpServer[], entries: Entry[]): McpServer[] {
+    const installed = entries.filter((e) => e.installed && e.icon);
+    const byName = new Map(installed.map((e) => [e.name, e.icon]));
+    return servers.map((s) => ({
+      ...s,
+      icon:
+        (s.plugin ? byName.get(s.plugin) : undefined) ??
+        installed.find((e) => e.mcpServers.includes(s.name))?.icon ??
+        (agent !== "claude" ? byName.get(s.name) : undefined) ??
+        null,
+    }));
   }
 
   /** Installed rows joined with their store listing (description, display name, categories). */
@@ -150,6 +180,7 @@ export default function plugin(bb: BbPluginApi) {
         description: e?.description ?? "",
         categories: e?.categories ?? [],
         homepage: e?.homepage ?? null,
+        icon: e?.icon ?? null,
         source: p.source || e?.marketplace || "",
       };
     });
@@ -224,7 +255,8 @@ export default function plugin(bb: BbPluginApi) {
         const r = await run(hostId, agent, LIST.mcp[agent], 120_000);
         if (r.missing) return { servers: [], error: `${BIN[agent]} isn't installed on this machine.` };
         if (r.code !== 0) return { servers: [], error: failure(r) };
-        return { servers: parseMcp(agent, r.stdout), error: null };
+        const entries = FEATURES[agent].store ? (await catalog(hostId, agent)).entries : [];
+        return { servers: serverIcons(agent, parseMcp(agent, r.stdout), entries), error: null };
       } catch (e) {
         return { servers: [], error: errorText(e) };
       }
@@ -256,6 +288,14 @@ export default function plugin(bb: BbPluginApi) {
       terminals.add(session.id);
       bb.log.info(`Opened terminal ${session.id} for ${label} on ${hostId}`);
       return { terminalId: session.id, title: label };
+    },
+
+    icons: async ({ hostId, refs }) => {
+      const allowed = refs.map((r) => issued.has(iconKey(hostId, r)));
+      const wanted = refs.filter((_, i) => allowed[i]);
+      const read = wanted.length ? await host.call("readIcons", { refs: wanted }, { hostId }) : [];
+      let next = 0;
+      return allowed.map((ok) => (ok ? (read[next++] ?? null) : null));
     },
 
     terminalOutput: async ({ terminalId, sinceSeq }): Promise<TerminalChunk> => {

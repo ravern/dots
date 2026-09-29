@@ -16,6 +16,10 @@ It runs that agent's own CLI on the picked machine.
 | Cursor (`cursor-agent`) | not listable by its CLI | none: install via `cursor-agent` → `/plugins`, or the Cursor app; marketplaces only | `cursor-agent mcp list`; log in, enable, disable |
 | Devin Cloud (`devin`) | list, update, uninstall | github.com/CognitionAI/devin-marketplace (sparse clone on the machine); install from source | `devin mcp list` (no status); log in, log out |
 
+Icons come from the plugins' own manifests (Codex `interface.composerIcon`/`logo`, Cursor/Codex
+manifests shipped inside Claude plugins, Devin's `logo`), read from the machine through the
+plugin's host; everything else shows a letter avatar.
+
 Logins need a TTY, so **Log in** starts `<cli> mcp login <server>` in a machine-scoped bb
 terminal and shows it in the page's right-panel **Login** tab (also `bb terminal attach <id>`).
 A server that fails on a fixed Authorization header (e.g. an unset env var) can't be fixed by
