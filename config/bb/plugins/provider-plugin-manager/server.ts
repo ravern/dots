@@ -4,33 +4,62 @@ import {
   actionArgv,
   actionSchema,
   BIN,
+  claudeManifestPaths,
+  codexManifestPaths,
   FEATURES,
   hostContract,
   LIST,
+  loginArgv,
+  mcpName,
   NOTES,
-  parseAvailable,
+  parseCatalog,
+  parseDevinCatalog,
   parseMarketplaces,
+  parseMcp,
   parsePlugins,
   PROVIDER_AGENTS,
+  queryStore,
   redact,
+  shellQuote,
   VERSION_ARGS,
   type Agent,
+  type Entry,
   type Marketplace,
+  type McpServer,
   type Plugin,
 } from "./cli.ts";
 
 const target = z.object({ providerId: z.string().min(1).max(100), hostId: z.string().min(1).max(100) }).strict();
-const loose = z.any(); // server-built output; the contract types it for the app below
+const terminal = z.object({ terminalId: z.string().min(1).max(200) }).strict();
+const loose = z.any(); // server-built output; the types below describe it for the app
 
 export const rpcContract = defineRpcContract({
   machines: { input: z.null(), output: loose },
   state: { input: target, output: loose },
-  available: { input: target.extend({ query: z.string().max(200) }), output: loose },
+  store: {
+    input: target.extend({
+      query: z.string().max(200),
+      category: z.string().max(100).nullable(),
+      marketplace: z.string().max(200).nullable(),
+      unavailable: z.boolean(),
+      offset: z.number().int().min(0).max(100_000),
+      refresh: z.boolean(),
+    }),
+    output: loose,
+  },
+  entry: { input: target.extend({ id: z.string().min(1).max(500) }), output: loose },
+  mcp: { input: target, output: loose },
   act: { input: target.extend({ action: actionSchema }), output: loose },
+  login: { input: target.extend({ server: mcpName }), output: loose },
+  terminalOutput: { input: terminal.extend({ sinceSeq: z.number().int().min(0) }), output: loose },
+  terminalInput: { input: terminal.extend({ text: z.string().max(4000) }), output: loose },
+  terminalClose: { input: terminal, output: loose },
   restartIdle: { input: target, output: loose },
 });
 
 export type Machine = { id: string; name: string; connected: boolean };
+/** An installed plugin with what the store knows about it. */
+export type InstalledPlugin = Plugin & { displayName: string; description: string; categories: string[]; homepage: string | null };
 export type State =
   | { agent: null }
   | { agent: Agent; bin: string; missing: true }
@@ -41,14 +70,21 @@ export type State =
       version: string;
       features: (typeof FEATURES)[Agent];
       note: string | null;
-      plugins: Plugin[] | null;
+      plugins: InstalledPlugin[] | null;
       marketplaces: Marketplace[] | null;
       errors: string[];
     };
+export type StorePage = ReturnType<typeof queryStore> & { error: string | null };
 export type ActResult = { ok: boolean; output: string };
+export type McpResult = { servers: McpServer[]; error: string | null };
+export type LoginResult = { terminalId: string; title: string };
+export type TerminalChunk = { text: string; nextSeq: number; running: boolean; exitCode: number | null };
 
+const PAGE = 48;
+const CATALOG_TTL_MS = 10 * 60_000;
 const failure = (r: { code: number | null; stdout: string; stderr: string }) =>
   redact(r.stderr || r.stdout) || `exited with code ${r.code}`;
+const title = (s: string) => s.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
 export default function plugin(bb: BbPluginApi) {
   const host = bb.hosts.experimental_client({ contract: hostContract });
@@ -59,12 +95,68 @@ export default function plugin(bb: BbPluginApi) {
   /** stdout, or throws the CLI's (redacted) error. */
   async function output(hostId: string, agent: Agent, args: string[]): Promise<string> {
     const r = await run(hostId, agent, args);
+    if (r.missing) throw new Error(`${BIN[agent]} isn't installed on this machine.`);
     if (r.code !== 0) throw new Error(`${BIN[agent]} ${args.join(" ")}: ${failure(r)}`);
     return r.stdout;
   }
 
   const agentOf = (providerId: string): Agent | null => PROVIDER_AGENTS[providerId] ?? null;
   const errorText = (e: unknown) => redact(e instanceof Error ? e.message : String(e));
+
+  // ponytail: per-machine catalog cache in memory, dropped after any change; a plugin reload clears it.
+  const catalogs = new Map<string, { at: number; entries: Entry[]; error: string | null }>();
+
+  async function catalog(hostId: string, agent: Agent, refresh = false): Promise<{ entries: Entry[]; error: string | null }> {
+    const key = `${hostId}:${agent}`;
+    const cached = catalogs.get(key);
+    if (!refresh && cached && Date.now() - cached.at < CATALOG_TTL_MS) return cached;
+    let result: { entries: Entry[]; error: string | null };
+    try {
+      if (agent === "claude") {
+        const [list, markets] = await Promise.all([output(hostId, agent, LIST.catalog.claude), output(hostId, agent, LIST.marketplaces.claude)]);
+        const paths = claudeManifestPaths(markets);
+        const read = await host.call("readManifests", { paths: Object.values(paths) }, { hostId });
+        const manifests = Object.fromEntries(Object.entries(paths).map(([market, path]) => [market, read[path] ?? null]));
+        result = { entries: parseCatalog(agent, list, manifests), error: null };
+      } else if (agent === "codex") {
+        const list = await output(hostId, agent, LIST.catalog.codex);
+        const manifests = await host.call("readManifests", { paths: codexManifestPaths(list).slice(0, 500) }, { hostId });
+        result = { entries: parseCatalog(agent, list, manifests), error: null };
+      } else if (agent === "devin") {
+        const [devin, installed] = await Promise.all([
+          host.call("devinCatalog", null, { hostId, timeoutMs: 120_000 }),
+          output(hostId, agent, LIST.plugins.devin),
+        ]);
+        const names = new Set(parsePlugins(agent, installed).map((p) => p.name));
+        result = { entries: parseDevinCatalog(devin.manifests, names), error: devin.error ? redact(devin.error) : null };
+      } else {
+        result = { entries: [], error: null };
+      }
+    } catch (e) {
+      return { entries: cached?.entries ?? [], error: errorText(e) };
+    }
+    catalogs.set(key, { at: Date.now(), ...result });
+    return result;
+  }
+
+  /** Installed rows joined with their store listing (description, display name, categories). */
+  function describe(agent: Agent, plugins: Plugin[], entries: Entry[]): InstalledPlugin[] {
+    const byKey = new Map(entries.map((e) => [agent === "devin" ? e.name : e.id, e]));
+    return plugins.map((p) => {
+      const e = byKey.get(agent === "devin" ? p.name : p.id);
+      return {
+        ...p,
+        displayName: e?.displayName ?? title(p.name),
+        description: e?.description ?? "",
+        categories: e?.categories ?? [],
+        homepage: e?.homepage ?? null,
+        source: p.source || e?.marketplace || "",
+      };
+    });
+  }
+
+  // Terminals this plugin opened: the app may only read or type into these.
+  const terminals = new Set<string>();
 
   bb.rpc.register(rpcContract, {
     machines: async (): Promise<{ machines: Machine[]; defaultId: string | null }> => {
@@ -90,9 +182,10 @@ export default function plugin(bb: BbPluginApi) {
           return null;
         }
       };
-      const [plugins, marketplaces] = await Promise.all([
+      const [plugins, marketplaces, store] = await Promise.all([
         read((LIST.plugins as Partial<Record<Agent, string[]>>)[agent], (s) => parsePlugins(agent, s)),
         read((LIST.marketplaces as Partial<Record<Agent, string[]>>)[agent], (s) => parseMarketplaces(agent, s)),
+        FEATURES[agent].store ? catalog(hostId, agent) : Promise.resolve({ entries: [], error: null }),
       ]);
       return {
         agent,
@@ -101,20 +194,39 @@ export default function plugin(bb: BbPluginApi) {
         version: redact(probe.stdout).split("\n")[0],
         features: FEATURES[agent],
         note: NOTES[agent] ?? null,
-        plugins,
+        plugins: plugins && describe(agent, plugins, store.entries),
         marketplaces,
         errors,
       };
     },
 
-    available: async ({ providerId, hostId, query }) => {
+    store: async ({ providerId, hostId, refresh, ...query }): Promise<StorePage> => {
       const agent = agentOf(providerId);
-      const args = agent && (LIST.available as Partial<Record<Agent, string[]>>)[agent];
-      if (!agent || !args) return { items: [], total: 0, error: "This agent's CLI can't browse marketplaces." };
+      if (!agent || !FEATURES[agent].store) {
+        return { ...queryStore([], { ...query, limit: PAGE }), error: "This agent has no plugin catalog its CLI can install from." };
+      }
+      const { entries, error } = await catalog(hostId, agent, refresh);
+      return { ...queryStore(entries, { ...query, limit: PAGE }), error };
+    },
+
+    entry: async ({ providerId, hostId, id }): Promise<Entry | null> => {
+      const agent = agentOf(providerId);
+      if (!agent || !FEATURES[agent].store) return null;
+      const { entries } = await catalog(hostId, agent);
+      return entries.find((e) => e.id === id || (agent === "devin" && e.name === id)) ?? null;
+    },
+
+    mcp: async ({ providerId, hostId }): Promise<McpResult> => {
+      const agent = agentOf(providerId);
+      if (!agent) return { servers: [], error: "Not supported for this agent." };
       try {
-        return { ...parseAvailable(agent, await output(hostId, agent, args), query, 100), error: null };
+        // Claude health-checks every server; that can take a while.
+        const r = await run(hostId, agent, LIST.mcp[agent], 120_000);
+        if (r.missing) return { servers: [], error: `${BIN[agent]} isn't installed on this machine.` };
+        if (r.code !== 0) return { servers: [], error: failure(r) };
+        return { servers: parseMcp(agent, r.stdout), error: null };
       } catch (e) {
-        return { items: [], total: 0, error: errorText(e) };
+        return { servers: [], error: errorText(e) };
       }
     },
 
@@ -124,12 +236,49 @@ export default function plugin(bb: BbPluginApi) {
       if (!agent || !args) return { ok: false, output: "This agent's CLI doesn't support that." };
       // Installs and updates clone repos; give them time.
       const r = await run(hostId, agent, args, 10 * 60_000);
-      bb.log.info(`${BIN[agent]} ${args[0]} ${args[1]} ${args[2] ?? ""} on ${hostId}: exit ${r.code}`);
+      bb.log.info(`${BIN[agent]} ${args.slice(0, 2).join(" ")} on ${hostId}: exit ${r.code}`);
+      if (r.code === 0) catalogs.delete(`${hostId}:${agent}`);
       return r.code === 0 ? { ok: true, output: redact(r.stdout || r.stderr) } : { ok: false, output: failure(r) };
     },
 
-    // Plugins load when an agent process starts. Stopping an idle thread ends its process; its
-    // next message starts a new one (same conversation) with the current plugins.
+    // Browser/OAuth logins need a real TTY: run them in a bb terminal on that machine.
+    login: async ({ providerId, hostId, server }): Promise<LoginResult> => {
+      const agent = agentOf(providerId);
+      if (!agent) throw new Error("Not supported for this agent.");
+      const label = `${BIN[agent]} mcp login ${server}`;
+      const session = await bb.sdk.terminals.create({
+        scope: { kind: "host_path", hostId, cwd: null },
+        title: label,
+        cols: 100,
+        rows: 30,
+        start: { mode: "command", command: [BIN[agent], ...loginArgv(server)].map(shellQuote).join(" ") },
+      });
+      terminals.add(session.id);
+      bb.log.info(`Opened terminal ${session.id} for ${label} on ${hostId}`);
+      return { terminalId: session.id, title: label };
+    },
+
+    terminalOutput: async ({ terminalId, sinceSeq }): Promise<TerminalChunk> => {
+      if (!terminals.has(terminalId)) return { text: "", nextSeq: sinceSeq, running: false, exitCode: null };
+      const out = await bb.sdk.terminals.output({ terminalId, sinceSeq, tailBytes: 64 * 1024 });
+      const text = out.chunks.map((c) => Buffer.from(c.dataBase64, "base64").toString("utf8")).join("");
+      return { text: redact(text, 64 * 1024), nextSeq: out.nextSeq, running: out.status === "running" || out.status === "starting", exitCode: out.exitCode };
+    },
+
+    terminalInput: async ({ terminalId, text }) => {
+      if (!terminals.has(terminalId)) throw new Error("That terminal isn't open any more.");
+      await bb.sdk.terminals.input({ terminalId, dataBase64: Buffer.from(text, "utf8").toString("base64") });
+      return { ok: true };
+    },
+
+    terminalClose: async ({ terminalId }) => {
+      if (!terminals.delete(terminalId)) return { ok: true };
+      await bb.sdk.terminals.close({ terminalId, mode: "force" }).catch(() => {});
+      return { ok: true };
+    },
+
+    // Plugins and MCP servers load when an agent process starts. Stopping an idle thread ends its
+    // process; its next message starts a new one (same conversation) with the current config.
     restartIdle: async ({ providerId, hostId }) => {
       let stopped = 0;
       let busy = 0;

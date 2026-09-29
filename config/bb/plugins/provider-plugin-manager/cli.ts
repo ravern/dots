@@ -18,24 +18,28 @@ export type Features = {
   toggle: boolean; // enable/disable
   update: boolean; // update one plugin
   uninstall: boolean;
-  browse: boolean; // search marketplace plugins and install one
+  store: boolean; // a catalog to browse and install from
   installSource: boolean; // install from a source (owner/repo, git URL, path)
   marketplaces: boolean; // list/add/remove/refresh marketplaces
 };
 export const FEATURES: Record<Agent, Features> = {
-  claude: { plugins: true, toggle: true, update: true, uninstall: true, browse: true, installSource: false, marketplaces: true },
-  codex: { plugins: true, toggle: false, update: false, uninstall: true, browse: true, installSource: false, marketplaces: true },
-  cursor: { plugins: false, toggle: false, update: false, uninstall: false, browse: false, installSource: false, marketplaces: true },
-  devin: { plugins: true, toggle: false, update: true, uninstall: true, browse: false, installSource: true, marketplaces: false },
+  claude: { plugins: true, toggle: true, update: true, uninstall: true, store: true, installSource: false, marketplaces: true },
+  codex: { plugins: true, toggle: false, update: false, uninstall: true, store: true, installSource: false, marketplaces: true },
+  cursor: { plugins: false, toggle: false, update: false, uninstall: false, store: false, installSource: false, marketplaces: true },
+  devin: { plugins: true, toggle: false, update: true, uninstall: true, store: true, installSource: true, marketplaces: false },
 };
 
 export const NOTES: Partial<Record<Agent, string>> = {
   codex: "Codex's CLI can't enable, disable or update single plugins; refreshing a marketplace pulls its latest plugins.",
   cursor:
-    "cursor-agent's CLI manages marketplaces only. Cursor installs plugins per account, from the Cursor app or dashboard.",
+    "cursor-agent's CLI can't list or install plugins: it installs them in its interactive /plugins browser (or the Cursor app). Its CLI manages marketplaces and MCP servers.",
   devin:
-    "Installs go to your Devin personal plugins, which sync to your account; the Devin CLI says a plugin whose source isn't reachable from the cloud (e.g. a local path) won't load in cloud sessions like bb's Devin Cloud threads. Devin has no plugin marketplace CLI.",
+    "Installs go to your Devin personal plugins, which sync to your account. The Devin CLI warns that a plugin whose source isn't reachable from the cloud (e.g. a local path) won't load in cloud sessions like bb's Devin Cloud threads.",
 };
+
+/** Devin's public catalog; its plugins install as `<repo>#plugins/<dir>`. */
+export const DEVIN_MARKETPLACE = "CognitionAI/devin-marketplace";
+export const DEVIN_MARKETPLACE_URL = `https://github.com/${DEVIN_MARKETPLACE}`;
 
 export type Plugin = {
   id: string; // what the CLI takes to act on it
@@ -48,37 +52,77 @@ export type Plugin = {
   note: string | null;
 };
 export type Marketplace = { name: string; source: string; removable: boolean; refreshable: boolean };
-export type Listing = { id: string; name: string; source: string; description: string; installed: boolean };
+/** One store listing. */
+export type Entry = {
+  id: string; // what install takes
+  name: string;
+  displayName: string;
+  description: string;
+  marketplace: string;
+  categories: string[];
+  author: string | null;
+  homepage: string | null;
+  installed: boolean;
+  installable: boolean;
+  mcpServers: string[];
+};
+export type McpStatus = "connected" | "needs-auth" | "failed" | "disabled" | "pending" | "loading" | "configured";
+export type McpServer = {
+  name: string;
+  target: string; // URL or command
+  status: McpStatus;
+  detail: string | null; // error or auth mode
+  hint: string | null;
+  plugin: string | null; // the plugin that brought it, when the CLI says
+  login: boolean;
+  logout: boolean;
+  enable: boolean;
+  disable: boolean;
+};
 
 export type Action =
   | { kind: "enable" | "disable" | "update" | "uninstall" | "install"; id: string }
   | { kind: "addMarketplace"; source: string }
-  | { kind: "removeMarketplace" | "updateMarketplace"; name: string };
+  | { kind: "removeMarketplace" | "updateMarketplace"; name: string }
+  | { kind: "mcpLogout" | "mcpEnable" | "mcpDisable"; name: string };
 
 // Passed as argv (no shell), so the only risk is an option-looking value.
 const arg = z.string().trim().min(1).max(500).regex(/^[^-\s][^\s]*$/, "Must be one word that doesn't start with -");
+// MCP server names can hold spaces ("claude.ai Linear").
+export const mcpName = z.string().trim().min(1).max(200).regex(/^[^-\s][^\n\r\0]*$/, "Not a server name");
 export const actionSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.enum(["enable", "disable", "update", "uninstall", "install"]), id: arg }).strict(),
   z.object({ kind: z.literal("addMarketplace"), source: arg }).strict(),
   z.object({ kind: z.enum(["removeMarketplace", "updateMarketplace"]), name: arg }).strict(),
+  z.object({ kind: z.enum(["mcpLogout", "mcpEnable", "mcpDisable"]), name: mcpName }).strict(),
 ]);
 
-/** Server → host: run one allowlisted agent CLI. */
+/** Server → host: run an allowlisted agent CLI, read catalog manifests, fetch Devin's catalog. */
 export const hostContract = defineRpcContract({
   run: {
     input: z.object({ bin: z.enum(BINS), args: z.array(z.string().max(500)).max(16) }).strict(),
     output: z.object({ missing: z.boolean(), code: z.number().nullable(), stdout: z.string(), stderr: z.string() }),
   },
+  // Only catalog manifests: marketplace.json / plugin.json, by absolute path.
+  readManifests: {
+    input: z.object({ paths: z.array(z.string().regex(/^\/.*\/(marketplace|plugin)\.json$/).max(1000)).max(500) }).strict(),
+    output: z.record(z.string(), z.unknown()),
+  },
+  devinCatalog: {
+    input: z.null(),
+    output: z.object({ manifests: z.record(z.string(), z.unknown()), error: z.string().nullable() }),
+  },
 });
 
 export const LIST = {
   plugins: { claude: ["plugin", "list", "--json"], codex: ["plugin", "list", "--json"], devin: ["plugins", "list"] },
-  available: { claude: ["plugin", "list", "--json", "--available"], codex: ["plugin", "list", "--available", "--json"] },
+  catalog: { claude: ["plugin", "list", "--json", "--available"], codex: ["plugin", "list", "--available", "--json"] },
   marketplaces: {
     claude: ["plugin", "marketplace", "list", "--json"],
     codex: ["plugin", "marketplace", "list", "--json"],
     cursor: ["plugin", "marketplace", "list", "--format", "json"],
   },
+  mcp: { claude: ["mcp", "list"], codex: ["mcp", "list", "--json"], cursor: ["mcp", "list"], devin: ["mcp", "list"] },
 } satisfies Record<string, Partial<Record<Agent, string[]>>>;
 export const VERSION_ARGS = ["--version"];
 
@@ -109,17 +153,31 @@ export function actionArgv(agent: Agent, action: Action): string[] | null {
     case "updateMarketplace":
       if (!f.marketplaces) return null;
       return ["plugin", "marketplace", agent === "codex" ? "upgrade" : "update", action.name];
+    case "mcpLogout":
+      return agent === "cursor" ? null : ["mcp", "logout", action.name];
+    case "mcpEnable":
+    case "mcpDisable":
+      return agent === "cursor" ? ["mcp", action.kind === "mcpEnable" ? "enable" : "disable", action.name] : null;
   }
 }
 
+/** Interactive MCP login (browser/OAuth): argv for a terminal the user watches. */
+export const loginArgv = (name: string): string[] => ["mcp", "login", name];
+
+/** One shell word, for a terminal's command line. */
+export const shellQuote = (s: string) => (/^[\w@%+=:,./-]+$/.test(s) ? s : `'${s.replace(/'/g, `'\\''`)}'`);
+
 const str = (v: unknown): string => (typeof v === "string" ? v : "");
+const strs = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string" && x !== "") : []);
 const splitId = (id: string) => {
   const at = id.lastIndexOf("@");
   return at > 0 ? { name: id.slice(0, at), market: id.slice(at + 1) } : { name: id, market: "" };
 };
 const json = (stdout: string): any => JSON.parse(stdout);
-// Strips ANSI colour codes some CLIs print even when piped.
-const plain = (s: string) => s.replace(/\x1b\[[0-9;]*m/g, "");
+// Strips ANSI escapes some CLIs print even when piped.
+const plain = (s: string) => s.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, "").replace(/\x1b\][^\x07]*\x07/g, "");
+const title = (s: string) => s.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+const author = (v: any): string | null => str(v?.name) || str(v) || null;
 
 /**
  * Installed plugins from the CLI's list output. Only the fields the UI shows are kept: Claude's
@@ -204,30 +262,234 @@ export function parseMarketplaces(agent: Agent, stdout: string): Marketplace[] {
   return [];
 }
 
-/** Marketplace plugins matching `query` (name, description or marketplace), at most `limit`. */
-export function parseAvailable(agent: Agent, stdout: string, query: string, limit: number): { items: Listing[]; total: number } {
-  const data = json(stdout);
-  const installed = new Set<string>((data.installed ?? []).map((r: any) => str(r.id) || str(r.pluginId)));
-  const rows: any[] = data.available ?? [];
-  const q = query.trim().toLowerCase();
-  const all = rows
-    .map((r) => ({
-      id: str(r.pluginId),
-      name: str(r.name) || splitId(str(r.pluginId)).name,
-      source: str(r.marketplaceName),
-      description: str(r.description),
-      installed: r.installed === true || installed.has(str(r.pluginId)),
-    }))
-    .filter((r) => r.id !== "" && (q === "" || `${r.name} ${r.source} ${r.description}`.toLowerCase().includes(q)));
-  return { items: all.slice(0, limit), total: all.length };
+/** Where each marketplace's catalog manifest lives (Claude), keyed by marketplace name. */
+export function claudeManifestPaths(marketplacesJson: string): Record<string, string> {
+  const rows: any[] = json(marketplacesJson);
+  return Object.fromEntries(
+    rows.filter((r) => str(r.installLocation).startsWith("/")).map((r) => [str(r.name), `${r.installLocation}/.claude-plugin/marketplace.json`]),
+  );
 }
 
-/** CLI output for the UI: bounded, with anything token-shaped masked. */
-export function redact(text: string): string {
+/** Where local Codex plugins keep their manifest (remote ones have none). */
+export function codexManifestPaths(catalogJson: string): string[] {
+  const data = json(catalogJson);
+  return [...(data.installed ?? []), ...(data.available ?? [])]
+    .map((r: any) => str(r.source?.path))
+    .filter((p: string) => p.startsWith("/"))
+    .map((p: string) => `${p}/.codex-plugin/plugin.json`);
+}
+
+/**
+ * The store: every listing the CLI can install, enriched from the catalog manifests when they
+ * could be read (`manifests` maps a marketplace name (Claude) or manifest path (Codex) to its JSON).
+ */
+export function parseCatalog(agent: Agent, stdout: string, manifests: Record<string, unknown>): Entry[] {
+  const data = json(stdout);
+  const byId = new Map<string, Entry>();
+  const add = (e: Entry) => byId.set(e.id, { ...byId.get(e.id), ...e });
+  if (agent === "claude") {
+    const installed = new Set<string>((data.installed ?? []).map((r: any) => str(r.id)));
+    for (const [market, manifest] of Object.entries(manifests)) {
+      for (const p of ((manifest as any)?.plugins ?? []) as any[]) {
+        const id = `${str(p.name)}@${market}`;
+        if (!str(p.name)) continue;
+        add({
+          id,
+          name: str(p.name),
+          displayName: title(str(p.name)),
+          description: str(p.description),
+          marketplace: market,
+          categories: str(p.category) ? [title(str(p.category))] : [],
+          author: author(p.author),
+          homepage: str(p.homepage) || null,
+          installed: installed.has(id),
+          installable: true,
+          mcpServers: [],
+        });
+      }
+    }
+    for (const r of (data.available ?? []) as any[]) {
+      const id = str(r.pluginId);
+      if (!id || byId.has(id)) continue;
+      add({
+        id,
+        name: str(r.name) || splitId(id).name,
+        displayName: title(str(r.name) || splitId(id).name),
+        description: str(r.description),
+        marketplace: str(r.marketplaceName),
+        categories: [],
+        author: null,
+        homepage: null,
+        installed: installed.has(id),
+        installable: true,
+        mcpServers: [],
+      });
+    }
+  } else if (agent === "codex") {
+    for (const r of [...(data.available ?? []), ...(data.installed ?? [])] as any[]) {
+      const id = str(r.pluginId);
+      if (!id) continue;
+      const m: any = manifests[`${str(r.source?.path)}/.codex-plugin/plugin.json`] ?? null;
+      const name = str(r.name) || splitId(id).name;
+      add({
+        id,
+        name,
+        displayName: str(m?.interface?.displayName) || title(name),
+        description: str(m?.interface?.shortDescription) || str(m?.description),
+        marketplace: str(r.marketplaceName),
+        categories: str(m?.interface?.category) ? [str(m.interface.category)] : [],
+        author: str(m?.interface?.developerName) || author(m?.author),
+        homepage: str(m?.interface?.websiteURL) || str(m?.homepage) || null,
+        installed: r.installed === true,
+        // Most of Codex's remote catalog isn't installable for this account.
+        installable: r.installPolicy !== "NOT_AVAILABLE",
+        mcpServers: [],
+      });
+    }
+  }
+  return [...byId.values()];
+}
+
+/** Devin's catalog from its marketplace repo: `manifests` maps a plugin dir to its plugin.json. */
+export function parseDevinCatalog(manifests: Record<string, unknown>, installedNames: ReadonlySet<string>): Entry[] {
+  return Object.entries(manifests).map(([dir, raw]) => {
+    const m: any = raw ?? {};
+    const name = str(m.name) || dir;
+    return {
+      id: `${DEVIN_MARKETPLACE}#plugins/${dir}`,
+      name,
+      displayName: str(m.displayName) || title(name),
+      description: str(m.description),
+      marketplace: "devin-marketplace",
+      categories: strs(m.keywords),
+      author: author(m.author),
+      homepage: str(m.homepage) || null,
+      installed: installedNames.has(name),
+      installable: true,
+      mcpServers: Object.keys(m.mcpServers ?? {}),
+    };
+  });
+}
+
+export type StoreQuery = { query: string; category: string | null; marketplace: string | null; unavailable: boolean; offset: number; limit: number };
+
+/** One page of the store plus the facets for its filters. Installed and best matches sort first. */
+export function queryStore(entries: Entry[], q: StoreQuery) {
+  const text = q.query.trim().toLowerCase();
+  const visible = entries.filter((e) => q.unavailable || e.installable || e.installed);
+  const matches = visible.filter(
+    (e) =>
+      (q.category === null || e.categories.includes(q.category)) &&
+      (q.marketplace === null || e.marketplace === q.marketplace) &&
+      (text === "" || `${e.displayName} ${e.name} ${e.description} ${e.marketplace} ${e.categories.join(" ")}`.toLowerCase().includes(text)),
+  );
+  // Name matches first, then listings with a description (Codex's remote ones are bare ids).
+  const rank = (e: Entry) => (text !== "" && e.displayName.toLowerCase().startsWith(text) ? 0 : 2) + (e.description ? 0 : 1);
+  matches.sort((a, b) => rank(a) - rank(b) || a.displayName.localeCompare(b.displayName));
+  const count = (values: string[]) =>
+    [...values.reduce((m, v) => m.set(v, (m.get(v) ?? 0) + 1), new Map<string, number>())]
+      .map(([name, n]) => ({ name, count: n }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  return {
+    items: matches.slice(q.offset, q.offset + q.limit),
+    total: matches.length,
+    hiddenUnavailable: entries.length - visible.length,
+    categories: count(visible.flatMap((e) => e.categories)),
+    marketplaces: count(visible.map((e) => e.marketplace).filter(Boolean)),
+  };
+}
+
+const HEADER_AUTH = /Authorization header|OAuth fallback is disabled/i;
+const statusOf = (glyph: string): McpStatus =>
+  glyph === "✔" ? "connected" : glyph === "!" ? "needs-auth" : glyph === "✘" ? "failed" : "pending";
+
+/** MCP servers and their auth state. Never keeps headers or env values. */
+export function parseMcp(agent: Agent, stdout: string): McpServer[] {
+  const base = { detail: null, hint: null, plugin: null, login: false, logout: false, enable: false, disable: false };
+  if (agent === "claude") {
+    // "plugin:github:github: https://… (HTTP) - ✘ Failed to connect — HTTP 400: …"
+    return plain(stdout)
+      .split("\n")
+      .map((line) => /^(.+?): (.*) - ([✔!✘⏸])\s*(.*)$/.exec(line))
+      .filter((m): m is RegExpExecArray => m !== null)
+      .map(([, name, target, glyph, text]) => {
+        const status = statusOf(glyph);
+        const error = status === "failed" ? text.replace(/^Failed to connect\s*—?\s*/, "") : null;
+        const http = /^https?:/.test(target);
+        const header = error !== null && HEADER_AUTH.test(error);
+        return {
+          ...base,
+          name,
+          target: target.replace(/ \((HTTP|SSE|stdio)\)$/i, ""),
+          status,
+          detail: error ?? (status === "pending" ? text : null),
+          hint: header
+            ? "Signs in with a fixed Authorization header from its config (usually an environment variable), so logging in won't help. Fix that value, then check again."
+            : null,
+          plugin: /^plugin:([^:]+):/.exec(name)?.[1] ?? null,
+          login: http && !header && status !== "pending",
+          logout: http && status === "connected",
+        };
+      });
+  }
+  if (agent === "codex") {
+    const rows: any[] = json(stdout);
+    return rows.map((r) => {
+      const auth = str(r.auth_status);
+      const t = r.transport ?? {};
+      const target = str(t.url) || str(t.command).split("/").pop() || "";
+      const detail =
+        auth === "o_auth" ? "Logged in (OAuth)" : auth === "bearer_token" ? `Token from $${str(t.bearer_token_env_var) || "env"}` : null;
+      return {
+        ...base,
+        name: str(r.name),
+        target,
+        status: r.enabled === false ? "disabled" : auth === "not_logged_in" ? "needs-auth" : "configured",
+        detail,
+        login: auth === "not_logged_in" || auth === "o_auth",
+        logout: auth === "o_auth",
+      };
+    });
+  }
+  if (agent === "cursor") {
+    // "mobbin: requires_authentication" | "x: ready" | "y: not loaded (needs approval)" | "z: Error: …"
+    return plain(stdout)
+      .split("\n")
+      .map((line) => /^(\S[^:]*): (.+)$/.exec(line.trim()))
+      .filter((m): m is RegExpExecArray => m !== null)
+      .map(([, name, s]) => {
+        const status: McpStatus =
+          s === "ready" ? "connected" : s === "requires_authentication" ? "needs-auth" : s === "loading" ? "loading" : s === "disabled" ? "disabled" : s.startsWith("not loaded") ? "pending" : "failed";
+        return {
+          ...base,
+          name,
+          target: "",
+          status,
+          detail: status === "failed" ? s.replace(/^Error:\s*/, "") : status === "pending" ? "Needs approval" : null,
+          login: status === "needs-auth",
+          enable: status === "pending" || status === "disabled",
+          disable: status !== "pending" && status !== "disabled",
+        };
+      });
+  }
+  // Devin: "  • name\n    URL: https://…" — no status in its CLI.
+  const servers: McpServer[] = [];
+  for (const line of plain(stdout).split("\n")) {
+    const head = /^\s*•\s+(.+)$/.exec(line);
+    if (head) servers.push({ ...base, name: head[1].trim(), target: "", status: "configured", login: true, logout: true });
+    const target = /^\s+(?:URL|Command):\s+(.*)$/.exec(line);
+    if (target && servers.length > 0) servers[servers.length - 1].target = target[1].trim().slice(0, 200);
+  }
+  return servers;
+}
+
+/** CLI or terminal output for the UI: bounded, with anything token-shaped masked. */
+export function redact(text: string, max = 4000): string {
   return plain(text)
     .replace(/(bearer\s+)[^\s"']+/gi, "$1•••")
     .replace(/((?:token|secret|password|api[_-]?key|authorization)["']?\s*[:=]\s*["']?)[^\s"',}]+/gi, "$1•••")
+    .replace(/([?&#](?:code|access_token|id_token|refresh_token|token)=)[^&\s"']+/gi, "$1•••")
     .replace(/\b(?:gh[pousr]_|github_pat_|sk-|xox[abprs]-)[A-Za-z0-9_-]{8,}/g, "•••")
     .trim()
-    .slice(0, 4000);
+    .slice(-max);
 }

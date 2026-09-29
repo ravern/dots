@@ -1,7 +1,7 @@
 // Run: node --experimental-strip-types cli.test.ts
 // Fixtures are trimmed real outputs (claude 2.1.285, codex 0.157.1, cursor-agent 2026.07.23, devin 3000.11.3).
 import assert from "node:assert/strict";
-import { actionArgv, actionSchema, parseAvailable, parseMarketplaces, parsePlugins, redact } from "./cli.ts";
+import { actionArgv, actionSchema, codexManifestPaths, parseCatalog, parseDevinCatalog, parseMarketplaces, parseMcp, parsePlugins, queryStore, redact, shellQuote } from "./cli.ts";
 
 const claudeList = JSON.stringify([
   {
@@ -30,20 +30,73 @@ assert.equal(claude[1].note, "project: /w/cli");
 assert.ok(!JSON.stringify(claude).includes("ghp_"), "MCP auth headers never reach a row");
 
 const codexList = JSON.stringify({
-  installed: [{ pluginId: "ponytail@ponytail", name: "ponytail", marketplaceName: "ponytail", version: "1.0.0", enabled: true }],
+  installed: [{ pluginId: "ponytail@ponytail", name: "ponytail", marketplaceName: "ponytail", version: "1.0.0", enabled: true, installed: true }],
   available: [
-    { pluginId: "ponytail@ponytail", name: "ponytail", marketplaceName: "ponytail", description: "Be lazy", installed: true },
-    { pluginId: "messages@openai-bundled", name: "messages", marketplaceName: "openai-bundled", description: "Chat", installed: false },
+    {
+      pluginId: "messages@openai-bundled",
+      name: "messages",
+      marketplaceName: "openai-bundled",
+      installed: false,
+      installPolicy: "AVAILABLE",
+      source: { source: "local", path: "/b/messages" },
+    },
+    { pluginId: "app-6a05@openai-curated-remote", name: "app-6a05", marketplaceName: "openai-curated-remote", installPolicy: "NOT_AVAILABLE", source: { source: "remote", id: "x" } },
   ],
 });
 assert.deepEqual(parsePlugins("codex", codexList).map((p) => [p.id, p.source, p.enabled]), [["ponytail@ponytail", "ponytail", true]]);
-const found = parseAvailable("codex", codexList, "CHAT", 10);
-assert.deepEqual([found.total, found.items[0].id, found.items[0].installed], [1, "messages@openai-bundled", false]);
-assert.equal(parseAvailable("codex", codexList, "", 1).total, 2);
-assert.equal(parseAvailable("codex", codexList, "", 1).items.length, 1);
-// Claude's available rows carry no installed flag; it comes from the installed list.
-const claudeAvail = JSON.stringify({ installed: [{ id: "a@m" }], available: [{ pluginId: "a@m", name: "a", marketplaceName: "m" }] });
-assert.equal(parseAvailable("claude", claudeAvail, "", 5).items[0].installed, true);
+assert.deepEqual(codexManifestPaths(codexList), ["/b/messages/.codex-plugin/plugin.json"]);
+const codexCatalog = parseCatalog("codex", codexList, {
+  "/b/messages/.codex-plugin/plugin.json": { interface: { displayName: "Messages", shortDescription: "Chat on this Mac", category: "Productivity" } },
+});
+const messages = codexCatalog.find((e) => e.id === "messages@openai-bundled")!;
+assert.deepEqual([messages.displayName, messages.description, messages.categories, messages.installable], ["Messages", "Chat on this Mac", ["Productivity"], true]);
+assert.equal(codexCatalog.find((e) => e.name === "ponytail")!.installed, true);
+// Codex's remote catalog is mostly NOT_AVAILABLE: hidden unless asked for.
+const q = { query: "", category: null, marketplace: null, unavailable: false, offset: 0, limit: 1 };
+const page1 = queryStore(codexCatalog, q);
+assert.deepEqual([page1.total, page1.items.length, page1.hiddenUnavailable], [2, 1, 1]);
+assert.equal(queryStore(codexCatalog, { ...q, unavailable: true, limit: 10 }).total, 3);
+assert.deepEqual(queryStore(codexCatalog, { ...q, query: "chat", limit: 10 }).items.map((e) => e.id), ["messages@openai-bundled"]);
+assert.deepEqual(queryStore(codexCatalog, { ...q, limit: 10 }).categories, [{ name: "Productivity", count: 1 }]);
+
+// Claude: listings from each marketplace's manifest; installed comes from the installed list.
+const claudeAvail = JSON.stringify({
+  installed: [{ id: "a@m" }],
+  available: [{ pluginId: "b@m", name: "b", marketplaceName: "m", description: "Bee" }, { pluginId: "c@other", name: "c", marketplaceName: "other" }],
+});
+const claudeCatalog = parseCatalog("claude", claudeAvail, {
+  m: { plugins: [{ name: "a", description: "Ay", category: "development", author: { name: "Anthropic" } }, { name: "b-tools", category: "database" }] },
+  other: null,
+});
+assert.deepEqual(
+  claudeCatalog.map((e) => [e.id, e.installed, e.categories[0] ?? null]),
+  [
+    ["a@m", true, "Development"],
+    ["b-tools@m", false, "Database"],
+    ["b@m", false, null],
+    ["c@other", false, null],
+  ],
+);
+assert.equal(claudeCatalog[0].author, "Anthropic");
+
+const devinCatalog = parseDevinCatalog(
+  { notion: { name: "notion", displayName: "Notion", description: "Pages", keywords: ["Essentials", "Productivity"], mcpServers: { notion: {} } }, broken: null },
+  new Set(["notion"]),
+);
+assert.deepEqual(devinCatalog[0], {
+  id: "CognitionAI/devin-marketplace#plugins/notion",
+  name: "notion",
+  displayName: "Notion",
+  description: "Pages",
+  marketplace: "devin-marketplace",
+  categories: ["Essentials", "Productivity"],
+  author: null,
+  homepage: null,
+  installed: true,
+  installable: true,
+  mcpServers: ["notion"],
+});
+assert.equal(devinCatalog[1].displayName, "Broken");
 
 const devin = parsePlugins("devin", "Installed plugins\n\n  \x1b[1m•\x1b[0m notion unversioned\n  • review 1.2.0 [blocked by org policy]\n");
 assert.deepEqual(
@@ -90,5 +143,75 @@ assert.equal(actionSchema.safeParse({ kind: "install", id: "--scope=project" }).
 assert.equal(actionSchema.safeParse({ kind: "install", id: "a b" }).success, false);
 
 assert.equal(redact('Authorization: Bearer abc123 token="xyz" sk-abcdefghijkl'), "Authorization: ••• ••• token=\"•••\" •••");
+
+// MCP servers (real line shapes).
+const claudeMcp = parseMcp(
+  "claude",
+  [
+    "Checking MCP server health…",
+    "",
+    "claude.ai Vanta: https://mcp.vanta.com/mcp - ! Needs authentication",
+    "plugin:greptile:greptile: https://api.greptile.com/mcp (HTTP) - ✔ Connected",
+    'plugin:braintrust:braintrust: https://api.braintrust.dev/mcp (HTTP) - ✘ Failed to connect — Server rejected the configured Authorization header (HTTP 401). OAuth fallback is disabled when headers.Authorization is set.',
+    "plugin:github:github: https://api.githubcopilot.com/mcp/ (HTTP) - ✘ Failed to connect — HTTP 400: Error POSTing to endpoint: bad request: Authorization header is badly formatted",
+    "local: npx -y some-server --flag - ✔ Connected",
+  ].join("\n"),
+);
+assert.deepEqual(
+  claudeMcp.map((s) => [s.name, s.status, s.plugin, s.login, s.logout, s.hint !== null]),
+  [
+    ["claude.ai Vanta", "needs-auth", null, true, false, false],
+    ["plugin:greptile:greptile", "connected", "greptile", true, true, false],
+    ["plugin:braintrust:braintrust", "failed", "braintrust", false, false, true],
+    ["plugin:github:github", "failed", "github", false, false, true],
+    ["local", "connected", null, false, false, false],
+  ],
+);
+assert.equal(claudeMcp[1].target, "https://api.greptile.com/mcp");
+assert.match(claudeMcp[3].detail!, /^HTTP 400/);
+
+const codexMcp = parseMcp(
+  "codex",
+  JSON.stringify([
+    { name: "greptile", enabled: true, transport: { type: "streamable_http", url: "https://api.greptile.com/mcp", http_headers: { Authorization: "Bearer sk-secretsecret" } }, auth_status: "not_logged_in" },
+    { name: "braintrust", enabled: true, transport: { url: "https://api.braintrust.dev/mcp", bearer_token_env_var: "BRAINTRUST_API_KEY" }, auth_status: "bearer_token" },
+    { name: "Mintlify Admin", enabled: true, transport: { url: "https://mcp.mintlify.com" }, auth_status: "o_auth" },
+    { name: "codex_app", enabled: false, transport: { type: "stdio", command: "/x/launch", env: { SECRET: "v" } }, auth_status: "unsupported" },
+  ]),
+);
+assert.deepEqual(
+  codexMcp.map((s) => [s.name, s.status, s.login, s.logout, s.detail]),
+  [
+    ["greptile", "needs-auth", true, false, null],
+    ["braintrust", "configured", false, false, "Token from $BRAINTRUST_API_KEY"],
+    ["Mintlify Admin", "configured", true, true, "Logged in (OAuth)"],
+    ["codex_app", "disabled", false, false, null],
+  ],
+);
+assert.ok(!JSON.stringify(codexMcp).includes("secret"), "headers and env never reach a row");
+
+const cursorMcp = parseMcp("cursor", "mobbin: \x1b[33mrequires_authentication\x1b[39m\nx: ready\ny: not loaded (needs approval)\nz: Error: spawn ENOENT\n");
+assert.deepEqual(
+  cursorMcp.map((s) => [s.name, s.status, s.login, s.enable, s.disable, s.detail]),
+  [
+    ["mobbin", "needs-auth", true, false, true, null],
+    ["x", "connected", false, false, true, null],
+    ["y", "pending", false, true, false, "Needs approval"],
+    ["z", "failed", false, false, true, "spawn ENOENT"],
+  ],
+);
+const devinMcp = parseMcp("devin", "Configured MCP servers:\n\n  • aws-core\n    Command: uvx mcp-proxy\n\n  • notion\n    URL: https://mcp.notion.com/mcp\n");
+assert.deepEqual(devinMcp.map((s) => [s.name, s.target, s.login]), [
+  ["aws-core", "uvx mcp-proxy", true],
+  ["notion", "https://mcp.notion.com/mcp", true],
+]);
+assert.deepEqual(actionArgv("cursor", { kind: "mcpEnable", name: "y" }), ["mcp", "enable", "y"]);
+assert.equal(actionArgv("codex", { kind: "mcpEnable", name: "y" }), null);
+assert.equal(actionSchema.safeParse({ kind: "mcpLogout", name: "claude.ai Linear" }).success, true, "server names may have spaces");
+assert.equal(actionSchema.safeParse({ kind: "mcpLogout", name: "-x" }).success, false);
+assert.equal(shellQuote("claude.ai Linear"), "'claude.ai Linear'");
+assert.equal(shellQuote("it's"), "'it'\\''s'");
+assert.equal(shellQuote("plugin:github:github"), "plugin:github:github");
+assert.equal(redact("open https://x.test/cb?code=abc123&state=s"), "open https://x.test/cb?code=•••&state=s");
 
 console.log("ok");
