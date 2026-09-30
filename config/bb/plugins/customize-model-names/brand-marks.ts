@@ -28,6 +28,8 @@ const BRAND_COLORS: Readonly<Record<string, string>> = {
   pi: "#6A9FCC",
   "acp-hermes-agent": "#0000F2",
   "acp-opencode": "#B8C425",
+  // Google's brand blue; Antigravity's own mark is a blue→purple gradient.
+  antigravity: "#4285F4",
 };
 
 /**
