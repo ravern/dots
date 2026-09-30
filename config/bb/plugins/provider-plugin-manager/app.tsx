@@ -16,7 +16,7 @@ import { toast } from "sonner"; // shimmed to bb's toaster
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { DEVIN_MARKETPLACE_URL, type Action, type Entry, type IconRef, type McpServer } from "./cli.ts";
+import { type Action, type Entry, type IconRef, type McpServer } from "./cli.ts";
 import type { ActResult, InstalledPlugin, LoginResult, Machine, McpResult, rpcContract, State, StorePage, TerminalChunk } from "./server.ts";
 
 const PANEL = "provider-plugins";
@@ -50,15 +50,6 @@ function useGo() {
 
 function ErrorText({ children }: { children: ReactNode }) {
   return <pre className="whitespace-pre-wrap break-words rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">{children}</pre>;
-}
-
-function Notice({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex gap-2.5 rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-xs text-muted-foreground">
-      <Icon name="Info" className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-      <div className="min-w-0 space-y-1 leading-relaxed">{children}</div>
-    </div>
-  );
 }
 
 function Empty({ children }: { children: ReactNode }) {
@@ -274,7 +265,7 @@ function useActions(rpc: Rpc, target: Target, providerName: string, onChanged: (
           (r: ActResult) => {
             if (!r.ok) return setError(r.output);
             done?.();
-            toast.success(`Done. Applies to new ${providerName} threads.`);
+            toast.success("Done. Applies to new threads.");
           },
           (e: Error) => setError(e.message),
         )
@@ -327,10 +318,10 @@ function InstallFromSource({ actions }: { actions: Actions }) {
   const [source, setSource] = useState("");
   return (
     <form className="flex items-center gap-2" onSubmit={(e) => e.preventDefault()}>
-      <Input className="h-8 min-w-0 flex-1 text-sm" placeholder="owner/repo, owner/repo#path/to/plugin, or a git URL" value={source} onChange={(e) => setSource(e.target.value)} />
+      <Input className="h-8 min-w-0 flex-1 text-sm" placeholder="owner/repo or git URL" value={source} onChange={(e) => setSource(e.target.value)} />
       <Confirm
         label="Install"
-        question="Trust and install this plugin's code?"
+        question="Trust and install?"
         disabled={actions.busy || source.trim() === ""}
         onConfirm={() => actions.act({ kind: "install", id: source.trim() }, () => setSource(""))}
       />
@@ -353,20 +344,14 @@ function InstalledView({ state, actions, open }: { state: Ready; actions: Action
   );
 
   if (!state.features.plugins) {
-    return <Notice>{state.note}</Notice>;
+    return <Empty>{state.bin} can't list installed plugins.</Empty>;
   }
   return (
     <div className="space-y-3">
       <SearchBox value={query} onChange={setQuery} placeholder="Search installed plugins" />
       <Chips options={categories} value={category} onChange={setCategory} />
-      {state.features.installSource ? (
-        <div className="space-y-1.5">
-          <SectionTitle>Install from source</SectionTitle>
-          <InstallFromSource actions={actions} />
-        </div>
-      ) : null}
       {plugins.length === 0 ? (
-        <Empty>No plugins installed yet. Find some in the Store.</Empty>
+        <Empty>No plugins installed.</Empty>
       ) : shown.length === 0 ? (
         <Empty>No installed plugins match{q ? ` "${query}"` : " these filters"}.</Empty>
       ) : (
@@ -450,9 +435,9 @@ function Marketplaces({ state, actions, isCursor }: { state: Ready; actions: Act
         className="flex items-center gap-2"
         onSubmit={(e) => (e.preventDefault(), source.trim() && actions.act({ kind: "addMarketplace", source: source.trim() }, () => setSource("")))}
       >
-        <Input className="h-8 min-w-0 flex-1 text-sm" placeholder={isCursor ? "Git repository URL" : "owner/repo, git URL or path"} value={source} onChange={(e) => setSource(e.target.value)} />
+        <Input className="h-8 min-w-0 flex-1 text-sm" placeholder={isCursor ? "Git URL" : "owner/repo or git URL"} value={source} onChange={(e) => setSource(e.target.value)} />
         <Button variant="outline" size="sm" className="h-8 text-xs" disabled={actions.busy || source.trim() === ""}>
-          Add marketplace
+          Add
         </Button>
       </form>
     </section>
@@ -498,18 +483,9 @@ function StoreView({ rpc, target, state, actions, open }: { rpc: Rpc; target: Ta
   if (state.agent === "cursor") {
     return (
       <div className="space-y-6">
-        <Notice>
-          <p>cursor-agent can't list or install plugins from its command line. Cursor installs them in its interactive plugin browser:</p>
-          <ol className="list-decimal space-y-0.5 pl-4">
-            <li>
-              Open this page's right panel, choose <b>New tab → Terminal</b> and pick this machine.
-            </li>
-            <li>
-              Run <code className="font-mono">cursor-agent</code>, then type <code className="font-mono">/plugins</code>.
-            </li>
-          </ol>
-          <p>Or install from the Cursor app. Plugins from the marketplaces below appear there.</p>
-        </Notice>
+        <Empty>
+          Install Cursor plugins in the Cursor app, or run <code className="font-mono">cursor-agent</code> → <code className="font-mono">/plugins</code> in a terminal.
+        </Empty>
         <Marketplaces state={state} actions={actions} isCursor />
       </div>
     );
@@ -540,14 +516,9 @@ function StoreView({ rpc, target, state, actions, open }: { rpc: Rpc; target: Ta
         </Button>
       </div>
       {page ? <Chips options={page.categories} value={category} onChange={setCategory} /> : null}
-      {state.agent === "devin" ? (
-        <div className="text-xs text-subtle-foreground">
-          From <UrlLink href={DEVIN_MARKETPLACE_URL} className="underline underline-offset-2 hover:text-foreground">CognitionAI/devin-marketplace</UrlLink>, the catalog behind Devin's Settings → Marketplace.
-        </div>
-      ) : null}
       {page?.error ? <ErrorText>{page.error}</ErrorText> : null}
       {page === null ? (
-        <Loading>Loading the catalog…</Loading>
+        <Loading>Loading…</Loading>
       ) : items.length === 0 && !loading ? (
         <Empty>{query ? `No plugins match "${query}".` : "No plugins match these filters."}</Empty>
       ) : (
@@ -566,7 +537,7 @@ function StoreView({ rpc, target, state, actions, open }: { rpc: Rpc; target: Ta
             {page.hiddenUnavailable > 0 || unavailable ? (
               <label className="flex items-center gap-1.5">
                 <input type="checkbox" checked={unavailable} onChange={(e) => setUnavailable(e.target.checked)} />
-                Show {page.hiddenUnavailable || ""} not installable for this account
+                Show unavailable{page.hiddenUnavailable ? ` (${page.hiddenUnavailable})` : ""}
               </label>
             ) : null}
             {items.length < page.total ? (
@@ -632,7 +603,7 @@ function ServerRows({ servers, actions, login }: { servers: McpServer[]; actions
             <div className="flex shrink-0 items-center gap-1">
               {s.login ? (
                 <Button variant={s.status === "needs-auth" ? "outline" : "ghost"} size="sm" className="h-7 px-2 text-xs" onClick={() => login(s.name)}>
-                  {s.status === "connected" || s.detail?.startsWith("Logged in") ? "Log in again" : "Log in"}
+                  Log in
                 </Button>
               ) : null}
               {s.enable ? (
@@ -678,15 +649,9 @@ function ConnectionsView({ rpc, target, state, actions, login }: { rpc: Rpc; tar
         </Button>
       </div>
       <Chips options={counts} value={status} onChange={setStatus} />
-      <div className="text-xs text-subtle-foreground">
-        MCP servers from {state.bin}'s config and its plugins. Logins open in the <b>Login</b> tab of this page's right panel. Running threads keep their old
-        connections until restarted.
-        {state.agent === "devin" ? " Devin's CLI doesn't report connection status." : ""}
-        {state.agent === "codex" ? " Codex's CLI reports login state, not live health." : ""}
-      </div>
       {result?.error ? <ErrorText>{result.error}</ErrorText> : null}
       {result === null ? (
-        <Loading>{state.agent === "claude" ? "Checking every MCP server (Claude Code health-checks each one; this can take ~15 s)…" : "Loading MCP servers…"}</Loading>
+        <Loading>Checking MCP servers…</Loading>
       ) : servers.length === 0 ? (
         <Empty>No MCP servers configured.</Empty>
       ) : (
@@ -755,13 +720,13 @@ function DetailView({ rpc, target, state, actions, id, back, login }: { rpc: Rpc
           </Row>
         ) : null}
       </dl>
-      {plugin && !plugin.actionable ? <Notice>This plugin is installed for another project ({plugin.note}); manage it from Claude Code in that project.</Notice> : null}
+      {plugin && !plugin.actionable ? <div className="text-xs text-muted-foreground">Installed for another project. Manage it there.</div> : null}
       <section className="space-y-2">
         <SectionTitle>Connections</SectionTitle>
         {result === null ? (
           <Loading>Checking MCP servers…</Loading>
         ) : servers.length === 0 ? (
-          <div className="text-xs text-subtle-foreground">No MCP servers linked to this plugin{state.agent === "codex" || state.agent === "cursor" ? " (this CLI doesn't say which plugin a server came from; see Connections)" : ""}.</div>
+          <div className="text-xs text-subtle-foreground">None.</div>
         ) : (
           <ServerRows servers={servers} actions={actions} login={login} />
         )}
@@ -795,7 +760,7 @@ function AgentPanel({ provider, hostId, machineName, view, pluginId }: { provide
     rpc.call("login", { ...target, server }).then(
       (r: LoginResult) => {
         const opened = panel.openFixedTab({ surface: { kind: "current" }, tab: LOGIN_TAB, target: { ...r, hostId } });
-        toast(opened ? `Follow the login in the Login tab.` : `Login started: run "bb terminal attach ${r.terminalId}" to see it.`);
+        toast(opened ? "Login opened in the Login tab." : `Login started: bb terminal attach ${r.terminalId}`);
       },
       (e: Error) => toast.error(e.message),
     );
@@ -806,21 +771,19 @@ function AgentPanel({ provider, hostId, machineName, view, pluginId }: { provide
     rpc
       .call("restartIdle", target)
       .then(({ stopped, busy }: { stopped: number; busy: number }) => {
-        const rest = busy ? ` ${busy} busy thread${busy === 1 ? "" : "s"} left alone.` : "";
-        toast.success(`Restarted ${stopped} idle ${provider.displayName} thread${stopped === 1 ? "" : "s"}; each resumes on its next message.${rest}`);
+        toast.success(`Restarted ${stopped} idle thread${stopped === 1 ? "" : "s"}${busy ? `, skipped ${busy} busy` : ""}.`);
       }, (e: Error) => toast.error(e.message))
       .finally(() => setRestarting(false));
   };
 
   if (loadError) return <ErrorText>{loadError}</ErrorText>;
-  if (state === null) return <Loading>Loading {provider.displayName} plugins…</Loading>;
-  if (state.agent === null) return <Empty>Plugin management isn't supported for {provider.displayName} yet.</Empty>;
+  if (state === null) return <Loading>Loading…</Loading>;
+  if (state.agent === null) return <Empty>Not supported for {provider.displayName} yet.</Empty>;
   if (state.missing) {
     return (
       <div className="opacity-60">
         <Empty>
           <code className="font-mono">{state.bin}</code> isn't installed on {machineName}.
-          <div className="mt-1 text-xs">Install the {provider.displayName} CLI there, or pick another machine.</div>
         </Empty>
       </div>
     );
@@ -834,17 +797,8 @@ function AgentPanel({ provider, hostId, machineName, view, pluginId }: { provide
   return (
     <HostContext.Provider value={hostValue}>
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="min-w-0 max-w-2xl text-xs leading-relaxed text-muted-foreground">
-          {provider.displayName}'s own plugins on {machineName}, via <code className="font-mono">{state.bin}</code> {state.version}. Changes apply to new threads.
-        </p>
-        <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs" disabled={restarting} onClick={restart}>
-          <Icon name="ArrowReloadHorizontal" className="size-3.5" aria-hidden />
-          Restart idle {provider.displayName} threads
-        </Button>
-      </div>
       {pluginId === null ? (
-        <nav className="flex gap-1 border-b border-border" aria-label="Views">
+        <nav className="flex items-center gap-1 border-b border-border" aria-label="Views">
           {tabs.map((t) => (
             <button
               key={t.view}
@@ -859,9 +813,22 @@ function AgentPanel({ provider, hostId, machineName, view, pluginId }: { provide
               {t.count !== undefined ? <span className="rounded-md bg-muted px-1.5 py-0.5 text-2xs font-medium tabular-nums text-subtle-foreground">{t.count}</span> : null}
             </button>
           ))}
+          <span className="flex-1" />
+          <span className="flex items-center gap-2 pb-1.5" title={`${state.bin} ${state.version}`}>
+            {state.note ? (
+              <span title={state.note.tooltip}>
+                <Badge>{state.note.label}</Badge>
+              </span>
+            ) : null}
+            <span title="Changes apply to new threads. Stops idle threads; each resumes on its next message.">
+              <Button variant="ghost" size="sm" className="h-7 gap-1.5 px-2 text-xs" disabled={restarting} onClick={restart}>
+                <Icon name="ArrowReloadHorizontal" className="size-3.5" aria-hidden />
+                Restart idle threads
+              </Button>
+            </span>
+          </span>
         </nav>
       ) : null}
-      {state.note && pluginId === null && state.agent !== "cursor" ? <Notice>{state.note}</Notice> : null}
       {state.errors.map((e) => (
         <ErrorText key={e}>{e}</ErrorText>
       ))}
@@ -923,7 +890,7 @@ function LoginTerminal() {
   if (login === null) {
     return (
       <div className="p-4 text-sm text-muted-foreground">
-        No login running. Use <b>Log in</b> on a server in a provider's Connections view; its browser or device-code login runs here.
+        No login running.
       </div>
     );
   }
@@ -932,7 +899,9 @@ function LoginTerminal() {
   return (
     <div className="flex h-full min-h-0 flex-col gap-2 p-3">
       <div className="flex items-center gap-2">
-        <span className="min-w-0 flex-1 truncate font-mono text-xs text-foreground">{login.title}</span>
+        <span className="min-w-0 flex-1 truncate font-mono text-xs text-foreground" title={`bb terminal attach ${login.terminalId}`}>
+          {login.title}
+        </span>
         {running ? <Badge tone="warning">Running</Badge> : <Badge tone={chunk?.exitCode === 0 ? "success" : "destructive"}>Exited {chunk?.exitCode ?? ""}</Badge>}
         {running ? (
           <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => void send("\x03")}>
@@ -956,17 +925,12 @@ function LoginTerminal() {
       </pre>
       {running ? (
         <form className="flex gap-2" onSubmit={(e) => (e.preventDefault(), void send(`${input}\r`), setInput(""))}>
-          <Input className="h-8 min-w-0 flex-1 font-mono text-xs" placeholder="Type a reply (e.g. a pasted code or URL) and press Enter" value={input} onChange={(e) => setInput(e.target.value)} />
+          <Input className="h-8 min-w-0 flex-1 font-mono text-xs" placeholder="Reply" value={input} onChange={(e) => setInput(e.target.value)} />
           <Button variant="outline" size="sm" className="h-8 text-xs">
             Send
           </Button>
         </form>
-      ) : (
-        <div className="text-xs text-muted-foreground">Done. Back in Connections, press Check again.</div>
-      )}
-      <div className="text-2xs text-subtle-foreground">
-        Full terminal: <code className="font-mono">bb terminal attach {login.terminalId}</code>
-      </div>
+      ) : null}
     </div>
   );
 }
