@@ -1,0 +1,27 @@
+{
+  "name": "bb-plugin-provider-antigravity",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Run bb threads with Google's Antigravity CLI (agy).",
+  "engines": {
+    "bb": ">=0.44",
+    "bbPluginSdk": ">=0.5.29"
+  },
+  "bb": {
+    "name": "Antigravity provider",
+    "description": "Run bb threads with Google's Antigravity CLI (agy).",
+    "branding": {
+      "icon": "./icons/antigravity.svg"
+    },
+    "server": "./server.ts",
+    "host": "./host.ts"
+  },
+  "dependencies": {
+    "@get-bb/plugin-sdk": "0.5.29"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}
