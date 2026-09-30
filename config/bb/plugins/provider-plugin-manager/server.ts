@@ -77,7 +77,7 @@ export type State =
       missing: false;
       version: string;
       features: (typeof FEATURES)[Agent];
-      note: string | null;
+      note: { label: string; tooltip: string } | null;
       plugins: InstalledPlugin[] | null;
       marketplaces: Marketplace[] | null;
       errors: string[];

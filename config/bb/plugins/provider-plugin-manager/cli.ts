@@ -29,12 +29,12 @@ export const FEATURES: Record<Agent, Features> = {
   devin: { plugins: true, toggle: false, update: true, uninstall: true, store: true, installSource: true, marketplaces: false },
 };
 
-export const NOTES: Partial<Record<Agent, string>> = {
-  codex: "Codex's CLI can't enable, disable or update single plugins; refreshing a marketplace pulls its latest plugins.",
-  cursor:
-    "cursor-agent's CLI can't list or install plugins: it installs them in its interactive /plugins browser (or the Cursor app). Its CLI manages marketplaces and MCP servers.",
-  devin:
-    "Installs go to your Devin personal plugins, which sync to your account. The Devin CLI warns that a plugin whose source isn't reachable from the cloud (e.g. a local path) won't load in cloud sessions like bb's Devin Cloud threads.",
+/** A short badge (with a tooltip) for what's worth knowing about an agent's plugins. */
+export const NOTES: Partial<Record<Agent, { label: string; tooltip: string }>> = {
+  devin: {
+    label: "Syncs to Devin Cloud",
+    tooltip: "Installs go to your Devin personal plugins. Sources the cloud can't reach, like local paths, won't load in Devin Cloud threads.",
+  },
 };
 
 /** Devin's public catalog; its plugins install as `<repo>#plugins/<dir>`. */
@@ -508,7 +508,7 @@ export function parseMcp(agent: Agent, stdout: string): McpServer[] {
           status,
           detail: error ?? (status === "pending" ? text : null),
           hint: header
-            ? "Signs in with a fixed Authorization header from its config (usually an environment variable), so logging in won't help. Fix that value, then check again."
+            ? "Uses a fixed Authorization header (often an env var); logging in won't fix it."
             : null,
           plugin: /^plugin:([^:]+):/.exec(name)?.[1] ?? null,
           login: http && !header && status !== "pending",
