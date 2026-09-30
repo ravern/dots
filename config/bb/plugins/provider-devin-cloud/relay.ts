@@ -16,15 +16,18 @@
 //   server can offer them as a form.
 // - A steer (session/cancel + follow-up session/prompt) in a new session's first
 //   moments is held until Devin has created the session (see StartupGate).
-// - On follow-up turns the cloud agent answers session/prompt before the
-//   reply it announced (is_typing) arrives; bb would drop the late reply.
-//   Hold the prompt result until announced replies are delivered.
+// - Devin can answer session/prompt before the turn it ends is over: before a
+//   reply it announced (is_typing) arrives, or, for a steer's follow-up prompt,
+//   on the paused turn's leftover "blocked" status before Devin has even seen
+//   the new message. bb would close the turn and drop the rest; TurnEnds holds
+//   the result until the turn is really over.
 import { execFileSync, spawn } from "node:child_process";
 import { createInterface } from "node:readline";
 
 export const RELAY_FLAG = "--devin-cloud-relay";
-// ponytail: cap on waiting for an announced reply; a reply later than this is dropped by bb.
-const REPLY_WAIT_MS = 10_000;
+// ponytail: caps on holding a prompt result; output after these is dropped by bb.
+const REPLY_WAIT_MS = 10_000; // an announced reply
+const QUIET_WAIT_MS = 3 * 60_000; // silence from a session whose early end_turn is held
 const VERSION = "devin_version";
 const THOUGHT = "thought_level";
 const FAST = "fast"; // the option id the bridge sets for bb's service tier
@@ -250,6 +253,68 @@ export class StartupGate {
   }
 }
 
+type TurnState = { seen: boolean; blocked: boolean; typing: number };
+
+/**
+ * When to hand bb a prompt's result. Devin Cloud resolves session/prompt on the session's next
+ * "blocked" status. Right after a cancel that is the paused turn's, so a steer's follow-up
+ * prompt comes back end_turn before Devin has echoed it; and a reply Devin announced
+ * (is_typing) can land after the result. Either way bb would end the turn and drop the rest.
+ * An end_turn before Devin has shown the prompt (echo or a message) waits for the first
+ * "blocked" after that; a result with announced replies pending waits for them. Anything else,
+ * including a plain interrupt's "cancelled", goes straight through.
+ */
+export class TurnEnds {
+  private state = new Map<string, TurnState>();
+  private held = new Map<string, { msg: Json; reason: "typing" | "early" }>();
+
+  /** A prompt went to Devin. */
+  sent(sessionId: string): void {
+    this.state.set(sessionId, { seen: false, blocked: false, typing: 0 });
+  }
+
+  /** A session/update from Devin; returns held results that can now go to bb (after the update). */
+  update(sessionId: string, update: Json): Json[] {
+    const s = this.state.get(sessionId);
+    if (!s) return [];
+    const kind = update?.sessionUpdate;
+    if (kind === "user_message_chunk" || kind === "agent_message_chunk") s.seen = true;
+    if (update?._meta?.["cognition.ai/isTyping"] === true) s.typing++;
+    if (kind === "agent_message_chunk" && s.typing > 0) s.typing--;
+    if (update?._meta?.["cognition.ai/statusEnum"] === "blocked" && s.seen) s.blocked = true;
+    return this.release(sessionId);
+  }
+
+  /** A prompt result from Devin: true when it's held (see `holding`), false to pass it on now. */
+  result(sessionId: string, msg: Json): boolean {
+    const s = this.state.get(sessionId);
+    if (!s) return false;
+    const reason = s.typing > 0 ? "typing" : msg.result?.stopReason === "end_turn" && !s.seen ? "early" : null;
+    if (reason === null) return false;
+    this.held.set(sessionId, { msg, reason });
+    return true;
+  }
+
+  holding(sessionId: string): "typing" | "early" | null {
+    return this.held.get(sessionId)?.reason ?? null;
+  }
+
+  /** Give up waiting: the held result, if any. */
+  expire(sessionId: string): Json[] {
+    const held = this.held.get(sessionId);
+    this.held.delete(sessionId);
+    return held ? [held.msg] : [];
+  }
+
+  private release(sessionId: string): Json[] {
+    const held = this.held.get(sessionId);
+    const s = this.state.get(sessionId)!;
+    if (!held || s.typing > 0 || (held.reason === "early" && !s.blocked)) return [];
+    this.held.delete(sessionId);
+    return [held.msg];
+  }
+}
+
 /** The `repos` value matching a git remote URL (ssh or https), if Devin offers it. */
 export function matchRepo(configOptions: unknown, remote: string): string | null {
   if (!Array.isArray(configOptions)) return null;
@@ -277,15 +342,15 @@ export function runRelay([command, ...args]: string[]): void {
   const held = new Map<string, Json>(); // our set_config_option id → held session/new result
   let seq = 0;
   const promptSession = new Map<unknown, string>(); // session/prompt request id → sessionId
-  const typing = new Map<string, number>(); // sessionId → announced replies not yet delivered
-  const heldPrompt = new Map<string, { line: string; timer: NodeJS.Timeout }>();
+  const turnEnds = new TurnEnds();
+  const holdTimers = new Map<string, NodeJS.Timeout>();
   const agentOptions = new Map<string, Json[]>(); // sessionId → Devin's own latest configOptions
   const gate = new StartupGate();
   /** Sends a bridge message on to Devin, tracking prompts for the held-reply logic. */
   const forward = (msg: Json) => {
     if (msg.method === "session/prompt") {
       promptSession.set(msg.id, msg.params?.sessionId);
-      typing.set(msg.params?.sessionId, 0);
+      turnEnds.sent(msg.params?.sessionId);
     }
     toAgent(msg);
   };
@@ -304,12 +369,17 @@ export function runRelay([command, ...args]: string[]): void {
     present(msg, sessionId);
     toBridge(JSON.stringify(msg));
   };
-  const releasePrompt = (sessionId: string) => {
-    const hold = heldPrompt.get(sessionId);
-    if (!hold) return;
-    heldPrompt.delete(sessionId);
-    clearTimeout(hold.timer);
-    toBridge(hold.line);
+  /** (Re)arms the give-up timer for a held prompt result, or clears it once nothing is held. */
+  const armHold = (sessionId: string) => {
+    clearTimeout(holdTimers.get(sessionId));
+    holdTimers.delete(sessionId);
+    const reason = turnEnds.holding(sessionId);
+    if (reason === null) return;
+    const expire = () => {
+      holdTimers.delete(sessionId);
+      for (const out of turnEnds.expire(sessionId)) toBridge(JSON.stringify(out));
+    };
+    holdTimers.set(sessionId, setTimeout(expire, reason === "typing" ? REPLY_WAIT_MS : QUIET_WAIT_MS));
   };
 
   /** Rewrites bb's pick of a collapsed model, level, or tier; returns false when it's answered here instead. */
@@ -382,24 +452,17 @@ export function runRelay([command, ...args]: string[]): void {
     }
     if (update?._meta?.["cognition.ai/eventType"] === "initial_user_message") for (const out of gate.ready(sessionId)) forward(out);
     if (update) {
-      const count = typing.get(sessionId) ?? 0;
-      if (update._meta?.["cognition.ai/isTyping"] === true) typing.set(sessionId, count + 1);
-      if (update.sessionUpdate === "agent_message_chunk" && count > 0) {
-        typing.set(sessionId, count - 1);
-        emit(msg, sessionId);
-        if (count === 1) releasePrompt(sessionId);
-        return;
-      }
+      const released = turnEnds.update(sessionId, update);
+      emit(msg, sessionId);
+      for (const out of released) toBridge(JSON.stringify(out));
+      armHold(sessionId); // any output from the session resets the silence cap
+      return;
     }
     const promptOf = promptSession.get(msg.id);
     if (promptOf !== undefined) {
       promptSession.delete(msg.id);
       for (const out of gate.answered(promptOf)) forward(out);
-      if ((typing.get(promptOf) ?? 0) > 0) {
-        const line = JSON.stringify(msg);
-        heldPrompt.set(promptOf, { line, timer: setTimeout(() => releasePrompt(promptOf), REPLY_WAIT_MS) });
-        return;
-      }
+      if (turnEnds.result(promptOf, msg)) return armHold(promptOf);
     }
     const cwd = newSessionCwd.get(msg.id);
     if (cwd !== undefined && msg.result?.sessionId) {

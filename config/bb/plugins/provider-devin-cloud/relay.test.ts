@@ -5,7 +5,7 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
-import { collapseVersion, expandLevel, expandModel, expandTier, isLegacyId, matchRepo, priorityModels, questionAnswer, RELAY_FLAG, secretRequest, devinQuestion, StartupGate } from "./relay.ts";
+import { collapseVersion, expandLevel, expandModel, expandTier, isLegacyId, matchRepo, priorityModels, questionAnswer, RELAY_FLAG, secretRequest, devinQuestion, StartupGate, TurnEnds } from "./relay.ts";
 import { relayCloudLaunches } from "./host.ts";
 import { devinModelFromTitle, hasPriority, panelThread, relabel, showDevinTerminal } from "./labels.ts";
 import { sessionUrl, vmTab, withVmTab } from "./server.ts";
@@ -169,6 +169,61 @@ assert.equal(questionAnswer(two, [["Apple", "Kiwi"], ["Blue"]]), "Fruit: Apple, 
   const loaded = new StartupGate();
   loaded.toAgent(first);
   assert.deepEqual(loaded.toAgent(cancel), [cancel]);
+}
+
+// When bb gets a prompt's result: replays of Devin Cloud's real event order.
+{
+  const status = (value: string) => ({ sessionUpdate: "session_info_update", _meta: { "cognition.ai/eventType": "status_update", "cognition.ai/statusEnum": value } });
+  const event = (kind: string, eventType: string) => ({ sessionUpdate: kind, _meta: { "cognition.ai/eventType": eventType } });
+  const done = (stopReason: string) => ({ jsonrpc: "2.0", id: 9, result: { stopReason } });
+
+  // Steer on a running session: after the cancel, Devin pauses, reports the paused turn's
+  // "blocked", and resolves the follow-up prompt at once; only then does it see and answer it.
+  const steer = new TurnEnds();
+  steer.sent("s");
+  assert.deepEqual(steer.update("s", event("session_info_update", "pause")), []);
+  assert.deepEqual(steer.update("s", status("blocked")), []);
+  const early = done("end_turn");
+  assert.equal(steer.result("s", early), true); // held: Devin hasn't seen the prompt yet
+  assert.equal(steer.holding("s"), "early");
+  assert.deepEqual(steer.update("s", event("user_message_chunk", "user_message")), []);
+  assert.deepEqual(steer.update("s", status("working")), []);
+  assert.deepEqual(steer.update("s", event("tool_call", "acu_consumption_at_last_user_interaction")), []);
+  assert.deepEqual(steer.update("s", event("agent_message_chunk", "devin_message")), []);
+  assert.deepEqual(steer.update("s", status("blocked")), [early]); // the steered turn's real end
+  assert.equal(steer.holding("s"), null);
+
+  // A plain interrupt (no follow-up) still ends the turn at once.
+  const interrupt = new TurnEnds();
+  interrupt.sent("s");
+  interrupt.update("s", event("user_message_chunk", "user_message"));
+  interrupt.update("s", event("agent_message_chunk", "devin_message"));
+  assert.equal(interrupt.result("s", done("cancelled")), false);
+
+  // A normal turn: Devin echoes, answers, reports blocked, then resolves: straight through.
+  const normal = new TurnEnds();
+  normal.sent("s");
+  normal.update("s", event("user_message_chunk", "user_message"));
+  normal.update("s", event("agent_message_chunk", "devin_message"));
+  normal.update("s", status("blocked"));
+  assert.equal(normal.result("s", done("end_turn")), false);
+
+  // An announced reply after the result: held until it lands.
+  const typed = new TurnEnds();
+  typed.sent("s");
+  typed.update("s", event("user_message_chunk", "user_message"));
+  typed.update("s", { sessionUpdate: "session_info_update", _meta: { "cognition.ai/isTyping": true } });
+  const late = done("end_turn");
+  assert.equal(typed.result("s", late), true);
+  assert.equal(typed.holding("s"), "typing");
+  assert.deepEqual(typed.update("s", event("agent_message_chunk", "devin_message")), [late]);
+
+  // Giving up hands over the held result once.
+  const quiet = new TurnEnds();
+  quiet.sent("s");
+  quiet.result("s", early);
+  assert.deepEqual(quiet.expire("s"), [early]);
+  assert.deepEqual(quiet.expire("s"), []);
 }
 
 // Only families with a priority tier offer the Priority switch (by picker name).
