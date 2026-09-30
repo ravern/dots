@@ -22,6 +22,9 @@ for p in account-pool agent-annotations monaco-editor plugin-api-docs plugin-api
   bb plugin disable $p
 done
 
+# Model picker provider order
+bb settings general providerOrder '["codex","claude-code","acp-cursor","antigravity","devin-cloud"]'
+
 # Plugin settings
 bb plugin config customize-model-names set visibleModels '{"claude-code":["Opus 5.5","Fable 5.1"],"codex":["GPT-6*"],"acp-cursor":["Grok 4.7"],"devin-cloud":["SWE-2*","Fusion"]}'
 bb plugin config provider-claude-code set memoryEnabled false
