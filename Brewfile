@@ -80,6 +80,7 @@ brew 'tw93/tap/mole', trusted: true
 cask '1password'
 cask 'alcove'
 cask 'android-studio'
+cask 'antigravity-cli'
 cask 'bb'
 cask 'blip'
 cask 'bruno'
