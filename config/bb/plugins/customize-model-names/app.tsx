@@ -32,13 +32,22 @@ const OWN_UI = "[data-customize-model-names]";
 const PROVIDER_LOGO = /\/providers\/([^/]+)\/logo/;
 const HIDDEN_ATTR = "data-customize-model-names-hidden";
 
-function activeProvider(menu: Element): string | null {
+function activeProvider(menu: Element, providers: readonly (ProviderLogo & { id: string })[]): string | null {
   for (const tab of menu.querySelectorAll("button[title]")) {
     const logo = tab.querySelector<HTMLElement>("[data-provider-logo]");
     if (logo === null || !tab.classList.contains("border-foreground")) continue;
     return PROVIDER_LOGO.exec(logo.dataset.providerLogo ?? "")?.[1] ?? null;
   }
-  return null;
+
+  // bb omits provider tabs when only one provider is available. In that layout,
+  // the open picker's trigger still identifies the provider in its title.
+  const triggers = [...document.querySelectorAll<HTMLButtonElement>(PICKER_TRIGGER)].filter(
+    (trigger) => trigger.getClientRects().length > 0,
+  );
+  const trigger = triggers.find((t) => t.getAttribute("aria-expanded") === "true")
+    ?? (triggers.length === 1 ? triggers[0] : null);
+  const title = trigger?.querySelector<HTMLElement>("span[title]")?.title;
+  return title === undefined ? null : providerFromTitle(title, providers)?.id ?? null;
 }
 
 function setHidden(el: HTMLElement, hidden: boolean) {
@@ -53,12 +62,16 @@ function setHidden(el: HTMLElement, hidden: boolean) {
  * Rows are matched by bb's own label (the row's title), its renamed label,
  * plus the id / full name of the model it shows.
  */
-function startHiding(config: Config, models: Record<string, ModelRef[]>): () => void {
+function startHiding(
+  config: Config,
+  models: Record<string, ModelRef[]>,
+  providers: readonly (ProviderLogo & { id: string })[],
+): () => void {
   const visible = config.visibleModels;
   const apply = () => {
     for (const menu of document.querySelectorAll(PICKER_MENU)) {
-      const provider = activeProvider(menu);
-      if (provider === null) continue; // not the main picker (or no tabs)
+      const provider = activeProvider(menu, providers);
+      if (provider === null) continue; // not the main picker
       const patterns = visible[provider];
       const showAll = patterns === undefined;
       for (const row of menu.querySelectorAll<HTMLElement>("button")) {
@@ -243,8 +256,8 @@ function Rewriter() {
   useEffect(() => startFastModeLogo(providers), [providers]);
   useEffect(() => (config === null ? undefined : startRewriting(config)), [config]);
   useEffect(
-    () => (config === null || models === null ? undefined : startHiding(config, models)),
-    [config, models],
+    () => (config === null || models === null ? undefined : startHiding(config, models, providers)),
+    [config, models, providers],
   );
   return null;
 }

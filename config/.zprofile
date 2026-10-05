@@ -31,3 +31,5 @@ if [ -f "$ENV_ZSH" ]; then
   fi
 fi
 unset ENV_ZSH
+
+export PATH="$HOME/.elan/bin:$PATH"

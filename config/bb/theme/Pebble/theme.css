@@ -1,0 +1,681 @@
+@import url("https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&display=swap");
+
+/* Pebble for bb. Mirrors ~/Desktop/pebble/tokens.css + components.css
+   (Graphite surfaces, oxblood accent, "soft tactile" elevation).
+   When Pebble's tokens change, update the values here to match.
+
+   House rules (from review):
+   - A raised surface = --pb-highlight + ONE outer shadow token. No border on
+     top (border-color: transparent), no stacked rims. Borders only on flat things.
+   - Outer shadows are always black; nothing glows in dark mode.
+   - Focus rings (2px, primary 30%) only on small controls via :focus-visible.
+     Text fields and the composer never get a ring, outline or hairline.
+   - Radius scale: xs 6, sm 8, md 12, lg 18. Nested = outer - padding. */
+:root,
+.light {
+  --canvas: #FFFFFF;
+  --ink: #111112;
+  --primary: #111112;
+  --primary-foreground: #FFFFFF;
+
+  /* Pebble ink tiers: --color-ink-muted / --color-ink-faint. */
+  --muted-foreground: #5E5E64;
+  --subtle-foreground: #8E8E94;
+  --readback-foreground: color-mix(in oklch, var(--muted-foreground), var(--subtle-foreground));
+
+  --destructive: #D64545;
+  --destructive-foreground: #FFFFFF;
+  --destructive-text: #B03333;
+  --warning: #F2B33D;
+  --warning-text: #8A5B00;
+  --attention: #F2B33D;
+  --success: #2E8B57;
+  --diff-added: #2E8B57;
+  --diff-removed: #D64545;
+  --pr-merged: #8250DF;
+  --file-accent: #8A5B00;
+
+  --radius: 12px;
+
+  --font-sans: "Schibsted Grotesk", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --font-terminal: "Berkeley Mono", "JetBrains Mono", "SF Mono", monospace;
+
+  /* Pebble surfaces. Floating layers, cards and the prompt stack sit on raised. */
+  --pb-raised: #FFFFFF;
+  --pb-sunken: #F0F0F2;
+  --pb-line: #E4E4E7;
+  --card: var(--pb-raised);
+  --popover: var(--pb-raised);
+  --surface-raised-solid: var(--pb-raised);
+  --border: var(--pb-line);
+  --border-hairline: var(--pb-line);
+  --border-seam: var(--pb-line);
+  --border-seam-vertical: var(--pb-line);
+  --input: var(--pb-line);
+  --sidebar: var(--canvas);
+  --sidebar-foreground: var(--ink);
+  --sidebar-border: var(--pb-line);
+  --sidebar-accent: var(--state-hover);
+  --sidebar-accent-foreground: var(--ink);
+  /* Ghost hover = a sunken tint, translucent so it reads on any surface. */
+  --state-hover: rgba(17, 17, 18, .06);
+  --state-active: rgba(17, 17, 18, .09);
+  --pb-scrim: rgba(17, 17, 18, .32);
+
+  /* Elevation recipes (tokens.css, light side). Top of a gradient is lighter. */
+  --pb-gradient-raised: linear-gradient(180deg, var(--pb-raised), color-mix(in srgb, var(--pb-raised), var(--pb-sunken) 45%));
+  --pb-gradient-primary: linear-gradient(180deg, color-mix(in srgb, var(--primary), white 14%), color-mix(in srgb, var(--primary), black 6%));
+  --pb-gradient-danger: linear-gradient(180deg, #E26464, #D64545);
+  --pb-gradient-knob: linear-gradient(180deg, #FFFFFF, #F2F2F3);
+  --pb-highlight: inset 0 1px 0 rgba(255, 255, 255, .9);
+  --pb-highlight-on-color: inset 0 1px 0 rgba(255, 255, 255, .22);
+  --pb-shadow-1: 0 1px 1px rgba(0, 0, 0, .06), 0 2px 4px rgba(0, 0, 0, .05);
+  --pb-shadow-2: 0 1px 2px rgba(0, 0, 0, .06), 0 4px 12px rgba(0, 0, 0, .07);
+  --pb-shadow-3: 0 2px 4px rgba(0, 0, 0, .05), 0 14px 32px rgba(0, 0, 0, .12);
+  /* shadow-1 squeezed to fit a 4px track padding (segments in clipping tracks). */
+  --pb-shadow-segment: 0 1px 1px rgba(0, 0, 0, .06), 0 1px 3px rgba(0, 0, 0, .05);
+  --pb-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, .09), inset 0 0 0 1px rgba(0, 0, 0, .04);
+  --pb-shadow-inset-focus: inset 0 1px 3px rgba(0, 0, 0, .16), inset 0 0 0 1px rgba(0, 0, 0, .14);
+  --pb-edge-focus: inset 0 0 0 1px rgba(0, 0, 0, .1);
+  --pb-shadow-inset-on-color: inset 0 1px 2px rgba(0, 0, 0, .3);
+  --pb-shadow-pressed: inset 0 2px 3px rgba(0, 0, 0, .16);
+  --pb-shadow-knob: 0 1px 2px rgba(0, 0, 0, .2), 0 2px 6px rgba(0, 0, 0, .12);
+  --pb-shadow-primary: 0 1px 2px rgba(0, 0, 0, .25), 0 4px 12px rgba(0, 0, 0, .2);
+  --pb-shadow-primary-hover: 0 1px 2px rgba(0, 0, 0, .25), 0 8px 20px rgba(0, 0, 0, .26);
+  --pb-shadow-danger: 0 1px 2px rgba(0, 0, 0, .25), 0 4px 12px rgba(214, 69, 69, .28);
+  --pb-shadow-danger-hover: 0 1px 2px rgba(0, 0, 0, .25), 0 8px 20px rgba(214, 69, 69, .34);
+  --pb-focus-ring: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent);
+
+  /* Motion (tokens.css). */
+  --pb-ease-press: cubic-bezier(.2, .8, .2, 1);
+  --pb-ease-spring: cubic-bezier(.34, 1.4, .64, 1);
+  --pb-dur-fast: 120ms;
+  --pb-dur-base: 220ms;
+}
+
+.dark {
+  --canvas: #1C1C1E;
+  --ink: #F2F2F2;
+  --primary: #F2F2F2;
+  --primary-foreground: #111112;
+
+  --muted-foreground: #A8A8AE;
+  --subtle-foreground: #75757B;
+
+  --destructive: #F07272;
+  --destructive-foreground: #111112;
+  --destructive-text: #FF9A9A;
+  --warning: #F2B33D;
+  --warning-text: #F7C863;
+  --attention: #F2B33D;
+  --success: #5CC28A;
+  --diff-added: #5CC28A;
+  --diff-removed: #F07272;
+  --pr-merged: #A371F7;
+  --file-accent: #F2B33D;
+
+  --pb-raised: #262628;
+  --pb-sunken: #141415;
+  --pb-line: #38383C;
+  --state-hover: rgba(0, 0, 0, .28);
+  --state-active: rgba(0, 0, 0, .38);
+  --pb-scrim: rgba(0, 0, 0, .6);
+
+  /* Dark side: dimmer highlight, softened black shadows (no halos). */
+  --pb-gradient-raised: linear-gradient(180deg, color-mix(in srgb, var(--pb-raised), white 5%), var(--pb-raised));
+  --pb-gradient-danger: linear-gradient(180deg, #E26464, #C94444);
+  --pb-gradient-knob: linear-gradient(180deg, #FFFFFF, #D4D4D8);
+  --pb-highlight: inset 0 1px 0 rgba(255, 255, 255, .06);
+  --pb-shadow-1: 0 1px 1px rgba(0, 0, 0, .3), 0 2px 4px rgba(0, 0, 0, .18);
+  --pb-shadow-2: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 12px rgba(0, 0, 0, .22);
+  --pb-shadow-3: 0 2px 4px rgba(0, 0, 0, .3), 0 14px 32px rgba(0, 0, 0, .35);
+  --pb-shadow-segment: 0 1px 1px rgba(0, 0, 0, .3), 0 1px 3px rgba(0, 0, 0, .18);
+  --pb-shadow-primary: 0 1px 2px rgba(0, 0, 0, .25), 0 4px 12px rgba(0, 0, 0, .5);
+  --pb-shadow-primary-hover: 0 1px 2px rgba(0, 0, 0, .25), 0 8px 20px rgba(0, 0, 0, .6);
+  --pb-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, .5), inset 0 0 0 1px rgba(255, 255, 255, .04);
+  --pb-shadow-inset-focus: inset 0 1px 3px rgba(0, 0, 0, .65), inset 0 0 0 1px rgba(255, 255, 255, .1);
+  --pb-edge-focus: inset 0 0 0 1px rgba(255, 255, 255, .08);
+  --pb-shadow-pressed: inset 0 2px 3px rgba(0, 0, 0, .5);
+  --pb-shadow-danger: 0 1px 2px rgba(0, 0, 0, .25), 0 4px 12px rgba(0, 0, 0, .5);
+  --pb-shadow-danger-hover: 0 1px 2px rgba(0, 0, 0, .25), 0 8px 20px rgba(0, 0, 0, .6);
+}
+
+/* ===================================================================== */
+/* Components. bb's Tailwind utilities live in @layer, so these unlayered  */
+/* rules win without !important. Selectors come from bb's shared Button    */
+/* variants and the Radix/cmdk hooks mapped in the Ravern theme.           */
+/* ===================================================================== */
+
+/* ---- Radius scale. bb derives every rounded-* from --radius with fixed
+   offsets, which can't express Pebble's scale, so remap the utilities. ---- */
+.rounded-sm { border-radius: 6px; }
+.rounded-md { border-radius: 8px; }
+.rounded-lg { border-radius: 12px; }
+.rounded-xl, .rounded-2xl { border-radius: 18px; }
+
+/* ---- Raised buttons: default (outline/secondary/selects/chips), primary,
+   danger. The base list is :where() so the variant blocks below always win. */
+:where(:is(button, a):is(.bg-foreground.text-background, .bg-destructive, .border-input.bg-transparent, .bg-secondary,
+  [class*="border-border/70 bg-transparent"], [class*="border-border bg-transparent"]),
+  button.bg-card,
+  [data-follow-up-composer-footer] button[aria-haspopup=menu],
+  a.prompt-mention-pill,
+  [data-sidebar] :is(a, button).rounded-full.border.border-sidebar-border) {
+  --_bg: var(--pb-gradient-raised);
+  --_fg: var(--foreground);
+  --_hl: var(--pb-highlight);
+  --_shadow: var(--pb-shadow-1);
+  --_shadow-hover: var(--pb-shadow-2);
+  color: var(--_fg);
+  background: var(--_bg);
+  border-color: transparent;
+  box-shadow: var(--_hl), var(--_shadow);
+  transition: transform var(--pb-dur-fast) var(--pb-ease-press), box-shadow var(--pb-dur-fast) var(--pb-ease-press), background-color var(--pb-dur-fast);
+  &.rounded-md:is(.h-9, .h-10) { border-radius: 12px; }
+  &:not(:disabled) {
+    &:hover { background: var(--_bg); box-shadow: var(--_hl), var(--_shadow-hover); }
+    &:is(:active, [data-state=open]) { transform: translateY(1px); box-shadow: var(--pb-shadow-pressed); }
+    &:focus-visible { --tw-ring-shadow: 0 0 #0000; box-shadow: var(--_hl), var(--_shadow), var(--pb-focus-ring); }
+  }
+}
+:where(:is(button, a).bg-foreground.text-background) {
+  --_bg: var(--pb-gradient-primary);
+  --_fg: var(--primary-foreground);
+  --_hl: var(--pb-highlight-on-color);
+  --_shadow: var(--pb-shadow-primary);
+  --_shadow-hover: var(--pb-shadow-primary-hover);
+}
+:where(:is(button, a).bg-destructive) {
+  --_bg: var(--pb-gradient-danger);
+  --_fg: #FFFFFF;
+  --_hl: var(--pb-highlight-on-color);
+  --_shadow: var(--pb-shadow-danger);
+  --_shadow-hover: var(--pb-shadow-danger-hover);
+}
+:is(button, a):is(.bg-foreground.text-background, .bg-destructive):disabled { box-shadow: var(--_hl); }
+
+/* Composer controls (model chip, +, mic, ...): Radix hands focus back to the
+   trigger after a menu closes, which reads as :focus-visible, so bb's ring
+   showed up after mouse use. Their focus cue is the raised hover look. */
+form[data-promptbox] button:not([data-promptbox-submit-action]):focus-visible {
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+  outline: none;
+  /* !important: beats the icon-button family's (more specific) ring rule. */
+  background: var(--pb-gradient-raised) !important;
+  box-shadow: var(--pb-highlight), var(--pb-shadow-1) !important;
+}
+
+/* "Approve for me" (footer permission menu): a small raised chip. */
+[data-follow-up-composer-footer] button[aria-haspopup=menu] { padding-inline: 8px; }
+
+/* ---- Composer send/stop split: one raised unit. The wrapper carries the
+   single outer shadow; halves share the gradient, inner corners square,
+   a 1px divider between them. */
+div:has(> [data-promptbox-submit-action]):has(> button + button) {
+  border-radius: 8px;
+  box-shadow: var(--pb-shadow-1);
+  &:has(> .bg-foreground) { box-shadow: var(--pb-shadow-primary); }
+  & > button {
+    --_shadow: var(--pb-shadow-none, 0 0 #0000);
+    --_shadow-hover: 0 0 #0000;
+    height: 32px;
+    border: 0;
+    border-radius: 0;
+    box-shadow: var(--pb-highlight);
+    transform: none;
+    color: var(--foreground);
+    background: var(--pb-gradient-raised);
+  }
+  & > button:first-child { border-radius: 8px 0 0 8px; }
+  & > button:last-child {
+    border-radius: 0 8px 8px 0;
+    padding-inline: 6px;
+    border-left: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  }
+  &:has(> .bg-foreground) > button {
+    color: var(--primary-foreground);
+    background: var(--pb-gradient-primary);
+    box-shadow: var(--pb-highlight-on-color);
+  }
+  &:has(> .bg-foreground) > button:last-child { border-left-color: color-mix(in srgb, var(--primary-foreground) 20%, transparent); }
+  & > button:not(:disabled):active { transform: none; box-shadow: var(--pb-shadow-pressed); }
+}
+
+/* Every other split button (header "Open in VS Code" + picker, Skills "New bb skill" + menu,
+   …): bb marks the halves rounded-r-none / rounded-l-none. One raised unit: the wrapper
+   carries the single shadow, halves keep only the highlight, inner corners square. */
+div:is(.flex, .inline-flex):has(> .rounded-r-none + .rounded-l-none):not(:has(> [data-promptbox-submit-action])) {
+  border-radius: 8px;
+  box-shadow: var(--pb-shadow-1);
+  &:has(> .bg-foreground) { box-shadow: var(--pb-shadow-primary); }
+  &:has(> .bg-destructive) { box-shadow: var(--pb-shadow-danger); }
+  & > :is(.rounded-r-none, .rounded-l-none) {
+    --_shadow: 0 0 #0000;
+    --_shadow-hover: 0 0 #0000;
+    border-color: transparent;
+    box-shadow: var(--_hl, var(--pb-highlight));
+  }
+  & > .rounded-r-none { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+  & > .rounded-l-none {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 1px solid var(--pb-line);
+  }
+  & > .rounded-l-none:is(.bg-foreground, .bg-destructive) { border-left-color: color-mix(in srgb, var(--primary-foreground) 20%, transparent); }
+  & > :not(:disabled):active { transform: none; box-shadow: var(--pb-shadow-pressed); }
+}
+
+/* ---- Icon buttons: flat at rest, raised on hover, pressed when on ----- */
+button:is([class*="h-[28px] w-[28px]"], .h-7.w-7, .size-7, [class*="size-auto h-8"]):not([data-promptbox-submit-action]):not(div:has(> [data-promptbox-submit-action]) > *) {
+  border: 0;
+  transition: transform var(--pb-dur-fast) var(--pb-ease-press), box-shadow var(--pb-dur-fast) var(--pb-ease-press), background-color var(--pb-dur-fast);
+  &:hover:not(:disabled) {
+    background: var(--pb-gradient-raised);
+    box-shadow: var(--pb-highlight), var(--pb-shadow-1);
+  }
+  &:is(:active, [aria-pressed=true], [data-state=open]):not(:disabled) {
+    transform: translateY(1px);
+    background: var(--pb-sunken);
+    box-shadow: var(--pb-shadow-pressed);
+  }
+  &:focus-visible { --tw-ring-shadow: 0 0 #0000; box-shadow: var(--pb-focus-ring); }
+}
+
+/* ---- Text fields: sunken wells. Focus = the well deepens
+   (--pb-shadow-inset-focus); no ring, no outline. ---- */
+input.border-input,
+textarea.border-input,
+[data-radix-select-trigger],
+button[role=combobox].border-input {
+  background: var(--pb-sunken);
+  border-color: transparent;
+  box-shadow: var(--pb-shadow-inset);
+  transition: background-color var(--pb-dur-fast);
+}
+input.border-input,
+textarea.border-input {
+  border-radius: 12px;
+  &::placeholder { color: var(--subtle-foreground); }
+}
+:is(input.border-input, textarea.border-input, [data-radix-select-trigger], button[role=combobox].border-input):is(:focus, :focus-visible) {
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+  outline: none;
+  border-color: transparent;
+  background: var(--pb-sunken);
+  box-shadow: var(--pb-shadow-inset-focus);
+}
+:is(input:not([type=checkbox], [type=radio], [type=range], [type=button], [type=submit]), textarea, [contenteditable=true]):is(:focus, :focus-visible) {
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+  outline: none;
+}
+
+/* ---- Prompt stack + composer: one unit. Every card (active child thread,
+   queue, ...) and the composer are the same raised panel: lg radius, same
+   width, highlight + shadow-1. On focus the composer's edge gets subtly
+   stronger (--pb-edge-focus) — no ring, no glow. ---- */
+[data-app-composer] .bg-surface-raised-solid,
+form[data-promptbox] {
+  background: var(--pb-raised);
+  border-color: transparent;
+  border-radius: 18px;
+  box-shadow: var(--pb-highlight), var(--pb-shadow-1);
+  transition: box-shadow var(--pb-dur-base) var(--pb-ease-press);
+}
+form[data-promptbox]:focus-within { box-shadow: var(--pb-highlight), var(--pb-edge-focus), var(--pb-shadow-1); }
+/* With cards above it, the stack + composer become one attached panel: the
+   card column (bb's grid) gets the top corners and the outer shadow (clipped
+   at its bottom so it doesn't fall on the composer), cards lose their own
+   shadow/radius and are separated by flat dividers, the composer's top
+   corners go square. */
+[data-app-composer]:has(> .grid > :not(.contents)) {
+  & > :not(:last-child) { margin-block-end: 0; }
+  & > .grid {
+    gap: 0;
+    overflow: hidden;
+    border-radius: 18px 18px 0 0;
+    background: var(--pb-raised);
+    box-shadow: var(--pb-shadow-1);
+    clip-path: inset(-12px -12px 0 -12px);
+  }
+  & > .grid > :not(.contents) {
+    margin: 0;
+    border-width: 0 0 1px;
+    border-color: var(--pb-line);
+    border-radius: 0;
+    box-shadow: none;
+  }
+  & > .grid > :nth-child(1 of :not(.contents)) { box-shadow: var(--pb-highlight); }
+  & form[data-promptbox] { border-top-left-radius: 0; border-top-right-radius: 0; border-width: 0; box-shadow: var(--pb-shadow-1); }
+  /* Attached under the stack: the card above already draws the divider, so the
+     focus edge covers sides and bottom only (a top edge doubled the line). */
+  & form[data-promptbox]:focus-within {
+    --_edge: color-mix(in srgb, var(--ink) 9%, transparent);
+    box-shadow: inset 1px 0 0 var(--_edge), inset -1px 0 0 var(--_edge), inset 0 -1px 0 var(--_edge), var(--pb-shadow-1);
+  }
+}
+/* No composer below (an approval card takes its place): the stack ends itself,
+   so round its bottom, let its shadow show, and drop the last divider. */
+[data-app-composer]:has(> .grid > :not(.contents)):is(:not(:has(form[data-promptbox])), :has([data-testid=approval-banner])) {
+  & > .grid { border-radius: 18px; clip-path: none; }
+  & > .grid > :nth-last-child(1 of :not(.contents)) { border-bottom-width: 0; }
+}
+/* Queue drag handle: Pebble's grabber, not a stray rule. */
+[data-app-composer] .group\/handle > span {
+  width: 32px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--subtle-foreground);
+  opacity: .5;
+}
+/* The queue card normally tucks 20px under the composer; stack it instead. */
+[data-app-composer] .bg-surface-raised-solid[class*="-mb-5"] {
+  /* bb sizes it inline for the 20px tuck; let it hug its rows. */
+  height: auto !important;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom-width: 1px;
+}
+[data-app-composer] .group\/queue > li:last-child { border-bottom-color: transparent; }
+/* Child-thread toggle row: drop its own plate and ring inside the card. */
+[data-app-composer] .bg-surface-raised-solid .shadow-xs.ring-1 {
+  --tw-ring-shadow: 0 0 #0000;
+  background: transparent;
+  box-shadow: none;
+}
+/* Footer row (workspace, Approve for me): room for its chip's shadow. */
+[data-follow-up-composer-footer] { overflow: visible; }
+[data-follow-up-composer-footer].mt-1 { margin-top: 8px; }
+
+/* ---- Floating layers: menus, popovers, selects, dialogs, palette, ---- */
+/* ---- hover cards, toasts. One raised panel, shadow-3, radius-lg. ----- */
+[data-radix-popper-content-wrapper] > :is([role=menu], [role=listbox], [role=dialog]),
+[data-radix-menu-content],
+[data-radix-select-content],
+[data-radix-popover-content],
+[data-radix-dialog-content],
+[data-bb-portaled-overlay]:is([role=menu], [role=listbox], [role=dialog], .w-72.rounded-lg),
+[role=dialog][data-state=open]:is(.fixed, .bg-background, .bg-popover):not(.inset-y-0),
+.overflow-hidden.rounded-md.border.border-border.bg-popover,
+[cmdk-root]:not([cmdk-root] [cmdk-root]),
+[data-sonner-toast] {
+  color: var(--foreground);
+  background: var(--pb-raised);
+  border-color: transparent;
+  border-radius: 18px;
+  box-shadow: var(--pb-highlight), var(--pb-shadow-3);
+}
+/* Even 6px padding so rows sit at 18 - 6 = 12px radius. */
+:is([data-radix-menu-content], [role=menu][data-bb-portaled-overlay]) { padding: 6px; }
+:is([data-radix-menu-content], [data-radix-popper-content-wrapper], [data-bb-portaled-overlay], [cmdk-root], [role=dialog])
+  :is(.sticky.top-0.bg-background, .bg-surface-recessed) { background: transparent; }
+
+/* Menu rows: sunken on hover / keyboard highlight. */
+:is([data-radix-popper-content-wrapper], [data-bb-portaled-overlay], [data-radix-menu-content], [cmdk-root])
+  :is([role=menuitem], [role=option], [role=menuitemradio], [role=menuitemcheckbox], [cmdk-item]) {
+  border-radius: 12px;
+  transition: background-color var(--pb-dur-fast);
+  &:hover, &[data-highlighted], &[data-selected=true], &[aria-selected=true] {
+    background: var(--pb-sunken);
+    color: var(--foreground);
+  }
+  /* Radix focuses rows on hover; the sunken highlight is the focus cue. */
+  &:focus-visible { outline: none; box-shadow: none; }
+}
+
+/* Tooltip: Pebble's is an ink chip, not a raised panel. */
+[data-radix-popper-content-wrapper] > [data-side]:has(> [role=tooltip]),
+[data-bb-portaled-overlay][role=tooltip] {
+  color: var(--canvas);
+  background: var(--ink);
+  border: 0;
+  border-radius: 6px;
+  box-shadow: var(--pb-shadow-2);
+  font-weight: 600;
+}
+
+/* Dialog backdrop: Pebble's scrim. */
+[data-bb-portaled-overlay].fixed.inset-0:not([role]) { background: var(--pb-scrim); }
+
+/* ---- Switch: sunken track, raised knob that springs ------------------ */
+[role=switch] {
+  background: var(--pb-sunken);
+  border-color: transparent;
+  box-shadow: var(--pb-shadow-inset);
+  transition: background-color var(--pb-dur-base);
+  & > span {
+    background: var(--pb-gradient-knob);
+    box-shadow: var(--pb-highlight), var(--pb-shadow-knob);
+    transition: transform var(--pb-dur-base) var(--pb-ease-spring), translate var(--pb-dur-base) var(--pb-ease-spring);
+  }
+  &[data-state=checked], &[aria-checked=true] {
+    background: var(--pb-gradient-primary);
+    box-shadow: var(--pb-shadow-inset-on-color);
+    & > span { background: var(--primary-foreground); }
+  }
+  &:focus-visible { --tw-ring-shadow: 0 0 #0000; box-shadow: var(--pb-shadow-inset), var(--pb-focus-ring); }
+}
+
+/* ---- Checkbox: raised square, primary when checked ------------------- */
+button[role=checkbox] {
+  background: var(--pb-gradient-raised);
+  border-color: transparent;
+  border-radius: 6px;
+  box-shadow: var(--pb-highlight), var(--pb-shadow-1);
+  &[data-state=checked] {
+    color: var(--primary-foreground);
+    background: var(--pb-gradient-primary);
+    box-shadow: var(--pb-highlight-on-color), var(--pb-shadow-primary);
+  }
+  &:focus-visible { --tw-ring-shadow: 0 0 #0000; box-shadow: var(--pb-highlight), var(--pb-focus-ring); }
+}
+
+/* ---- Segmented / tabs: selected item rises out of a sunken track ----- */
+[role=tablist],
+[role=radiogroup][data-orientation],
+[role=group]:has(> [role=radio][data-state]) {
+  padding: 3px;
+  gap: 2px;
+  background: var(--pb-sunken);
+  border: 0;
+  border-radius: 12px;
+  box-shadow: var(--pb-shadow-inset);
+}
+:is([role=tablist], [role=radiogroup][data-orientation], [role=group]) > :is([role=tab], [role=radio]) {
+  border-radius: 9px;
+  border-color: transparent;
+  transition: background-color var(--pb-dur-fast), box-shadow var(--pb-dur-fast) var(--pb-ease-press), color var(--pb-dur-fast);
+  &:is([data-state=active], [data-state=on], [data-state=checked], [aria-selected=true]) {
+    color: var(--foreground);
+    background: var(--pb-gradient-raised);
+    box-shadow: var(--pb-highlight), var(--pb-shadow-segment);
+  }
+  &:focus-visible { outline: none; box-shadow: var(--pb-focus-ring); }
+}
+
+/* Panel tab strip = a sunken track (it scrolls, so it clips): even 4px
+   padding, the active tab is a segment with radius 12 - 4 and a shadow
+   that fits inside the padding. Standalone tab pills use radius-md. */
+[data-testid=secondary-panel-tab-strip] .overflow-x-auto.overflow-y-hidden {
+  padding: 4px;
+  background: var(--pb-sunken);
+  border-radius: 12px;
+  box-shadow: var(--pb-shadow-inset);
+}
+.group\/tab-pill, .group\/tab-pill > button:not([data-tab-pill-close]) { border-radius: 12px; }
+[data-testid=secondary-panel-tab-strip] .overflow-x-auto .group\/tab-pill,
+[data-testid=secondary-panel-tab-strip] .overflow-x-auto .group\/tab-pill > button:not([data-tab-pill-close]) { border-radius: 8px; }
+.group\/tab-pill { transition: background-color var(--pb-dur-fast), box-shadow var(--pb-dur-fast) var(--pb-ease-press); }
+.group\/tab-pill.bg-state-active {
+  background: var(--pb-gradient-raised);
+  box-shadow: var(--pb-highlight), var(--pb-shadow-segment);
+}
+
+/* ---- Model picker (popover + mobile sheet). One content inset (14px text
+   edge), dividers inset to match, provider tabs as a segmented control. ---- */
+/* Mobile bottom sheets: raised surface, lg top corners only, ink-faint
+   grabber, safe-area bottom padding. */
+[data-persistent-drawer-content][role=dialog][data-state] {
+  border: 0;
+  border-radius: 18px 18px 0 0;
+  background: var(--pb-raised);
+  box-shadow: var(--pb-highlight), var(--pb-shadow-3);
+  padding-bottom: env(safe-area-inset-bottom);
+  & > .cursor-grab > div { width: 36px; height: 4px; background: var(--subtle-foreground); opacity: .6; }
+  & > .w-max { width: auto; max-width: none; }
+}
+/* Model picker in the sheet: one 14px inset for tabs, search, labels, rows,
+   dividers, slider (incl. its value) and footer rows. */
+[data-persistent-drawer-content][role=dialog]:has([role=listbox][aria-label=Models]) {
+  & div:has(> button.border-b-2) { margin-inline: 14px; }
+  & .shrink-0.border-b.border-border:has(input) { padding-inline: 14px; }
+  & [role=listbox][aria-label=Models] { padding-inline: 6px; }
+  & .shrink-0.px-2.py-2\.5 { padding-inline: 14px; }
+  & .shrink-0.px-2.py-2\.5 > .sticky { padding-inline: 0; }
+  & .rs-root { padding-inline: 0; }
+}
+:is([role=dialog], [data-persistent-drawer-content]):has([role=listbox][aria-label=Models]) {
+  /* Provider tabs: underline tabs -> sunken track with a raised segment. */
+  & div:has(> button.border-b-2) {
+    margin: 6px 6px 0;
+    padding: 3px;
+    gap: 2px;
+    width: fit-content;
+    background: var(--pb-sunken);
+    border: 0;
+    border-radius: 12px;
+    box-shadow: var(--pb-shadow-inset);
+    & > button {
+      width: auto;
+      padding-inline: 8px;
+      border-bottom-width: 0;
+      border-radius: 9px;
+      transition: background-color var(--pb-dur-fast), box-shadow var(--pb-dur-fast) var(--pb-ease-press);
+    }
+    & > button.border-foreground {
+      background: var(--pb-gradient-raised);
+      box-shadow: var(--pb-highlight), var(--pb-shadow-segment);
+    }
+  }
+  & .shrink-0.border-b.border-border:has(input) { border-bottom: 0; padding: 6px; }
+  & [role=listbox][aria-label=Models] { padding-inline: 6px; }
+  & .shrink-0.border-t.border-border:empty { margin-inline: 14px; }
+  & .shrink-0.px-2.py-2\.5 { padding-inline: 6px; }
+  & .shrink-0.px-2.py-2\.5 > .sticky { padding-inline: 8px; background: transparent; }
+  & .shrink-0.p-1 { padding: 4px 6px; }
+}
+
+/* Reasoning slider (bb's .rs-*): Pebble slider — sunken track, primary
+   gradient fill, raised knob, ink-faint ticks. */
+/* bb's slider CSS is unlayered and loads after the theme: scope under .rs-root. */
+.rs-root .rs-track { background: var(--pb-sunken); box-shadow: var(--pb-shadow-inset); }
+.rs-root .rs-range, .rs-root[data-max] .rs-range { background: var(--pb-gradient-primary); box-shadow: var(--pb-highlight-on-color); }
+.rs-root .rs-tick { background: var(--subtle-foreground); opacity: .6; }
+.rs-root .rs-tick[data-filled] { background: var(--primary-foreground); opacity: .5; }
+.rs-root .rs-thumb {
+  border: 0;
+  background: var(--pb-gradient-knob);
+  box-shadow: var(--pb-highlight), var(--pb-shadow-knob);
+  transition: left var(--pb-dur-base) var(--pb-ease-spring);
+}
+
+/* Dark: the fill is white, so the knob flips to a dark raised surface
+   (like Pebble's switch knob turning --color-on-primary when on). */
+.dark .rs-root .rs-thumb { background: var(--pb-gradient-raised); }
+
+/* ---- Cards: raised, lg radius. A card inside a card goes flat. ------- */
+div.bg-card {
+  background: var(--pb-raised);
+  border-color: transparent;
+  border-radius: 18px;
+  box-shadow: var(--pb-highlight), var(--pb-shadow-1);
+}
+div.bg-card div.bg-card {
+  background: transparent;
+  border-color: var(--pb-line);
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+/* ---- Status badges: flat soft tint, like .ds-badge (not pressable). -- */
+span.rounded-sm.border[class*="bg-muted"] {
+  border-color: transparent;
+  border-radius: 999px;
+  padding-inline: 8px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  background: var(--pb-sunken);
+}
+
+/* ---- Sidebar: Graphite surface, ghost rows, the selected row rises ---- */
+[data-sidebar=sidebar] {
+  /* Section labels: Pebble's faint small label. */
+  & .group\/sidebar-section > .bb-sidebar-hover-actions-row.text-xs,
+  & .mt-4 > .text-xs.leading-5 {
+    font-weight: 600;
+    color: var(--subtle-foreground);
+  }
+  /* 4px between rows so a raised row's shadow never touches its neighbour. */
+  & .space-y-0\.5 > :not(:last-child) { margin-block-end: 4px; }
+  & :is(.bb-sidebar-hover-actions-row.group\/thread-row, .group\/nav-row, [data-sidebar=menu-button], a[aria-current=page]) {
+    border-radius: 8px;
+    transition: background-color var(--pb-dur-fast), box-shadow var(--pb-dur-fast) var(--pb-ease-press);
+  }
+  & :is(.bb-sidebar-selected-row, .group\/nav-row[aria-pressed=true], a[aria-current=page], [data-sidebar=menu-button][data-active=true]) {
+    color: var(--foreground);
+    background: var(--pb-gradient-raised);
+    box-shadow: var(--pb-highlight), var(--pb-shadow-1);
+    z-index: 1;
+  }
+  /* Subthread guide line runs behind rows, so a raised row sits on it instead of being cut by it. */
+  & span.pointer-events-none.absolute.w-px.bg-border-hairline { z-index: 0; }
+}
+
+/* ---- Two-tone icons: closed shapes of bb's Hugeicons get a soft fill. -- */
+svg[data-icon-root]:not([data-icon=Loading]) :is(path[d$="Z"], path[d$="z"], circle, rect, ellipse):not([fill]) {
+  fill: currentColor;
+  fill-opacity: .25;
+}
+
+/* ---- Motion: floating layers fade + scale from .97 in, fade out faster. */
+@keyframes pb-in { from { opacity: 0; scale: .97; } }
+@keyframes pb-out { to { opacity: 0; scale: .97; } }
+@keyframes pb-fade-in { from { opacity: 0; } }
+@keyframes pb-fade-out { to { opacity: 0; } }
+:is([data-radix-menu-content], [data-radix-select-content], [data-radix-popover-content], [data-radix-dialog-content],
+  [data-radix-popper-content-wrapper] > *, [data-bb-portaled-overlay]:is([role=menu], [role=listbox], [role=dialog], .w-72.rounded-lg, [data-side])):not([data-persistent-drawer-content]) {
+  &:is([data-state=open], [data-state=delayed-open], [data-state=instant-open]) { animation: pb-in var(--pb-dur-base) var(--pb-ease-press) both; }
+  &[data-state=closed] { animation: pb-out var(--pb-dur-fast) var(--pb-ease-press) both; }
+}
+[data-bb-portaled-overlay].fixed.inset-0:not([role]) {
+  &[data-state=open] { animation: pb-fade-in var(--pb-dur-base) var(--pb-ease-press) both; }
+  &[data-state=closed] { animation: pb-fade-out var(--pb-dur-fast) var(--pb-ease-press) both; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is([data-radix-menu-content], [data-radix-select-content], [data-radix-popover-content], [data-radix-dialog-content],
+    [data-radix-popper-content-wrapper] > *, [data-bb-portaled-overlay]) { animation: none !important; }
+  button, a, [role=switch], [role=switch] > span, [role=tab], [role=radio], [role=menuitem], [role=option], [cmdk-item],
+  .group\/tab-pill, form[data-promptbox], [data-app-composer] .bg-surface-raised-solid { transition: none !important; }
+  button:active, button[data-state=open], button[aria-pressed=true] { transform: none !important; }
+}
+
+/* ---- OpenAI mark: monochrome, not the old ChatGPT green ---------------
+   Follows the text color (white in dark, near-black in light), like the
+   Ravern theme. `html` prefix beats the provider-brand-marks plugin's
+   own !important rules. */
+html [data-provider-logo^="/api/v1/system/providers/codex/logo"] { background-color: var(--foreground) !important; }
+html [data-provider-icon-tint="codex"] { color: var(--foreground) !important; }
+html body .usage-page { --usage-codex: var(--foreground) !important; }
+
+/* ---- Send icon: an up arrow (Hugeicons ArrowUp02) instead of bb's return
+   glyph (CornerDownLeft). Drawn as a mask so it takes the button's color;
+   queue/steer variants keep their own icons. */
+[data-promptbox-submit-action] svg[data-icon="CornerDownLeft"] {
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5.5V19'/%3E%3Cpath d='M18 11C18 11 13.5811 5 12 5C10.4188 5 6 11 6 11'/%3E%3C/svg%3E") center / contain no-repeat;
+  & > * { display: none; }
+}

@@ -71,10 +71,9 @@ ln -s $HOME/Repos/ravern/dots/config/claude/settings.json $HOME/.claude/settings
 ln -s $HOME/Repos/ravern/dots/config/claude/CLAUDE.md     $HOME/.claude/CLAUDE.md
 ln -s $HOME/Repos/ravern/dots/config/cursor/permissions.json $HOME/.cursor/permissions.json
 ln -s $HOME/Repos/ravern/dots/config/bin/sish             $HOME/.local/bin/sish
-
-# bb config: lists Grok 4.7 (a Cursor "More models" entry) in the main picker
-mkdir -p $HOME/.bb
-ln -s $HOME/Repos/ravern/dots/config/bb/config.json $HOME/.bb/config.json
+if [ ! -e $HOME/.local/bin/bb ] && [ -x /Applications/bb.app/Contents/Resources/app.asar.unpacked/node_modules/bb-app/host-daemon/dist/bb ]; then
+  ln -s /Applications/bb.app/Contents/Resources/app.asar.unpacked/node_modules/bb-app/host-daemon/dist/bb $HOME/.local/bin/bb
+fi
 
 # bb themes: link the whole folder (bb's theme list skips symlinked theme dirs)
 mkdir -p $HOME/.bb
