@@ -18,10 +18,11 @@ import {
   type PluginNavPanelProps,
 } from "@get-bb/plugin-sdk/app";
 import { toast } from "sonner"; // shimmed to bb's toaster
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { type Action, type Entry, type IconRef, type McpServer } from "./cli.ts";
+import { hider, isOurPage, SIDEBAR_ROOT, sidebarRest } from "./sidebar.ts";
 import type { ActResult, InstalledPlugin, LoginResult, McpResult, rpcContract, State, StorePage, TerminalChunk } from "./server.ts";
 
 const PANEL = "provider-plugins";
@@ -988,10 +989,19 @@ function Page({ subPath }: PluginNavPanelProps) {
 // ── Sidebar navigation: bb's own everywhere, except on this page, where (like bb's Plugins
 // page) it becomes "Back to app" plus one row per provider. Classes are bb's sidebar rows.
 
-const ROW =
-  "flex w-full min-w-0 cursor-pointer items-center justify-start gap-2 overflow-hidden rounded-md pl-2 pr-0 text-sm font-normal text-sidebar-foreground transition-none hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ring-sidebar-ring focus-visible:outline-none focus-visible:ring-2 h-[var(--bb-sidebar-row-height)] max-md:pointer-coarse:h-[var(--bb-sidebar-row-height-coarse)]";
+// bb's sidebar row (its Plugins/Settings shell: a ghost Button, sm, plus these), section label
+// and icon size, copied from bb's app bundle.
+const ROW = cn(
+  buttonVariants({ variant: "ghost", size: "sm" }),
+  "flex w-full items-center gap-2 rounded-md pr-0 text-sm transition-colors transition-none pl-2",
+  "cursor-pointer text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+  "h-[var(--bb-sidebar-row-height)] max-md:pointer-coarse:h-[var(--bb-sidebar-row-height-coarse)]",
+  "min-w-0 justify-start overflow-hidden font-normal ring-sidebar-ring focus-visible:ring-2 disabled:cursor-default disabled:opacity-70 max-md:pointer-coarse:[&_[data-icon-root]]:size-5",
+  "w-full",
+);
 const ROW_ACTIVE = "bg-sidebar-accent text-sidebar-foreground";
-const ROW_ICON = "size-4 shrink-0 max-md:pointer-coarse:size-5";
+const ROW_ICON = "size-4 max-md:pointer-coarse:size-5";
+const SECTION_LABEL = "pl-2 text-xs font-normal leading-5 text-subtle-foreground/75";
 
 function NavRow({ active, label, icon, onClick }: { active?: boolean; label: string; icon: ReactNode; onClick: () => void }) {
   return (
@@ -1040,58 +1050,99 @@ class FallBack extends Component<{ props: ExperimentalSidebarNavigationProps; ch
 
 // Where "Back to app" returns: the thread or project shown before this page.
 let lastPlace: { threadId: string | null; projectId: string | null } = { threadId: null, projectId: null };
+let warnedLayout = false;
 
 function ProviderNavigation(props: ExperimentalSidebarNavigationProps) {
   const { activeItemId } = experimental_useSidebarNavigation();
   const pluginId = experimental_usePluginId();
   const context = useBbContext();
-  const ours = activeItemId === `${pluginId}/${PANEL}`;
+  const ours = isOurPage(activeItemId, pluginId, PANEL);
   useEffect(() => {
     if (!ours && (context.threadId || context.projectId)) lastPlace = { threadId: context.threadId, projectId: context.projectId };
   }, [ours, context.threadId, context.projectId]);
   return <FallBack props={props}>{ours ? <ProviderRows {...props} /> : <Original props={props} />}</FallBack>;
 }
 
+/** While mounted (our page only), hides the rest of the sidebar holding `ref`; puts it back on unmount. */
+function useBareSidebar(ref: { current: HTMLElement | null }) {
+  useEffect(() => {
+    const nav = ref.current;
+    const root = nav?.closest(SIDEBAR_ROOT);
+    if (!nav || !root) return;
+    const hidden = hider();
+    const apply = () => {
+      const rest = sidebarRest(nav);
+      if (rest) return hidden.hide(rest);
+      if (!warnedLayout) console.warn("[provider-plugin-manager] bb's sidebar layout changed; leaving it as is.");
+      warnedLayout = true;
+    };
+    apply();
+    // bb re-renders the sidebar (e.g. remounts the thread list); hide the new nodes too.
+    let frame = 0;
+    const watch = new MutationObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(apply);
+    });
+    watch.observe(root, { childList: true, subtree: true });
+    return () => {
+      watch.disconnect();
+      cancelAnimationFrame(frame);
+      hidden.restore();
+    };
+  }, []);
+}
+
+/** bb's Plugins sidebar shell: a back row, then a labelled section of rows. */
 function ProviderRows({ isCompactViewport }: ExperimentalSidebarNavigationProps) {
   const navigate = useBbNavigate();
   const pluginId = experimental_usePluginId();
-  const { actions } = experimental_useSidebarNavigation();
+  const { items, actions } = experimental_useSidebarNavigation();
   const { providers } = experimental_useProviders();
   const route = useShownRoute();
+  const ref = useRef<HTMLDivElement>(null);
+  useBareSidebar(ref);
   const selected = providers.find((p) => p.id === route.providerId)?.id ?? providers[0]?.id;
   const open = (providerId: string) => {
     const subPath = `${providerId}/${route.view}`;
     if (!isCompactViewport) return navigate.toPluginPanel(PANEL, { subPath });
-    // On phones, activating our own item is what closes the drawer; then select the provider.
+    // On phones, activating a nav item is what closes the drawer; then select the provider.
     actions.activate(`${pluginId}/${PANEL}`, { openInSplit: false });
     setTimeout(() => navigate.toPluginPanel(PANEL, { subPath, replace: true }));
   };
   const back = () => {
     if (lastPlace.threadId) navigate.toThread(lastPlace.threadId);
     else if (lastPlace.projectId) navigate.toProject(lastPlace.projectId);
-    else navigate.toCompose();
+    else {
+      // New thread is home; activating it also closes the phone drawer.
+      const home = items.find((i) => i.action.kind === "new-thread");
+      if (home) actions.activate(home.id, { openInSplit: false });
+      else navigate.toCompose();
+    }
   };
   return (
-    <>
+    <div ref={ref} className="contents">
       <div className="shrink-0 px-2 py-2">
-        <NavRow label="Back to app" icon={<Icon name="ChevronLeft" className={ROW_ICON} aria-hidden />} onClick={back} />
-      </div>
-      <div className="min-w-0 px-2">
-        <div className="pl-2 text-xs font-normal leading-5 text-subtle-foreground/75">Provider Plugins</div>
-        <div className="mt-1 space-y-0.5">
-          {providers.map((p) => (
-            <NavRow
-              key={p.id}
-              active={p.id === selected}
-              label={p.displayName}
-              icon={<ProviderIcon providerKind="agent" provider={p} className={ROW_ICON} aria-hidden />}
-              onClick={() => open(p.id)}
-            />
-          ))}
+        <div className="space-y-1">
+          <NavRow label="Back to app" icon={<Icon name="ChevronLeft" className={ROW_ICON} />} onClick={back} />
         </div>
       </div>
-      <div aria-hidden className="mx-2 my-2 shrink-0 border-t border-sidebar-border/25" />
-    </>
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-auto bg-sidebar">
+        <div className="min-w-0 px-2">
+          <div className={SECTION_LABEL}>Provider Plugins</div>
+          <div className="mt-1 space-y-0.5">
+            {providers.map((p) => (
+              <NavRow
+                key={p.id}
+                active={p.id === selected}
+                label={p.displayName}
+                icon={<ProviderIcon providerKind="agent" provider={p} className={ROW_ICON} aria-hidden />}
+                onClick={() => open(p.id)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
