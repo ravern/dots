@@ -33,12 +33,11 @@ import {
   type Plugin,
 } from "./cli.ts";
 
-const target = z.object({ providerId: z.string().min(1).max(100), hostId: z.string().min(1).max(100) }).strict();
+const target = z.object({ providerId: z.string().min(1).max(100) }).strict();
 const terminal = z.object({ terminalId: z.string().min(1).max(200) }).strict();
 const loose = z.any(); // server-built output; the types below describe it for the app
 
 export const rpcContract = defineRpcContract({
-  machines: { input: z.null(), output: loose },
   state: { input: target, output: loose },
   store: {
     input: target.extend({
@@ -56,7 +55,7 @@ export const rpcContract = defineRpcContract({
   act: { input: target.extend({ action: actionSchema }), output: loose },
   login: { input: target.extend({ server: mcpName }), output: loose },
   icons: {
-    input: z.object({ hostId: z.string().min(1).max(100), refs: z.array(z.object({ base: z.string().max(1000), rel: z.string().max(300) }).strict()).max(100) }).strict(),
+    input: z.object({ refs: z.array(z.object({ base: z.string().max(1000), rel: z.string().max(300) }).strict()).max(100) }).strict(),
     output: z.array(z.string().nullable()),
   },
   terminalOutput: { input: terminal.extend({ sinceSeq: z.number().int().min(0) }), output: loose },
@@ -65,7 +64,6 @@ export const rpcContract = defineRpcContract({
   restartIdle: { input: target, output: loose },
 });
 
-export type Machine = { id: string; name: string; connected: boolean };
 /** An installed plugin with what the store knows about it. */
 export type InstalledPlugin = Plugin & { displayName: string; description: string; categories: string[]; homepage: string | null; icon: IconRef | null };
 export type State =
@@ -106,6 +104,13 @@ export default function plugin(bb: BbPluginApi) {
     if (r.missing) throw new Error(`${BIN[agent]} isn't installed on this machine.`);
     if (r.code !== 0) throw new Error(`${BIN[agent]} ${args.join(" ")}: ${failure(r)}`);
     return r.stdout;
+  }
+
+  /** bb's own machine: every CLI runs there. */
+  async function local(): Promise<string> {
+    const { primaryHostId } = await bb.sdk.system.config();
+    if (!primaryHostId) throw new Error("bb's own machine isn't set up yet.");
+    return primaryHostId;
   }
 
   const agentOf = (providerId: string): Agent | null => PROVIDER_AGENTS[providerId] ?? null;
@@ -190,15 +195,8 @@ export default function plugin(bb: BbPluginApi) {
   const terminals = new Set<string>();
 
   bb.rpc.register(rpcContract, {
-    machines: async (): Promise<{ machines: Machine[]; defaultId: string | null }> => {
-      const [hosts, config] = await Promise.all([bb.sdk.hosts.list(), bb.sdk.system.config()]);
-      const machines = hosts
-        .filter((h) => h.lifecycle.phase === "active")
-        .map((h) => ({ id: h.id, name: h.name, connected: h.status === "connected" }));
-      return { machines, defaultId: config.primaryHostId ?? machines.find((m) => m.connected)?.id ?? null };
-    },
-
-    state: async ({ providerId, hostId }): Promise<State> => {
+    state: async ({ providerId }): Promise<State> => {
+      const hostId = await local();
       const agent = agentOf(providerId);
       if (agent === null) return { agent: null };
       const probe = await run(hostId, agent, VERSION_ARGS, 20_000);
@@ -231,7 +229,8 @@ export default function plugin(bb: BbPluginApi) {
       };
     },
 
-    store: async ({ providerId, hostId, refresh, ...query }): Promise<StorePage> => {
+    store: async ({ providerId, refresh, ...query }): Promise<StorePage> => {
+      const hostId = await local();
       const agent = agentOf(providerId);
       if (!agent || !FEATURES[agent].store) {
         return { ...queryStore([], { ...query, limit: PAGE }), error: "This agent has no plugin catalog its CLI can install from." };
@@ -240,14 +239,16 @@ export default function plugin(bb: BbPluginApi) {
       return { ...queryStore(entries, { ...query, limit: PAGE }), error };
     },
 
-    entry: async ({ providerId, hostId, id }): Promise<Entry | null> => {
+    entry: async ({ providerId, id }): Promise<Entry | null> => {
+      const hostId = await local();
       const agent = agentOf(providerId);
       if (!agent || !FEATURES[agent].store) return null;
       const { entries } = await catalog(hostId, agent);
       return entries.find((e) => e.id === id || (agent === "devin" && e.name === id)) ?? null;
     },
 
-    mcp: async ({ providerId, hostId }): Promise<McpResult> => {
+    mcp: async ({ providerId }): Promise<McpResult> => {
+      const hostId = await local();
       const agent = agentOf(providerId);
       if (!agent) return { servers: [], error: "Not supported for this agent." };
       try {
@@ -262,7 +263,8 @@ export default function plugin(bb: BbPluginApi) {
       }
     },
 
-    act: async ({ providerId, hostId, action }): Promise<ActResult> => {
+    act: async ({ providerId, action }): Promise<ActResult> => {
+      const hostId = await local();
       const agent = agentOf(providerId);
       const args = agent && actionArgv(agent, action);
       if (!agent || !args) return { ok: false, output: "This agent's CLI doesn't support that." };
@@ -274,7 +276,8 @@ export default function plugin(bb: BbPluginApi) {
     },
 
     // Browser/OAuth logins need a real TTY: run them in a bb terminal on that machine.
-    login: async ({ providerId, hostId, server }): Promise<LoginResult> => {
+    login: async ({ providerId, server }): Promise<LoginResult> => {
+      const hostId = await local();
       const agent = agentOf(providerId);
       if (!agent) throw new Error("Not supported for this agent.");
       const label = `${BIN[agent]} mcp login ${server}`;
@@ -290,7 +293,8 @@ export default function plugin(bb: BbPluginApi) {
       return { terminalId: session.id, title: label };
     },
 
-    icons: async ({ hostId, refs }) => {
+    icons: async ({ refs }) => {
+      const hostId = await local();
       const allowed = refs.map((r) => issued.has(iconKey(hostId, r)));
       const wanted = refs.filter((_, i) => allowed[i]);
       const read = wanted.length ? await host.call("readIcons", { refs: wanted }, { hostId }) : [];
@@ -319,7 +323,8 @@ export default function plugin(bb: BbPluginApi) {
 
     // Plugins and MCP servers load when an agent process starts. Stopping an idle thread ends its
     // process; its next message starts a new one (same conversation) with the current config.
-    restartIdle: async ({ providerId, hostId }) => {
+    restartIdle: async ({ providerId }) => {
+      const hostId = await local();
       let stopped = 0;
       let busy = 0;
       for (let offset = 0; ; offset += 100) {

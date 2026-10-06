@@ -5,9 +5,9 @@ description: Where users manage the agents' own plugins and MCP logins (Claude C
 
 # Provider Plugin Manager
 
-The sidebar's **Provider Plugins** page has one tab per running bb agent provider, a machine
-picker, and three views per provider: **Installed**, **Store** and **Connections** (MCP servers).
-It runs that agent's own CLI on the picked machine.
+The sidebar's **Provider Plugins** page lists the running bb agent providers in a left column,
+each with three views: **Installed**, **Store** and **Connections** (MCP servers). It runs that
+agent's own CLI on bb's own machine.
 
 | Provider | Installed | Store | Connections |
 | --- | --- | --- | --- |

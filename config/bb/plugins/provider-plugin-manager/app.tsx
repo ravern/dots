@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { type Action, type Entry, type IconRef, type McpServer } from "./cli.ts";
-import type { ActResult, InstalledPlugin, LoginResult, Machine, McpResult, rpcContract, State, StorePage, TerminalChunk } from "./server.ts";
+import type { ActResult, InstalledPlugin, LoginResult, McpResult, rpcContract, State, StorePage, TerminalChunk } from "./server.ts";
 
 const PANEL = "provider-plugins";
 const VIEWS = ["installed", "store", "connections"] as const;
@@ -25,8 +25,8 @@ type View = (typeof VIEWS)[number];
 type Rpc = ReturnType<typeof useRpc<typeof rpcContract>>;
 type Provider = { id: string; displayName: string; logoUrl: string | null; icon?: { glyph: string } };
 type Ready = Extract<State, { missing: false }>;
-type Target = { providerId: string; hostId: string };
-type Login = { terminalId: string; title: string; hostId: string };
+type Target = { providerId: string };
+type Login = { terminalId: string; title: string };
 
 // ── Routing: /plugins/provider-plugin-manager/provider-plugins/<provider>/<view>[/plugin/<id>]
 
@@ -93,33 +93,29 @@ function Initial({ name, large }: { name: string; large?: boolean }) {
 // fetched only once a row scrolls into view; https URLs load directly. Anything that fails
 // falls back to the letter avatar.
 
-const HostContext = createContext<{ rpc: Rpc; hostId: string } | null>(null);
+const RpcContext = createContext<Rpc | null>(null);
 const iconCache = new Map<string, Promise<string | null>>();
-let iconQueue: { key: string; hostId: string; ref: { base: string; rel: string }; rpc: Rpc; resolve: (v: string | null) => void }[] = [];
+let iconQueue: { key: string; ref: { base: string; rel: string }; rpc: Rpc; resolve: (v: string | null) => void }[] = [];
 
 function flushIcons() {
   const queue = iconQueue;
   iconQueue = [];
-  const byHost = new Map<string, typeof queue>();
-  for (const q of queue) byHost.set(q.hostId, [...(byHost.get(q.hostId) ?? []), q]);
-  for (const [hostId, items] of byHost) {
-    for (let i = 0; i < items.length; i += 100) {
-      const chunk = items.slice(i, i + 100);
-      chunk[0].rpc.call("icons", { hostId, refs: chunk.map((c) => c.ref) }).then(
-        (urls: (string | null)[]) => chunk.forEach((c, j) => c.resolve(urls[j] ?? null)),
-        () => chunk.forEach((c) => (iconCache.delete(c.key), c.resolve(null))),
-      );
-    }
+  for (let i = 0; i < queue.length; i += 100) {
+    const chunk = queue.slice(i, i + 100);
+    chunk[0].rpc.call("icons", { refs: chunk.map((c) => c.ref) }).then(
+      (urls: (string | null)[]) => chunk.forEach((c, j) => c.resolve(urls[j] ?? null)),
+      () => chunk.forEach((c) => (iconCache.delete(c.key), c.resolve(null))),
+    );
   }
 }
 
-function loadIcon(rpc: Rpc, hostId: string, ref: { base: string; rel: string }): Promise<string | null> {
-  const key = `${hostId}\n${ref.base}\n${ref.rel}`;
+function loadIcon(rpc: Rpc, ref: { base: string; rel: string }): Promise<string | null> {
+  const key = `${ref.base}\n${ref.rel}`;
   let icon = iconCache.get(key);
   if (!icon) {
     icon = new Promise((resolve) => {
       if (iconQueue.length === 0) setTimeout(flushIcons, 30);
-      iconQueue.push({ key, hostId, ref, rpc, resolve });
+      iconQueue.push({ key, ref, rpc, resolve });
     });
     iconCache.set(key, icon);
   }
@@ -127,7 +123,7 @@ function loadIcon(rpc: Rpc, hostId: string, ref: { base: string; rel: string }):
 }
 
 function PluginIcon({ icon, name, large }: { icon: IconRef | null; name: string; large?: boolean }) {
-  const host = useContext(HostContext);
+  const rpc = useContext(RpcContext);
   const box = useRef<HTMLSpanElement>(null);
   const [visible, setVisible] = useState(false);
   const [src, setSrc] = useState<string | null>(icon && "url" in icon ? icon.url : null);
@@ -140,13 +136,13 @@ function PluginIcon({ icon, name, large }: { icon: IconRef | null; name: string;
     return () => seen.disconnect();
   }, [local?.base, local?.rel, visible]);
   useEffect(() => {
-    if (!visible || local === null || host === null) return;
+    if (!visible || local === null || rpc === null) return;
     let live = true;
-    loadIcon(host.rpc, host.hostId, local).then((url) => live && setSrc(url));
+    loadIcon(rpc, local).then((url) => live && setSrc(url));
     return () => {
       live = false;
     };
-  }, [visible, local?.base, local?.rel, host?.hostId]);
+  }, [visible, local?.base, local?.rel, rpc]);
   const size = large ? "size-10" : "size-6";
   if (src === null || failed) {
     return (
@@ -274,7 +270,7 @@ function useActions(rpc: Rpc, target: Target, providerName: string, onChanged: (
           onChanged();
         });
     },
-    [rpc, target.providerId, target.hostId, providerName, onChanged],
+    [rpc, target.providerId, providerName, onChanged],
   );
   return { busy, error, act, clearError: () => setError(null) };
 }
@@ -470,7 +466,7 @@ function StoreView({ rpc, target, state, actions, open }: { rpc: Rpc; target: Ta
         )
         .finally(() => mine === seq.current && setLoading(false));
     },
-    [rpc, target.providerId, target.hostId, query, category, marketplace, unavailable],
+    [rpc, target.providerId, query, category, marketplace, unavailable],
   );
   // Debounced search; filters reload immediately.
   useEffect(() => {
@@ -580,7 +576,7 @@ function useMcp(rpc: Rpc, target: Target) {
       .call("mcp", target)
       .then(setResult, (e: Error) => setResult({ servers: [], error: e.message }))
       .finally(() => setLoading(false));
-  }, [rpc, target.providerId, target.hostId]);
+  }, [rpc, target.providerId]);
   useEffect(load, [load]);
   return { result, loading, load };
 }
@@ -676,7 +672,7 @@ function DetailView({ rpc, target, state, actions, id, back, login }: { rpc: Rpc
   const [entry, setEntry] = useState<Entry | null | undefined>(undefined);
   useEffect(() => {
     rpc.call("entry", { ...target, id }).then(setEntry, () => setEntry(null));
-  }, [rpc, target.providerId, target.hostId, id]);
+  }, [rpc, target.providerId, id]);
   const plugin = state.plugins?.find((p) => p.id === id || p.name === id) ?? null;
   const { result } = useMcp(rpc, target);
   const name = plugin?.name ?? entry?.name ?? id;
@@ -737,12 +733,11 @@ function DetailView({ rpc, target, state, actions, id, back, login }: { rpc: Rpc
 
 // ── One provider
 
-function AgentPanel({ provider, hostId, machineName, view, pluginId }: { provider: Provider; hostId: string; machineName: string; view: View; pluginId: string | null }) {
+function AgentPanel({ provider, view, pluginId }: { provider: Provider; view: View; pluginId: string | null }) {
   const rpc = useRpc<typeof rpcContract>();
   const go = useGo();
   const panel = experimental_useAppPanel();
-  const target = useMemo(() => ({ providerId: provider.id, hostId }), [provider.id, hostId]);
-  const hostValue = useMemo(() => ({ rpc, hostId }), [rpc, hostId]);
+  const target = useMemo(() => ({ providerId: provider.id }), [provider.id]);
   const [state, setState] = useState<State | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [restarting, setRestarting] = useState(false);
@@ -759,7 +754,7 @@ function AgentPanel({ provider, hostId, machineName, view, pluginId }: { provide
   const login = (server: string) => {
     rpc.call("login", { ...target, server }).then(
       (r: LoginResult) => {
-        const opened = panel.openFixedTab({ surface: { kind: "current" }, tab: LOGIN_TAB, target: { ...r, hostId } });
+        const opened = panel.openFixedTab({ surface: { kind: "current" }, tab: LOGIN_TAB, target: r });
         toast(opened ? "Login opened in the Login tab." : `Login started: bb terminal attach ${r.terminalId}`);
       },
       (e: Error) => toast.error(e.message),
@@ -783,7 +778,7 @@ function AgentPanel({ provider, hostId, machineName, view, pluginId }: { provide
     return (
       <div className="opacity-60">
         <Empty>
-          <code className="font-mono">{state.bin}</code> isn't installed on {machineName}.
+          <code className="font-mono">{state.bin}</code> isn't installed.
         </Empty>
       </div>
     );
@@ -795,7 +790,7 @@ function AgentPanel({ provider, hostId, machineName, view, pluginId }: { provide
     { view: "connections", label: "Connections" },
   ];
   return (
-    <HostContext.Provider value={hostValue}>
+    <RpcContext.Provider value={rpc}>
     <div className="space-y-4">
       {pluginId === null ? (
         <nav className="flex items-center gap-1 border-b border-border" aria-label="Views">
@@ -843,14 +838,14 @@ function AgentPanel({ provider, hostId, machineName, view, pluginId }: { provide
         <InstalledView state={state} actions={actions} open={(id) => go(provider.id, "installed", id)} />
       )}
     </div>
-    </HostContext.Provider>
+    </RpcContext.Provider>
   );
 }
 
 // ── Login terminal (right panel)
 
 const isLogin = (v: JsonValue): v is Login =>
-  typeof v === "object" && v !== null && !Array.isArray(v) && typeof v.terminalId === "string" && typeof v.title === "string" && typeof v.hostId === "string";
+  typeof v === "object" && v !== null && !Array.isArray(v) && typeof v.terminalId === "string" && typeof v.title === "string";
 
 function LoginTerminal() {
   const rpc = useRpc<typeof rpcContract>();
@@ -948,60 +943,35 @@ const LOGIN_TAB = {
 // ── Page
 
 function Page({ subPath }: PluginNavPanelProps) {
-  const rpc = useRpc<typeof rpcContract>();
   const go = useGo();
   const { providers, status } = experimental_useProviders();
-  const [machines, setMachines] = useState<Machine[]>([]);
-  const [hostId, setHostId] = useState<string | null>(null);
-  const [machineError, setMachineError] = useState<string | null>(null);
-  useEffect(() => {
-    rpc.call("machines", null).then(
-      (r: { machines: Machine[]; defaultId: string | null }) => {
-        setMachines(r.machines);
-        setHostId((current) => current ?? r.defaultId);
-      },
-      (e: Error) => setMachineError(e.message),
-    );
-  }, [rpc]);
-
   const route = parseRoute(subPath);
-  // The tabs are bb's provider list: enabling or removing a provider plugin changes them.
+  // bb's provider list, in its picker order: enabling or removing a provider plugin changes it.
   const selected = providers.find((p) => p.id === route.providerId) ?? providers[0];
-  const machine = machines.find((m) => m.id === hostId);
   return (
-    <div className="h-full overflow-y-auto p-4 md:p-5">
-      <div className="mx-auto w-full max-w-5xl space-y-5">
-        <div className="flex flex-wrap items-center gap-1">
-          {providers.map((p) => (
-            <Button key={p.id} variant="ghost" size="sm" aria-pressed={p.id === selected?.id} className="h-8 gap-1.5 px-2.5 text-sm" onClick={() => go(p.id, route.view)}>
-              <ProviderIcon providerKind="agent" provider={p} className="size-4" aria-hidden />
-              {p.displayName}
-            </Button>
-          ))}
-          <span className="flex-1" />
-          <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Icon name="Laptop" className="size-3.5" aria-hidden />
-            <select
-              aria-label="Machine"
-              className="h-8 rounded-md border border-input bg-transparent px-2 text-xs text-foreground"
-              value={hostId ?? ""}
-              onChange={(e) => setHostId(e.target.value)}
-            >
-              {machines.map((m) => (
-                <option key={m.id} value={m.id} disabled={!m.connected}>
-                  {m.name}
-                  {m.connected ? "" : " (offline)"}
-                </option>
-              ))}
-            </select>
-          </label>
+    <div className="flex h-full min-h-0 flex-col md:flex-row">
+      <nav aria-label="Providers" className="flex shrink-0 gap-0.5 overflow-x-auto border-b border-border p-2 md:w-52 md:flex-col md:overflow-y-auto md:border-b-0 md:border-r">
+        {providers.map((p) => (
+          <Button
+            key={p.id}
+            variant="ghost"
+            size="sm"
+            aria-pressed={p.id === selected?.id}
+            aria-current={p.id === selected?.id ? "page" : undefined}
+            className="h-8 shrink-0 justify-start gap-2 px-2 text-sm font-normal text-muted-foreground aria-pressed:font-medium md:w-full"
+            onClick={() => go(p.id, route.view)}
+          >
+            <ProviderIcon providerKind="agent" provider={p} className="size-4" aria-hidden />
+            <span className="truncate">{p.displayName}</span>
+          </Button>
+        ))}
+      </nav>
+      <div className="min-h-0 min-w-0 flex-1 overflow-y-auto p-4 md:p-5">
+        <div className="mx-auto w-full max-w-5xl space-y-5">
+          {status === "loading" ? <Loading>Loading…</Loading> : null}
+          {status === "ready" && providers.length === 0 ? <Empty>No agent providers are running.</Empty> : null}
+          {selected ? <AgentPanel key={selected.id} provider={selected} view={route.view} pluginId={route.pluginId} /> : null}
         </div>
-        {machineError ? <ErrorText>{machineError}</ErrorText> : null}
-        {status === "loading" ? <Loading>Loading providers…</Loading> : null}
-        {status === "ready" && providers.length === 0 ? <Empty>No agent providers are running.</Empty> : null}
-        {selected && hostId ? (
-          <AgentPanel key={`${selected.id}:${hostId}`} provider={selected} hostId={hostId} machineName={machine?.name ?? "this machine"} view={route.view} pluginId={route.pluginId} />
-        ) : null}
       </div>
     </div>
   );
