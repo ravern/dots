@@ -26,6 +26,7 @@
     "server.ts",
     "host.ts",
     "cli.ts",
+    "sidebar.ts",
     "app.tsx",
     "cli.test.ts",
     "components",

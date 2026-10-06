@@ -1,6 +1,7 @@
 // Run: node --experimental-strip-types cli.test.ts
 // Fixtures are trimmed real outputs (claude 2.1.285, codex 0.157.1, cursor-agent 2026.07.23, devin 3000.11.3).
 import assert from "node:assert/strict";
+import { hider, isOurPage, sidebarRest } from "./sidebar.ts";
 import { actionArgv, actionSchema, claudePluginDirs, codexManifestPaths, dirIcon, manifestIcon, parseCatalog, parseDevinCatalog, parseMarketplaces, parseMcp, parsePlugins, queryStore, redact, shellQuote } from "./cli.ts";
 
 const claudeList = JSON.stringify([
@@ -244,5 +245,71 @@ assert.equal(shellQuote("claude.ai Linear"), "'claude.ai Linear'");
 assert.equal(shellQuote("it's"), "'it'\\''s'");
 assert.equal(shellQuote("plugin:github:github"), "plugin:github:github");
 assert.equal(redact("open https://x.test/cb?code=abc123&state=s"), "open https://x.test/cb?code=•••&state=s");
+
+// Sidebar: route predicate, which parts get hidden, and exact restore. A tiny fake DOM with
+// attribute selectors is enough for the selectors sidebar.ts uses.
+class El {
+  parentElement: El | null = null;
+  children: El[] = [];
+  style = { display: "" };
+  attrs: Record<string, string>;
+  constructor(attrs: Record<string, string> = {}, kids: El[] = []) {
+    this.attrs = attrs;
+    for (const k of kids) (k.parentElement = this), this.children.push(k);
+  }
+  matches(sel: string) {
+    return sel.split(",").some((one) => {
+      const m = /^\[([\w-]+)="([^"]*)"\]$/.exec(one.trim());
+      return m !== null && this.attrs[m[1]] === m[2];
+    });
+  }
+  closest(sel: string): El | null {
+    for (let e: El | null = this; e; e = e.parentElement) if (e.matches(sel)) return e;
+    return null;
+  }
+  *all(): Generator<El> {
+    for (const c of this.children) yield c, yield* c.all();
+  }
+  querySelectorAll(sel: string) {
+    return [...this.all()].filter((e) => e.matches(sel));
+  }
+  contains(o: El | null) {
+    for (let e = o; e; e = e.parentElement) if (e === this) return true;
+    return false;
+  }
+}
+assert.equal(isOurPage("provider-plugin-manager/provider-plugins", "provider-plugin-manager", "provider-plugins"), true);
+assert.equal(isOurPage("__bb__/new-thread", "provider-plugin-manager", "provider-plugins"), false);
+assert.equal(isOurPage(null, "provider-plugin-manager", "provider-plugins"), false);
+
+const nav = new El();
+const group = new El({ "data-sidebar": "content" }); // nested inside the thread list: not hidden on its own
+const threads = new El({ "data-sidebar": "content" }, [group]);
+const footer = new El({ "data-sidebar": "footer" });
+new El({ "data-sidebar": "sidebar" }, [new El({ "data-testid": "app-sidebar-top-reserve-row" }), new El({}, [nav]), threads, footer]);
+assert.deepEqual(sidebarRest(nav as any), [threads, footer]);
+// Mobile drawer body works the same.
+const mobileNav = new El();
+new El({ "data-testid": "app-sidebar-body" }, [mobileNav, new El({ "data-sidebar": "content" }), new El({ "data-sidebar": "footer" })]);
+assert.equal(sidebarRest(mobileNav as any)?.length, 2);
+// Fail safe: anything unexpected hides nothing.
+assert.equal(sidebarRest(new El() as any), null, "not in a sidebar");
+const noFooterNav = new El();
+new El({ "data-sidebar": "sidebar" }, [noFooterNav, new El({ "data-sidebar": "content" })]);
+assert.equal(sidebarRest(noFooterNav as any), null, "footer missing");
+const insideNav = new El();
+new El({ "data-sidebar": "sidebar" }, [new El({ "data-sidebar": "content" }, [insideNav]), new El({ "data-sidebar": "footer" })]);
+assert.equal(sidebarRest(insideNav as any), null, "never hide the region holding our rows");
+
+threads.style.display = "flex";
+const h = hider();
+h.hide([threads, footer] as any);
+h.hide([threads] as any); // again: keeps the original display
+assert.deepEqual([threads.style.display, footer.style.display], ["none", "none"]);
+footer.style.display = "block"; // bb changed it meanwhile
+h.restore();
+assert.deepEqual([threads.style.display, footer.style.display], ["flex", "block"]);
+h.restore(); // idempotent
+assert.equal(threads.style.display, "flex");
 
 console.log("ok");
