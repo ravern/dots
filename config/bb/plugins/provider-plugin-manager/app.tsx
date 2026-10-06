@@ -1,14 +1,19 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Component, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import {
   definePluginApp,
   experimental_Icon as Icon,
   experimental_ProviderIcon as ProviderIcon,
   experimental_useAppPanel,
   experimental_useFixedTabTarget,
+  experimental_SidebarNavigationIcon as NavIcon,
+  experimental_usePluginId,
   experimental_useProviders,
+  experimental_useSidebarNavigation,
   UrlLink,
+  useBbContext,
   useBbNavigate,
   useRpc,
+  type ExperimentalSidebarNavigationProps,
   type JsonValue,
   type PluginNavPanelProps,
 } from "@get-bb/plugin-sdk/app";
@@ -942,41 +947,160 @@ const LOGIN_TAB = {
 
 // ── Page
 
+// The page's route, shared with the sidebar navigation (which gets no route of its own).
+let shownRoute = { providerId: null as string | null, view: "installed" as View };
+const routeListeners = new Set<() => void>();
+const useShownRoute = () =>
+  useSyncExternalStore(
+    (l) => (routeListeners.add(l), () => void routeListeners.delete(l)),
+    () => shownRoute,
+  );
+
 function Page({ subPath }: PluginNavPanelProps) {
-  const go = useGo();
   const { providers, status } = experimental_useProviders();
   const route = parseRoute(subPath);
   // bb's provider list, in its picker order: enabling or removing a provider plugin changes it.
   const selected = providers.find((p) => p.id === route.providerId) ?? providers[0];
+  const providerId = selected?.id ?? null;
+  useEffect(() => {
+    shownRoute = { providerId, view: route.view };
+    routeListeners.forEach((l) => l());
+  }, [providerId, route.view]);
   return (
-    <div className="flex h-full min-h-0 flex-col md:flex-row">
-      <nav aria-label="Providers" className="flex shrink-0 gap-0.5 overflow-x-auto border-b border-border p-2 md:w-52 md:flex-col md:overflow-y-auto md:border-b-0 md:border-r">
-        {providers.map((p) => (
-          <Button
-            key={p.id}
-            variant="ghost"
-            size="sm"
-            aria-pressed={p.id === selected?.id}
-            aria-current={p.id === selected?.id ? "page" : undefined}
-            className="h-8 shrink-0 justify-start gap-2 px-2 text-sm font-normal text-muted-foreground aria-pressed:font-medium md:w-full"
-            onClick={() => go(p.id, route.view)}
-          >
-            <ProviderIcon providerKind="agent" provider={p} className="size-4" aria-hidden />
-            <span className="truncate">{p.displayName}</span>
-          </Button>
-        ))}
-      </nav>
-      <div className="min-h-0 min-w-0 flex-1 overflow-y-auto p-4 md:p-5">
-        <div className="mx-auto w-full max-w-5xl space-y-5">
-          {status === "loading" ? <Loading>Loading…</Loading> : null}
-          {status === "ready" && providers.length === 0 ? <Empty>No agent providers are running.</Empty> : null}
-          {selected ? <AgentPanel key={selected.id} provider={selected} view={route.view} pluginId={route.pluginId} /> : null}
-        </div>
+    <div className="h-full overflow-y-auto p-4 md:p-5">
+      <div className="mx-auto w-full max-w-5xl space-y-5">
+        {status === "loading" ? <Loading>Loading…</Loading> : null}
+        {status === "ready" && providers.length === 0 ? <Empty>No agent providers are running.</Empty> : null}
+        {selected ? (
+          <>
+            <h1 className="flex items-center gap-2 text-xl font-semibold text-foreground">
+              <ProviderIcon providerKind="agent" provider={selected} className="size-5" aria-hidden />
+              {selected.displayName}
+            </h1>
+            <AgentPanel key={selected.id} provider={selected} view={route.view} pluginId={route.pluginId} />
+          </>
+        ) : null}
       </div>
     </div>
   );
 }
 
+// ── Sidebar navigation: bb's own everywhere, except on this page, where (like bb's Plugins
+// page) it becomes "Back to app" plus one row per provider. Classes are bb's sidebar rows.
+
+const ROW =
+  "flex w-full min-w-0 cursor-pointer items-center justify-start gap-2 overflow-hidden rounded-md pl-2 pr-0 text-sm font-normal text-sidebar-foreground transition-none hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ring-sidebar-ring focus-visible:outline-none focus-visible:ring-2 h-[var(--bb-sidebar-row-height)] max-md:pointer-coarse:h-[var(--bb-sidebar-row-height-coarse)]";
+const ROW_ACTIVE = "bg-sidebar-accent text-sidebar-foreground";
+const ROW_ICON = "size-4 shrink-0 max-md:pointer-coarse:size-5";
+
+function NavRow({ active, label, icon, onClick }: { active?: boolean; label: string; icon: ReactNode; onClick: () => void }) {
+  return (
+    <button type="button" aria-current={active ? "page" : undefined} className={cn(ROW, active && ROW_ACTIVE)} onClick={onClick}>
+      {icon}
+      <span className="min-w-0 flex-1 truncate text-left">{label}</span>
+    </button>
+  );
+}
+
+/** bb's rows, for when `experimental_Original` is gone (it is deprecated). */
+function BbRows() {
+  const { items, activeItemId, actions } = experimental_useSidebarNavigation();
+  return (
+    <div className="relative shrink-0 space-y-0.5 px-2 py-2">
+      {items
+        .filter((i) => i.isVisible)
+        .map((i) => (
+          <NavRow
+            key={i.id}
+            active={i.id === activeItemId}
+            label={i.label}
+            icon={<NavIcon icon={i.icon} className={ROW_ICON} />}
+            onClick={() => actions.activate(i.id, { openInSplit: false })}
+          />
+        ))}
+    </div>
+  );
+}
+
+function Original({ props }: { props: ExperimentalSidebarNavigationProps }) {
+  const Bb = props.experimental_Original;
+  return Bb ? <Bb /> : <BbRows />;
+}
+
+/** Any failure in our rows falls back to bb's navigation instead of bb's crash placeholder. */
+class FallBack extends Component<{ props: ExperimentalSidebarNavigationProps; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? <Original props={this.props.props} /> : this.props.children;
+  }
+}
+
+// Where "Back to app" returns: the thread or project shown before this page.
+let lastPlace: { threadId: string | null; projectId: string | null } = { threadId: null, projectId: null };
+
+function ProviderNavigation(props: ExperimentalSidebarNavigationProps) {
+  const { activeItemId } = experimental_useSidebarNavigation();
+  const pluginId = experimental_usePluginId();
+  const context = useBbContext();
+  const ours = activeItemId === `${pluginId}/${PANEL}`;
+  useEffect(() => {
+    if (!ours && (context.threadId || context.projectId)) lastPlace = { threadId: context.threadId, projectId: context.projectId };
+  }, [ours, context.threadId, context.projectId]);
+  return <FallBack props={props}>{ours ? <ProviderRows {...props} /> : <Original props={props} />}</FallBack>;
+}
+
+function ProviderRows({ isCompactViewport }: ExperimentalSidebarNavigationProps) {
+  const navigate = useBbNavigate();
+  const pluginId = experimental_usePluginId();
+  const { actions } = experimental_useSidebarNavigation();
+  const { providers } = experimental_useProviders();
+  const route = useShownRoute();
+  const selected = providers.find((p) => p.id === route.providerId)?.id ?? providers[0]?.id;
+  const open = (providerId: string) => {
+    const subPath = `${providerId}/${route.view}`;
+    if (!isCompactViewport) return navigate.toPluginPanel(PANEL, { subPath });
+    // On phones, activating our own item is what closes the drawer; then select the provider.
+    actions.activate(`${pluginId}/${PANEL}`, { openInSplit: false });
+    setTimeout(() => navigate.toPluginPanel(PANEL, { subPath, replace: true }));
+  };
+  const back = () => {
+    if (lastPlace.threadId) navigate.toThread(lastPlace.threadId);
+    else if (lastPlace.projectId) navigate.toProject(lastPlace.projectId);
+    else navigate.toCompose();
+  };
+  return (
+    <>
+      <div className="shrink-0 px-2 py-2">
+        <NavRow label="Back to app" icon={<Icon name="ChevronLeft" className={ROW_ICON} aria-hidden />} onClick={back} />
+      </div>
+      <div className="min-w-0 px-2">
+        <div className="pl-2 text-xs font-normal leading-5 text-subtle-foreground/75">Provider Plugins</div>
+        <div className="mt-1 space-y-0.5">
+          {providers.map((p) => (
+            <NavRow
+              key={p.id}
+              active={p.id === selected}
+              label={p.displayName}
+              icon={<ProviderIcon providerKind="agent" provider={p} className={ROW_ICON} aria-hidden />}
+              onClick={() => open(p.id)}
+            />
+          ))}
+        </div>
+      </div>
+      <div aria-hidden className="mx-2 my-2 shrink-0 border-t border-sidebar-border/25" />
+    </>
+  );
+}
+
 export default definePluginApp((app) => {
   app.slots.navPanel({ id: PANEL, title: "Provider Plugins", icon: "Layers", path: PANEL, component: Page, fixedTabs: [LOGIN_TAB] });
+  app.slots.experimental_sidebarNavigation({
+    id: "provider-plugins-navigation",
+    title: "Provider Plugins navigation",
+    description: "bb's navigation; on Provider Plugins, Back to app and the providers.",
+    component: ProviderNavigation,
+  });
 });
