@@ -18,7 +18,7 @@ done
 
 
 # Disabled plugins
-for p in account-pool agent-annotations monaco-editor plugin-api-docs plugin-api-tester provider-pi workflows; do
+for p in account-pool agent-annotations monaco-editor plugin-api-docs plugin-api-tester workflows; do
   bb plugin disable $p
 done
 
