@@ -36,11 +36,11 @@
   /* ---- Typography ----------------------------------------------------
    * Greptile's dashboard body is DM Sans (`.greptile-fonts`). Its code
    * surfaces (the PR diff viewer) use GitHub's system mono stack rather than
-   * the Space Mono it uses for labels. Mono is the user's Iosevka instead
-   * (installed locally via the `font-iosevka` cask, same as Ghostty), with
+   * the Space Mono it uses for labels. Mono is Ioskeley Mono (Iosevka styled after
+   * Berkeley Mono; the `font-ioskeley-mono` cask), then Iosevka, with
    * GitHub's system stack as the fallback; the terminal follows it. */
   --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono: "Iosevka", ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-mono: "Ioskeley Mono", "Iosevka", ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   --font-terminal: var(--font-mono);
 
   /* "1px — single unified corner radius". See section 3 for why the token
