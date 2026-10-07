@@ -128,10 +128,10 @@ cask 'zen'
 cask 'zoom'
 
 mas "1Password for Safari", id: 1569813296
-mas "Keynote", id: 409183694
-mas "Numbers", id: 409203825
+mas "Keynote", id: 361285480
+mas "Numbers", id: 361304891
 mas "NordVPN: VPN Fast & Secure", id: 905953485
-mas "Pages", id: 409201541
+mas "Pages", id: 361309726
 mas "TestFlight", id: 899247664
 mas "WhatsApp", id: 310633997
 mas "Xcode", id: 497799835

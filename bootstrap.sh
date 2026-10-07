@@ -34,14 +34,14 @@ if [ ! -e $HOME/.config/mise ]; then
 fi
 
 # Install Mint packages
-/opt/homebrew/bin/mint bootstrap
+/opt/homebrew/bin/mint bootstrap --link
 
 # Install Rust and global binaries
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | /bin/bash
 $HOME/.cargo/bin/cargo install pazi
 $HOME/.cargo/bin/cargo install cargo-edit
 $HOME/.cargo/bin/cargo install cargo-bundle
-$HOME/.cargo/bin/cargo install --features vendored-openssl --locked --bin jj jj-cli
+$HOME/.cargo/bin/cargo install --locked --bin jj jj-cli
 $HOME/.cargo/bin/rustup toolchain install nightly
 
 # Install Node and global JS tools
@@ -51,7 +51,7 @@ $HOME/.cargo/bin/rustup toolchain install nightly
 
 # Install Python apps
 /opt/homebrew/bin/pipx install fava || /opt/homebrew/bin/pipx upgrade fava
-/opt/homebrew/bin/pipx install rendercv || /opt/homebrew/bin/pipx upgrade rendercv
+/opt/homebrew/bin/pipx install 'rendercv[full]' || /opt/homebrew/bin/pipx upgrade rendercv
 
 # Install Zsh plugins
 mkdir -p $HOME/.local/zsh/plugins
