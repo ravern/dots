@@ -27,6 +27,33 @@
 /* DM Sans (body) and Anybody (headings) aren't bundled with bb or macOS. */
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Anybody:wght@400..700&display=swap");
 
+/* Ioskeley Mono's Semi-Condensed width shares the "Ioskeley Mono" family
+ * name, so expose it as its own family by local font name. */
+@font-face {
+  font-family: "Ioskeley Mono SC";
+  src: local("Ioskeley Mono Semi-Condensed"), local("IoskeleyMono-SemiCondensed");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Ioskeley Mono SC";
+  src: local("Ioskeley Mono Semi-Condensed Bold"), local("IoskeleyMono-SemiCondensedBold");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Ioskeley Mono SC";
+  src: local("Ioskeley Mono Semi-Condensed Italic"), local("IoskeleyMono-SemiCondensedItalic");
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Ioskeley Mono SC";
+  src: local("Ioskeley Mono Semi-Condensed Bold Italic"), local("IoskeleyMono-SemiCondensedBoldItalic");
+  font-weight: 700;
+  font-style: italic;
+}
+
 /* ===================================================================== */
 /* 1. Light mode + mode-independent tokens                                */
 /* ===================================================================== */
@@ -36,11 +63,11 @@
   /* ---- Typography ----------------------------------------------------
    * Greptile's dashboard body is DM Sans (`.greptile-fonts`). Its code
    * surfaces (the PR diff viewer) use GitHub's system mono stack rather than
-   * the Space Mono it uses for labels. Mono is Ioskeley Mono (Iosevka styled after
-   * Berkeley Mono; the `font-ioskeley-mono` cask), then Iosevka, with
+   * the Space Mono it uses for labels. Mono is Ioskeley Mono Semi-Condensed (Iosevka styled
+   * after Berkeley Mono; the `font-ioskeley-mono` cask), then Iosevka, with
    * GitHub's system stack as the fallback; the terminal follows it. */
   --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono: "Ioskeley Mono", "Iosevka", ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-mono: "Ioskeley Mono SC", "Ioskeley Mono", "Iosevka", ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   --font-terminal: var(--font-mono);
 
   /* "1px — single unified corner radius". See section 3 for why the token
