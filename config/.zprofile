@@ -6,6 +6,7 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 export LANG=en_US.UTF-8
 export TERM=xterm-256color
 export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_ENV_HINTS=1
 export GOPATH=$HOME/.go
 export DOTS_PATH=$HOME/Repos/ravern/dots
 export PATH=/opt/homebrew/bin:$PATH
