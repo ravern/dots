@@ -70,21 +70,24 @@
   --pb-gradient-knob: linear-gradient(180deg, #FFFFFF, #F2F2F3);
   --pb-highlight: inset 0 1px 0 rgba(255, 255, 255, .9);
   --pb-highlight-on-color: inset 0 1px 0 rgba(255, 255, 255, .22);
-  --pb-shadow-1: 0 1px 1px rgba(0, 0, 0, .06), 0 2px 4px rgba(0, 0, 0, .05);
-  --pb-shadow-2: 0 1px 2px rgba(0, 0, 0, .06), 0 4px 12px rgba(0, 0, 0, .07);
-  --pb-shadow-3: 0 2px 4px rgba(0, 0, 0, .05), 0 14px 32px rgba(0, 0, 0, .12);
+  /* One light at 55° from the top edge: shadow offset = height × 0.7, blur = height × 1.25.
+     Heights: raised 3px, card 8px, float 20px, modal 40px; sunken 2px, pressed 3px (tokens.css). */
+  --pb-shadow-1: 0 .5px 1px rgba(0, 0, 0, .08), 0 2.1px 3.75px rgba(0, 0, 0, .07);
+  --pb-shadow-2: 0 .5px 1px rgba(0, 0, 0, .08), 0 5.6px 10px rgba(0, 0, 0, .08);
+  --pb-shadow-3: 0 .5px 1px rgba(0, 0, 0, .08), 0 14px 25px rgba(0, 0, 0, .1);
+  --pb-shadow-4: 0 .5px 1px rgba(0, 0, 0, .08), 0 28px 50px rgba(0, 0, 0, .14);
   /* shadow-1 squeezed to fit a 4px track padding (segments in clipping tracks). */
   --pb-shadow-segment: 0 1px 1px rgba(0, 0, 0, .06), 0 1px 3px rgba(0, 0, 0, .05);
-  --pb-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, .09), inset 0 0 0 1px rgba(0, 0, 0, .04);
-  --pb-shadow-inset-focus: inset 0 1px 3px rgba(0, 0, 0, .16), inset 0 0 0 1px rgba(0, 0, 0, .14);
+  --pb-shadow-inset: inset 0 1.4px 2.5px rgba(0, 0, 0, .09), inset 0 0 0 1px var(--pb-line);
+  --pb-shadow-inset-focus: inset 0 1px 3px rgba(0, 0, 0, .16), inset 0 0 0 1px color-mix(in srgb, var(--ink) 28%, transparent);
   --pb-edge-focus: inset 0 0 0 1px rgba(0, 0, 0, .1);
   --pb-shadow-inset-on-color: inset 0 1px 2px rgba(0, 0, 0, .3);
-  --pb-shadow-pressed: inset 0 2px 3px rgba(0, 0, 0, .16);
+  --pb-shadow-pressed: inset 0 2.1px 3.75px rgba(0, 0, 0, .16);
   --pb-shadow-knob: 0 1px 2px rgba(0, 0, 0, .2), 0 2px 6px rgba(0, 0, 0, .12);
-  --pb-shadow-primary: 0 1px 2px rgba(0, 0, 0, .25), 0 4px 12px rgba(0, 0, 0, .2);
-  --pb-shadow-primary-hover: 0 1px 2px rgba(0, 0, 0, .25), 0 8px 20px rgba(0, 0, 0, .26);
-  --pb-shadow-danger: 0 1px 2px rgba(0, 0, 0, .25), 0 4px 12px rgba(214, 69, 69, .28);
-  --pb-shadow-danger-hover: 0 1px 2px rgba(0, 0, 0, .25), 0 8px 20px rgba(214, 69, 69, .34);
+  --pb-shadow-primary: 0 .5px 1px rgba(0, 0, 0, .08), 0 2.1px 3.75px rgba(0, 0, 0, .22);
+  --pb-shadow-primary-hover: 0 .5px 1px rgba(0, 0, 0, .08), 0 5.6px 10px rgba(0, 0, 0, .24);
+  --pb-shadow-danger: 0 .5px 1px rgba(0, 0, 0, .08), 0 2.1px 3.75px rgba(214, 69, 69, .3);
+  --pb-shadow-danger-hover: 0 .5px 1px rgba(0, 0, 0, .08), 0 5.6px 10px rgba(214, 69, 69, .32);
   --pb-focus-ring: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent);
 
   /* Motion (tokens.css). */
@@ -127,18 +130,19 @@
   --pb-gradient-danger: linear-gradient(180deg, #E26464, #C94444);
   --pb-gradient-knob: linear-gradient(180deg, #FFFFFF, #D4D4D8);
   --pb-highlight: inset 0 1px 0 rgba(255, 255, 255, .06);
-  --pb-shadow-1: 0 1px 1px rgba(0, 0, 0, .3), 0 2px 4px rgba(0, 0, 0, .18);
-  --pb-shadow-2: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 12px rgba(0, 0, 0, .22);
-  --pb-shadow-3: 0 2px 4px rgba(0, 0, 0, .3), 0 14px 32px rgba(0, 0, 0, .35);
+  --pb-shadow-1: 0 .5px 1px rgba(0, 0, 0, .35), 0 2.1px 3.75px rgba(0, 0, 0, .28);
+  --pb-shadow-2: 0 .5px 1px rgba(0, 0, 0, .35), 0 5.6px 10px rgba(0, 0, 0, .3);
+  --pb-shadow-3: 0 .5px 1px rgba(0, 0, 0, .35), 0 14px 25px rgba(0, 0, 0, .38);
+  --pb-shadow-4: 0 .5px 1px rgba(0, 0, 0, .35), 0 28px 50px rgba(0, 0, 0, .5);
   --pb-shadow-segment: 0 1px 1px rgba(0, 0, 0, .3), 0 1px 3px rgba(0, 0, 0, .18);
-  --pb-shadow-primary: 0 1px 2px rgba(0, 0, 0, .25), 0 4px 12px rgba(0, 0, 0, .5);
-  --pb-shadow-primary-hover: 0 1px 2px rgba(0, 0, 0, .25), 0 8px 20px rgba(0, 0, 0, .6);
-  --pb-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, .5), inset 0 0 0 1px rgba(255, 255, 255, .04);
-  --pb-shadow-inset-focus: inset 0 1px 3px rgba(0, 0, 0, .65), inset 0 0 0 1px rgba(255, 255, 255, .1);
+  --pb-shadow-primary: 0 .5px 1px rgba(0, 0, 0, .35), 0 2.1px 3.75px rgba(0, 0, 0, .5);
+  --pb-shadow-primary-hover: 0 .5px 1px rgba(0, 0, 0, .35), 0 5.6px 10px rgba(0, 0, 0, .55);
+  --pb-shadow-inset: inset 0 1.4px 2.5px rgba(0, 0, 0, .5), inset 0 0 0 1px var(--pb-line);
+  --pb-shadow-inset-focus: inset 0 1px 3px rgba(0, 0, 0, .65), inset 0 0 0 1px color-mix(in srgb, var(--ink) 28%, transparent);
   --pb-edge-focus: inset 0 0 0 1px rgba(255, 255, 255, .08);
-  --pb-shadow-pressed: inset 0 2px 3px rgba(0, 0, 0, .5);
-  --pb-shadow-danger: 0 1px 2px rgba(0, 0, 0, .25), 0 4px 12px rgba(0, 0, 0, .5);
-  --pb-shadow-danger-hover: 0 1px 2px rgba(0, 0, 0, .25), 0 8px 20px rgba(0, 0, 0, .6);
+  --pb-shadow-pressed: inset 0 2.1px 3.75px rgba(0, 0, 0, .5);
+  --pb-shadow-danger: 0 .5px 1px rgba(0, 0, 0, .35), 0 2.1px 3.75px rgba(0, 0, 0, .5);
+  --pb-shadow-danger-hover: 0 .5px 1px rgba(0, 0, 0, .35), 0 5.6px 10px rgba(0, 0, 0, .55);
 }
 
 /* ===================================================================== */
@@ -210,37 +214,73 @@ form[data-promptbox] button:not([data-promptbox-submit-action]):focus-visible {
 /* "Approve for me" (footer permission menu): a small raised chip. */
 [data-follow-up-composer-footer] button[aria-haspopup=menu] { padding-inline: 8px; }
 
-/* ---- Composer send/stop split: one raised unit. The wrapper carries the
-   single outer shadow; halves share the gradient, inner corners square,
-   a 1px divider between them. */
-div:has(> [data-promptbox-submit-action]):has(> button + button) {
-  border-radius: 8px;
-  box-shadow: var(--pb-shadow-1);
-  &:has(> .bg-foreground) { box-shadow: var(--pb-shadow-primary); }
-  & > button {
-    --_shadow: var(--pb-shadow-none, 0 0 #0000);
-    --_shadow-hover: 0 0 #0000;
-    height: 32px;
-    border: 0;
-    border-radius: 0;
-    box-shadow: var(--pb-highlight);
-    transform: none;
-    color: var(--foreground);
-    background: var(--pb-gradient-raised);
-  }
-  & > button:first-child { border-radius: 8px 0 0 8px; }
-  & > button:last-child {
-    border-radius: 0 8px 8px 0;
-    padding-inline: 6px;
-    border-left: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
-  }
-  &:has(> .bg-foreground) > button {
-    color: var(--primary-foreground);
-    background: var(--pb-gradient-primary);
-    box-shadow: var(--pb-highlight-on-color);
-  }
-  &:has(> .bg-foreground) > button:last-child { border-left-color: color-mix(in srgb, var(--primary-foreground) 20%, transparent); }
-  & > button:not(:disabled):active { transform: none; box-shadow: var(--pb-shadow-pressed); }
+/* ---- Composer submit (send, send edit, stop): always the same 32px rounded square.
+   bb renders it in three wrappers: div > span > button (new thread), button +
+   "Send options" chevron (follow-up), and div.flex > button (edit, stop). bb
+   paints fills and the disabled 50% opacity on those wrappers, so every wrapper
+   is neutralised and the button itself carries the look. Empty composer: a faint
+   sunken square. The options chevron becomes a small ghost button beside it. */
+form[data-promptbox] :is(div, span):has(> [data-promptbox-submit-action]),
+form[data-promptbox] div:has(> span > [data-promptbox-submit-action]) {
+  margin-left: 0; /* bb's ml-1 on the send group; mic-to-send spacing comes from the parent gap */
+  gap: 0; /* zero-width siblings would still get a gap; the chevron carries its own margin */
+  background: transparent;
+  opacity: 1;
+  border-radius: 0;
+  box-shadow: none;
+}
+form[data-promptbox] [data-promptbox-submit-action] {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 10px; /* rounded square */
+  color: var(--primary-foreground);
+  background: var(--pb-gradient-primary);
+  box-shadow: var(--pb-highlight-on-color), var(--pb-shadow-primary);
+  transition: box-shadow var(--pb-dur-fast) var(--pb-ease-press), transform var(--pb-dur-fast) var(--pb-ease-press);
+  & svg { width: 16px; height: 16px; }
+  &:not(:disabled):hover { box-shadow: var(--pb-highlight-on-color), var(--pb-shadow-primary-hover); }
+  &:not(:disabled):active { transform: translateY(1px); box-shadow: var(--pb-shadow-pressed); }
+  /* bb forces the disabled background and text colour, so paint the well as an
+     image and colour the glyph directly. */
+  &:disabled { opacity: 1; background: linear-gradient(var(--pb-sunken), var(--pb-sunken)); box-shadow: var(--pb-shadow-inset); }
+  &:disabled svg { background: var(--subtle-foreground); }
+  @media (max-width: 767px) and (pointer: coarse) { width: 40px; height: 40px; & svg { width: 18px; height: 18px; } }
+}
+form[data-promptbox] div:has(> [data-promptbox-submit-action]) > button:not([data-promptbox-submit-action]) {
+  /* Sits left of the circle so send always lands where stop does, at the far right. */
+  order: -1;
+  margin-right: 2px;
+  width: 20px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  color: var(--muted-foreground);
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+  & svg { width: 14px; height: 14px; }
+  &:hover { color: var(--foreground); background: var(--state-hover); box-shadow: none; }
+  /* bb disables and aria-hides it while the composer is empty but keeps its 20px; drop it
+     from the layout then so the mic sits next to send. */
+  &:is(:disabled, [aria-hidden=true]) { display: none; }
+}
+/* bb keeps the options arrow invisible (opacity 0) until the send group is hovered,
+   but it still takes 20px. Collapse it to nothing and slide it open on hover/focus. */
+form[data-promptbox] div[data-promptbox-send-menu] > button:not([data-promptbox-submit-action]) {
+  width: 0;
+  margin-right: 0;
+  overflow: hidden;
+  transition: width var(--pb-dur-fast) var(--pb-ease-press), margin var(--pb-dur-fast) var(--pb-ease-press), opacity var(--pb-dur-fast);
+}
+form[data-promptbox] div[data-promptbox-send-menu]:is(:hover, :focus-within) > button:not([data-promptbox-submit-action]),
+form[data-promptbox] div[data-promptbox-send-menu] > button[data-state=open]:not([data-promptbox-submit-action]) {
+  width: 20px;
+  margin-right: 2px;
 }
 
 /* Every other split button (header "Open in VS Code" + picker, Skills "New bb skill" + menu,
@@ -320,7 +360,7 @@ textarea.border-input {
 [data-app-composer] .bg-surface-raised-solid,
 form[data-promptbox] {
   background: var(--pb-raised);
-  border-color: transparent;
+  border-width: 0; /* depth comes from the shadow; a transparent border only shifts the contents 1px */
   border-radius: 18px;
   box-shadow: var(--pb-highlight), var(--pb-shadow-1);
   transition: box-shadow var(--pb-dur-base) var(--pb-ease-press);
@@ -408,6 +448,8 @@ form[data-promptbox]:focus-within { box-shadow: var(--pb-highlight), var(--pb-ed
   border-radius: 18px;
   box-shadow: var(--pb-highlight), var(--pb-shadow-3);
 }
+/* Modal level (40px): dialogs sit higher than menus and popovers. */
+:is([data-radix-dialog-content], [data-bb-portaled-overlay][role=dialog], [role=dialog][data-state=open]:is(.fixed, .bg-background):not(.inset-y-0)) { box-shadow: var(--pb-highlight), var(--pb-shadow-4); }
 /* Even 6px padding so rows sit at 18 - 6 = 12px radius. */
 :is([data-radix-menu-content], [role=menu][data-bb-portaled-overlay]) { padding: 6px; }
 :is([data-radix-menu-content], [data-radix-popper-content-wrapper], [data-bb-portaled-overlay], [cmdk-root], [role=dialog])
@@ -634,8 +676,10 @@ span.rounded-sm.border[class*="bg-muted"] {
   & span.pointer-events-none.absolute.w-px.bg-border-hairline { z-index: 0; }
 }
 
-/* ---- Two-tone icons: closed shapes of bb's Hugeicons get a soft fill. -- */
-svg[data-icon-root]:not([data-icon=Loading]) :is(path[d$="Z"], path[d$="z"], circle, rect, ellipse):not([fill]) {
+/* ---- Two-tone icons: only at 20px and up (size-5+). At control sizes the
+   fill muddies into the stroke, so small icons stay plain line, like duotone
+   sets recommend. Closed shapes get the soft fill. ------------------------- */
+svg[data-icon-root]:is(.size-5, .size-6, .size-7, .size-8, .size-10, .size-12):not([data-icon=Loading]) :is(path[d$="Z"], path[d$="z"], circle, rect, ellipse):not([fill]) {
   fill: currentColor;
   fill-opacity: .25;
 }
@@ -671,11 +715,49 @@ html [data-provider-logo^="/api/v1/system/providers/codex/logo"] { background-co
 html [data-provider-icon-tint="codex"] { color: var(--foreground) !important; }
 html body .usage-page { --usage-codex: var(--foreground) !important; }
 
-/* ---- Send icon: an up arrow (Hugeicons ArrowUp02) instead of bb's return
+/* ---- Send icon: a paper plane (Hugeicons Sent, plain line at this size) instead of bb's return
    glyph (CornerDownLeft). Drawn as a mask so it takes the button's color;
    queue/steer variants keep their own icons. */
 [data-promptbox-submit-action] svg[data-icon="CornerDownLeft"] {
+  translate: -1px 1px; /* optical centre: the plane's mass sits up and right */
   background: currentColor;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5.5V19'/%3E%3Cpath d='M18 11C18 11 13.5811 5 12 5C10.4188 5 6 11 6 11'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.0477 3.05293C18.8697 0.707363 2.48648 6.4532 2.50001 8.551C2.51535 10.9299 8.89809 11.6617 10.6672 12.1581C11.7311 12.4565 12.016 12.7625 12.2613 13.8781C13.3723 18.9305 13.9301 21.4435 15.2014 21.4996C17.2278 21.5892 23.1733 5.342 21.0477 3.05293Z'/%3E%3Cpath d='M11.4999 12.5L14.9999 9'/%3E%3C/svg%3E") center / contain no-repeat;
   & > * { display: none; }
+}
+}
+
+/* ---- Hover motion everywhere: bb's buttons and rows carry Tailwind's
+   hover:duration-0, so tints (Cancel, ghost and icon buttons, menu rows) snap
+   on instantly. Give hover the same short ease as everything else. */
+.bb-app-shell :is(button, a, [role=button], [role=menuitem], [role=option], [role=tab])[class*="hover:duration-0"]:hover {
+  transition-duration: var(--pb-dur-fast);
+  transition-timing-function: var(--pb-ease-press);
+}
+.bb-app-shell :is(button, a, [role=button], [role=menuitem], [role=option], [role=tab]):not([class*="transition"]) {
+  transition: background-color var(--pb-dur-fast) var(--pb-ease-press), color var(--pb-dur-fast) var(--pb-ease-press), box-shadow var(--pb-dur-fast) var(--pb-ease-press), transform var(--pb-dur-fast) var(--pb-ease-press);
+}
+@media (prefers-reduced-motion: reduce) {
+  .bb-app-shell :is(button, a, [role=button], [role=menuitem], [role=option], [role=tab]) { transition: none !important; }
+}
+
+/* ---- Joined button groups: when bb sets two or more buttons flush in one container (no gap
+   utility, nothing else inside), e.g. "Open in VS Code" + its app picker, render them as one
+   segmented control: one raised body and shadow, outer corners rounded, inner corners square,
+   a 1px divider between parts. Buttons wrapped in a lone <span> (tooltip triggers) count too. */
+.bb-app-shell :is(div, span).inline-flex:not(.group\/tab-pill):not([class*="gap-"]):has(> :is(button, span) + :is(button, span)):not(:has(> :not(button, span), > span > :not(button), [data-promptbox-submit-action])) {
+  border-radius: 8px;
+  background: var(--pb-gradient-raised);
+  box-shadow: var(--pb-highlight), var(--pb-shadow-1);
+  & > button, & > span > button {
+    border-color: transparent;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+  }
+  & > :first-child:is(button), & > span:first-child > button { border-radius: 8px 0 0 8px; }
+  & > :last-child:is(button), & > span:last-child > button { border-radius: 0 8px 8px 0; }
+  & > button:not(:first-child), & > span:not(:first-child) > button { border-left: 1px solid var(--pb-line); }
+  & > button:hover, & > span > button:hover { background: var(--state-hover); box-shadow: none; }
+  & > button:active, & > span > button:active, & > button[data-state=open], & > span > button[data-state=open] { background: var(--state-active); box-shadow: var(--pb-shadow-pressed); }
 }
