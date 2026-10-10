@@ -761,3 +761,25 @@ html body .usage-page { --usage-codex: var(--foreground) !important; }
   & > button:hover, & > span > button:hover { background: var(--state-hover); box-shadow: none; }
   & > button:active, & > span > button:active, & > button[data-state=open], & > span > button[data-state=open] { background: var(--state-active); box-shadow: var(--pb-shadow-pressed); }
 }
+
+/* Sidebar provider marks: 14px inside the existing 16px alignment slot. */
+[data-sidebar-thread-provider] > span {
+  translate: 0 1px;
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  min-height: 14px;
+}
+
+/* Give the model chip’s leading icon a little more room. */
+form[data-promptbox] button[aria-label^="Provider, model and reasoning"] {
+  padding-inline-start: 8px;
+}
+
+/* Match the sidebar provider marks in the model picker. */
+button[aria-label^="Provider, model and reasoning"] span[title] > :first-child:is([aria-hidden], [data-provider-logo], [data-icon="Zap"]) {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px;
+  min-height: 14px;
+}

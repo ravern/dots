@@ -15,6 +15,18 @@ if [ ! -d /Applications/Looq.app ]; then
   rmdir "$looq_stage_dir"
 fi
 
+if [ ! -d /Applications/Pen.app ]; then
+  pen_stage_dir=$(mktemp -d /tmp/pen-install.XXXXXX)
+  pen_arch=$(uname -m)
+  [ "$pen_arch" = x86_64 ] && pen_arch=x64
+  curl -fL "https://www.pen.dev/download/Pen-mac-$pen_arch.dmg" -o "$pen_stage_dir/Pen.dmg"
+  hdiutil attach "$pen_stage_dir/Pen.dmg" -nobrowse -readonly -mountpoint "$pen_stage_dir/mount"
+  ditto "$pen_stage_dir/mount/Pen.app" /Applications/Pen.app
+  hdiutil detach "$pen_stage_dir/mount"
+  rm -f "$pen_stage_dir/Pen.dmg"
+  rmdir "$pen_stage_dir"
+fi
+
 # Link mise config before installing managed tools
 mkdir -p $HOME/.config
 if [ ! -e $HOME/.config/mise ]; then
