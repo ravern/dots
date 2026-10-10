@@ -64,6 +64,7 @@ mkdir -p $HOME/.config/emacs
 mkdir -p $HOME/.cargo
 mkdir -p $HOME/.claude
 mkdir -p $HOME/.cursor
+mkdir -p $HOME/.pi/agent
 mkdir -p $HOME/.local/bin
 if [ ! -f $HOME/Repos/ravern/dots/config/env.zsh ]; then
   cp $HOME/Repos/ravern/dots/config/env.zsh.example $HOME/Repos/ravern/dots/config/env.zsh
@@ -82,6 +83,7 @@ ln -s $HOME/Repos/ravern/dots/config/jj                   $HOME/Library/Applicat
 ln -s $HOME/Repos/ravern/dots/config/claude/settings.json $HOME/.claude/settings.json
 ln -s $HOME/Repos/ravern/dots/config/claude/CLAUDE.md     $HOME/.claude/CLAUDE.md
 ln -s $HOME/Repos/ravern/dots/config/cursor/permissions.json $HOME/.cursor/permissions.json
+ln -s $HOME/Repos/ravern/dots/config/pi/models.json         $HOME/.pi/agent/models.json
 ln -s $HOME/Repos/ravern/dots/config/bin/sish             $HOME/.local/bin/sish
 if [ ! -e $HOME/.local/bin/bb ] && [ -x /Applications/bb.app/Contents/Resources/app.asar.unpacked/node_modules/bb-app/host-daemon/dist/bb ]; then
   ln -s /Applications/bb.app/Contents/Resources/app.asar.unpacked/node_modules/bb-app/host-daemon/dist/bb $HOME/.local/bin/bb

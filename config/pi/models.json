@@ -1,0 +1,38 @@
+{
+  "providers": {
+    "bonsai-remote": {
+      "baseUrl": "https://raverns-mac-mini.tabby-ionian.ts.net/v1",
+      "api": "openai-completions",
+      "apiKey": "local",
+      "models": [{
+        "id": "bonsai2-fast",
+        "name": "Bonsai 2 27B",
+        "input": ["text", "image"],
+        "contextWindow": 32768,
+        "maxTokens": 8192,
+        "reasoning": true,
+        "thinkingLevelMap": {
+          "minimal": null,
+          "low": null,
+          "medium": "medium",
+          "high": null,
+          "xhigh": "xhigh",
+          "max": null
+        },
+        "compat": {
+          "supportsDeveloperRole": false,
+          "supportsReasoningEffort": false,
+          "thinkingFormat": "chat-template",
+          "chatTemplateKwargs": {
+            "enable_thinking": {"$var": "thinking.enabled"},
+            "reasoning_effort": {
+              "$var": "thinking.effort",
+              "omitWhenOff": true
+            },
+            "preserve_thinking": true
+          }
+        }
+      }]
+    }
+  }
+}
