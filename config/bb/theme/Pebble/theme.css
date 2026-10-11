@@ -764,7 +764,6 @@ html body .usage-page { --usage-codex: var(--foreground) !important; }
 
 /* Sidebar provider marks: 14px inside the existing 16px alignment slot. */
 [data-sidebar-thread-provider] > span {
-  translate: 0 1px;
   width: 14px;
   height: 14px;
   min-width: 14px;
