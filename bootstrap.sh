@@ -100,14 +100,19 @@ done
 if [ ! -e $HOME/.cursor/skills ]; then
   ln -s $HOME/Repos/ravern/dots/config/skills $HOME/.cursor/skills
 fi
-
-# bb config: lists Grok 4.7 (a Cursor "More models" entry) in the main picker
-mkdir -p $HOME/.bb
-ln -s $HOME/Repos/ravern/dots/config/bb/theme $HOME/.bb/theme
+ln -s $HOME/Repos/ravern/dots/config/pi/models.json         $HOME/.pi/agent/models.json
+if [ ! -e $HOME/.local/bin/bb ] && [ -x /Applications/bb.app/Contents/Resources/app.asar.unpacked/node_modules/bb-app/host-daemon/dist/bb ]; then
+  ln -s /Applications/bb.app/Contents/Resources/app.asar.unpacked/node_modules/bb-app/host-daemon/dist/bb $HOME/.local/bin/bb
+fi
 
 # bb themes: link the whole folder (bb's theme list skips symlinked theme dirs)
 mkdir -p $HOME/.bb
 ln -s $HOME/Repos/ravern/dots/config/bb/theme $HOME/.bb/theme
+
+# Link bb's bundled CLI
+if [ ! -e "$HOME/.local/bin/bb" ]; then
+  ln -s /Applications/bb.app/Contents/Resources/app.asar.unpacked/node_modules/bb-app/dist/bb.js "$HOME/.local/bin/bb"
+fi
 
 # Install bb plugins and settings (needs bb running)
 sh $HOME/Repos/ravern/dots/config/bb/setup.sh

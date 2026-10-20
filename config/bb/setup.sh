@@ -11,16 +11,19 @@ if ! bb status >/dev/null 2>&1; then
 fi
 
 # Local plugins
-for p in customize-model-names provider-devin-cloud; do
+for p in customize-model-names provider-devin-cloud provider-plugin-manager; do
   (cd $DIR/plugins/$p && npm ci --silent && bb plugin build)
   bb plugin install path:$DIR/plugins/$p --yes
 done
 
 
 # Disabled plugins
-for p in account-pool agent-annotations monaco-editor plugin-api-docs plugin-api-tester provider-pi workflows; do
+for p in account-pool agent-annotations monaco-editor plugin-api-docs plugin-api-tester workflows; do
   bb plugin disable $p
 done
 
 # Plugin settings
-bb plugin config customize-model-names set visibleModels '{"codex":["GPT-6*"]}'
+bb plugin config customize-model-names set visibleModels '{"claude-code":["Opus 5.5","Fable 5.1"],"codex":["GPT-6*"],"acp-cursor":["Grok 4.7"],"devin-cloud":["SWE-2*","Fusion"]}'
+bb plugin config provider-claude-code set memoryEnabled false
+bb plugin config provider-claude-code set subagentsDisabled true
+bb plugin config provider-claude-code set workflowsDisabled true
