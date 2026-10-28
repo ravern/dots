@@ -5,6 +5,8 @@
 /opt/homebrew/bin/brew bundle
 
 # Install apps that are not available through Homebrew
+# Muse: install from https://ai.meta.com/muse/download/ (Homebrew cask is disabled
+# because Meta's download URLs expire). Open the DMG and copy Muse to /Applications.
 if [ ! -d /Applications/Looq.app ]; then
   looq_stage_dir=$(mktemp -d /tmp/looq-install.XXXXXX)
   curl -fL https://releases.parcse.com/looq/Looq-latest.dmg -o "$looq_stage_dir/Looq.dmg"
